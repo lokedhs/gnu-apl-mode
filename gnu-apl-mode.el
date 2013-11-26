@@ -8,6 +8,7 @@
   :type 'string
   :group 'gnu-apl)
 
+;;; Keymap based on the image available at: http://www.sudleyplace.com/APL/Keyboard.ahtml
 (defvar gnu-apl--symbols '(;; Top row
                            ("diamond" "⋄" "`")
                            ("commabar" "⍪" "S-`")
