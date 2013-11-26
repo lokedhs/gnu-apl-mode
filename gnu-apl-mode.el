@@ -83,6 +83,8 @@
 (defvar gnu-apl-mode-map
   (gnu-apl--make-mode-map "s-"))
 
+(load "gnu-apl-input")
+
 (define-derived-mode gnu-apl-mode comint-mode "GNU APL"
   "Major mode for interacting with GNU APL."
   (use-local-map gnu-apl-mode-map)
