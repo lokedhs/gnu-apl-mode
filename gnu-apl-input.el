@@ -27,6 +27,6 @@
              `(quail-define-rules
                ,@(loop for command in gnu-apl--symbols
                        when (third command)
-                       collect (list (second command)
-                                     (concat "." (gnu-apl--parse-kbd (third command))))))))
+                       collect (list (concat "." (gnu-apl--parse-kbd (third command)))
+                                     (second command))))))
   (make-quail-define-rules))
