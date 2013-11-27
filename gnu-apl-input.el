@@ -17,19 +17,11 @@
 
 (quail-select-package "APL-Z")
 
-(defun gnu-apl--parse-kbd (name)
-  (cond ((= (length name) 1)
-         name)
-        ((and (= (length name) 3) (string= (subseq name 0 2) "S-"))
-         (upcase (string (aref name 2))))
-        (t
-         (error "Unexpected key definition"))))
-
 (macrolet ((make-quail-define-rules ()
              `(quail-define-rules
                ,@(loop for command in gnu-apl--symbols
-                       for key-command = (third command)
+                       for key-command = (fourth command)
                        append (loop for s in (if (listp key-command) key-command (list key-command))
-                                    collect (list (concat "." (gnu-apl--parse-kbd s))
+                                    collect (list (concat "." s)
                                                   (second command)))))))
   (make-quail-define-rules))
