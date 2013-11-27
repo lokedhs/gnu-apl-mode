@@ -15,6 +15,8 @@
                       t                 ; simple
                       )
 
+(quail-select-package "APL-Z")
+
 (defun gnu-apl--parse-kbd (name)
   (cond ((= (length name) 1)
          name)
@@ -26,7 +28,8 @@
 (macrolet ((make-quail-define-rules ()
              `(quail-define-rules
                ,@(loop for command in gnu-apl--symbols
-                       when (third command)
-                       collect (list (concat "." (gnu-apl--parse-kbd (third command)))
-                                     (second command))))))
+                       for key-command = (third command)
+                       append (loop for s in (if (listp key-command) key-command (list key-command))
+                                    collect (list (concat "." (gnu-apl--parse-kbd s))
+                                                  (second command)))))))
   (make-quail-define-rules))
