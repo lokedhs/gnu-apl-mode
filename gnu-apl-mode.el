@@ -8,6 +8,12 @@
   :type 'string
   :group 'gnu-apl)
 
+;;;###autoload
+(defface gnu-apl-default
+  ()
+  "Face used for APL buffers"
+  :group 'gnu-apl)
+
 ;;; ' ( ) + , - . /  :  ; < = >  ? [ ]
 ;;; \ _ ¨ ¯ × ÷ ← ↑ → ↓ ∆ ∇ ∘ ∣ ∧ ∨
 ;;; ∩ ∪ ∼ ≠ ≤ ≥ ≬ ⊂ ⊃ ⌈ ⌊ ⊤ ⊥ ⋆ ⌶ ⌷
@@ -137,7 +143,9 @@
 (define-derived-mode gnu-apl-mode comint-mode "GNU APL"
   "Major mode for interacting with GNU APL."
   (use-local-map gnu-apl-mode-map)
-  (setq comint-prompt-regexp "^      "))
+  (setq comint-prompt-regexp "^      ")
+  (setq buffer-face-mode-face 'gnu-apl-default)
+  (buffer-face-mode))
 
 (defun gnu-apl ()
   (interactive)
