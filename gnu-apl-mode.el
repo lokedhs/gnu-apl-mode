@@ -143,9 +143,7 @@
 (define-derived-mode gnu-apl-mode comint-mode "GNU APL"
   "Major mode for interacting with GNU APL."
   (use-local-map gnu-apl-mode-map)
-  (setq comint-prompt-regexp "^      ")
-  (setq buffer-face-mode-face 'gnu-apl-default)
-  (buffer-face-mode))
+  (setq comint-prompt-regexp "^      "))
 
 (defun gnu-apl ()
   (interactive)
