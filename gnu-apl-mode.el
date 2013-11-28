@@ -1,3 +1,4 @@
+
 ;;; -*- lexical-binding: t -*-
 
 (require 'cl)
@@ -92,8 +93,8 @@
                            ("quad-diamond" "⌺" "S-k" "K")
                            ("quad" "⎕" "l" "l")
                            ("quote-quad" "⍞" "S-l" "L")
-                           ("right-tack" "⊢" ";" ":")
-                           ("left-tack" "⊣" "'" "\"")
+                           ("right-tack" "⊢" ";" ";")
+                           ("left-tack" "⊣" "'" "'")
 
                            ;; Third row
                            ("subset-of" "⊂" "z" "z")
@@ -108,7 +109,7 @@
                            ("i-beam" "⌶" "S-m" "M")
                            ("squish-quad" "⌷" "," ",")
                            ("comma-bar" "⍪" "S-," "<")
-                           ("slash-bar" "⌿" "/" "/")
+                           ("slash-bar" "⌿" "S-/" "?")
 
                            ;; Extras
                            ("pi" "π")
