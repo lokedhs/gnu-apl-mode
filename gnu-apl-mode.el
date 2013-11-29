@@ -139,10 +139,21 @@
 (defvar gnu-apl-mode-map
   (gnu-apl--make-mode-map "s-"))
 
+(defvar gnu-apl-mode-syntax-table
+  (let ((table (make-syntax-table)))
+    (loop for s in gnu-apl--symbols
+          do (modify-syntax-entry (aref (second s) 0) "." table))
+    (modify-syntax-entry (aref "⍝" 0) "<" table)
+    (modify-syntax-entry ?\n ">" table)
+    table)
+  "Syntax table for gnu-apl-mode")
+
 (load "gnu-apl-input")
 
 (define-derived-mode gnu-apl-mode comint-mode "GNU APL"
   "Major mode for interacting with GNU APL."
+  :syntax-table gnu-apl-mode-syntax-table
+  :group 'gnu-apl-mode
   (use-local-map gnu-apl-mode-map)
   (setq comint-prompt-regexp "^      "))
 
