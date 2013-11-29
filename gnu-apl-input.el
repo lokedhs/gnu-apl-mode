@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t -*-
+
 (require 'quail)
 
 (quail-define-package "APL-Z" "UTF-8" "⍞" t

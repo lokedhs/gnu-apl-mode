@@ -1,4 +1,3 @@
-
 ;;; -*- lexical-binding: t -*-
 
 (require 'cl)
@@ -155,7 +154,8 @@
   :syntax-table gnu-apl-mode-syntax-table
   :group 'gnu-apl-mode
   (use-local-map gnu-apl-mode-map)
-  (setq comint-prompt-regexp "^      "))
+  (setq comint-prompt-regexp "^      ")
+  (setq comint-process-echoes t))
 
 (defun gnu-apl ()
   (interactive)
@@ -166,5 +166,7 @@
                              nil
                              "--noCIN")
       (gnu-apl-mode))))
+
+(load "gnu-apl-osx-workaround")
 
 (provide 'gnu-apl-mode)
