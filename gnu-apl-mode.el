@@ -147,26 +147,14 @@
     table)
   "Syntax table for gnu-apl-mode")
 
-(load "gnu-apl-input")
-
-(define-derived-mode gnu-apl-mode comint-mode "GNU APL"
-  "Major mode for interacting with GNU APL."
+(define-derived-mode gnu-apl-mode prog-mode "GNU APL"
+  "Major mode for editing GNU APL files."
   :syntax-table gnu-apl-mode-syntax-table
   :group 'gnu-apl-mode
-  (use-local-map gnu-apl-mode-map)
-  (setq comint-prompt-regexp "^      ")
-  (setq comint-process-echoes t))
+  (use-local-map gnu-apl-mode-map))
 
-(defun gnu-apl ()
-  (interactive)
-  (let ((buffer (get-buffer-create "*gnu-apl*")))
-    (pop-to-buffer-same-window buffer)
-    (unless (comint-check-proc buffer)
-      (make-comint-in-buffer "apl" buffer gnu-apl-executable
-                             nil
-                             "--noCIN")
-      (gnu-apl-mode))))
-
+(load "gnu-apl-input")
+(load "interactive-gnu-apl")
 (load "gnu-apl-osx-workaround")
 
 (provide 'gnu-apl-mode)
