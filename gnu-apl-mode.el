@@ -155,9 +155,6 @@
 
 (load "gnu-apl-input")
 (load "interactive-gnu-apl")
-
-(add-to-list 'auto-mode-alist '("\\.apl\\'" . gnu-apl-mode))
-
 (load "gnu-apl-osx-workaround")
 
 (provide 'gnu-apl-mode)
