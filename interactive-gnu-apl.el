@@ -28,7 +28,7 @@ or NIL if there is no active session.")
   :syntax-table gnu-apl-mode-syntax-table
   :group 'gnu-apl
   (use-local-map gnu-apl-interactive-mode-map)
-  (setq comint-prompt-regexp "^      ")
+  (setq comint-prompt-regexp "^\\(      \\)\\|\\(\\[[0-9]+\\] \\)")
   (setq comint-process-echoes t))
 
 (defun gnu-apl ()
@@ -36,6 +36,6 @@ or NIL if there is no active session.")
   (let ((buffer (get-buffer-create "*gnu-apl*")))
     (pop-to-buffer-same-window buffer)
     (unless (comint-check-proc buffer)
-      (make-comint-in-buffer "apl" buffer gnu-apl-executable nil)
+      (make-comint-in-buffer "apl" buffer gnu-apl-executable nil "--noColor")
       (gnu-apl-interactive-mode)
       (setq gnu-apl-current-session buffer))))
