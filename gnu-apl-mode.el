@@ -136,7 +136,9 @@
     map))
 
 (defvar gnu-apl-mode-map
-  (gnu-apl--make-mode-map "s-"))
+  (let ((map (gnu-apl--make-mode-map "s-")))
+    (define-key map (kbd "C-c c") 'gnu-apl-interactive-send-region)
+    map))
 
 (defvar gnu-apl-mode-syntax-table
   (let ((table (make-syntax-table)))
