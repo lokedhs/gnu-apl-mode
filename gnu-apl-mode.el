@@ -150,7 +150,7 @@
 (define-derived-mode gnu-apl-mode prog-mode "GNU APL"
   "Major mode for editing GNU APL files."
   :syntax-table gnu-apl-mode-syntax-table
-  :group 'gnu-apl-mode
+  :group 'gnu-apl
   (use-local-map gnu-apl-mode-map))
 
 (load "gnu-apl-input")

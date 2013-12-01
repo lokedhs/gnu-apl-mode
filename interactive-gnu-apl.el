@@ -1,10 +1,13 @@
 ;;; -*- lexical-binding: t -*-
 
-(define-derived-mode interactive-gnu-apl-mode comint-mode "Interactive GNU APL"
+(defvar gnu-apl-interactive-mode-map
+  (gnu-apl--make-mode-map "s-"))
+
+(define-derived-mode gnu-apl-interactive-mode comint-mode "GNU APL/Comint"
   "Major mode for interacting with GNU APL."
   :syntax-table gnu-apl-mode-syntax-table
-  :group 'gnu-apl-mode
-  (use-local-map gnu-apl-mode-map)
+  :group 'gnu-apl
+  (use-local-map gnu-apl-interactive-mode-map)
   (setq comint-prompt-regexp "^      ")
   (setq comint-process-echoes t))
 
@@ -16,4 +19,4 @@
       (make-comint-in-buffer "apl" buffer gnu-apl-executable
                              nil
                              "--noCIN")
-      (interactive-gnu-apl-mode))))
+      (gnu-apl-interactive-mode))))
