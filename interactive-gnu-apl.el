@@ -28,7 +28,8 @@ or NIL if there is no active session.")
   :syntax-table gnu-apl-mode-syntax-table
   :group 'gnu-apl
   (use-local-map gnu-apl-interactive-mode-map)
-  (setq comint-prompt-regexp "^\\(      \\)\\|\\(\\[[0-9]+\\] \\)")
+  ;;(setq comint-prompt-regexp "^\\(      \\)\\|\\(\\[[0-9]+\\] \\)")
+  (setq comint-prompt-regexp "^\\(      \\)?")
   (setq comint-process-echoes nil))
 
 (defun gnu-apl ()
