@@ -2,3 +2,29 @@ Emacs mode for GNU APL
 
 This is a very early version that just implements the absolute basics
 needed to run GNU APL in an Emacs buffer.
+
+Installing gnu-apl-mode
+=======================
+
+To install, add the following to your init.el:
+
+(add-to-list 'load-path "~/path-to/gnu-apl-mode")
+(require 'gnu-apl-mode)
+
+You can then start the APL interaction using M-x gnu-apl.
+
+Configuring APL font
+====================
+
+Usually, one wants to use a different font for APL buffers. This can
+be done using the following configuration:
+
+(defun em-gnu-apl-init ()
+  (setq buffer-face-mode-face '(:height 130 :family "APL385 Unicode"))
+  (buffer-face-mode))
+
+(add-hook 'gnu-apl-interactive-mode-hook 'em-gnu-apl-init)
+(add-hook 'gnu-apl-mode-hook 'em-gnu-apl-init)
+
+This enables buffer-face-mode with the chosen font when an APL buffer
+is opened.
