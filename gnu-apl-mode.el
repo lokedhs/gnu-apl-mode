@@ -77,7 +77,8 @@
 
                            ;; Second row
                            ("alpha" "⍺" "a" "a")
-                           ("zilde" "⍬" "S-a" "A")
+                           ;("zilde" "⍬" "S-a" "A")
+                           ("circled-minus" "⊖" "S-a" "A")
                            ("left-ceiling" "⌈" "s" "s")
                            ("left-floor" "⌊" "d" "d")
                            ("underscore" "_" "f" "f")
@@ -101,7 +102,7 @@
                            ("intersection" "∩" "c" "c")
                            ("union" "∪" "v" "v")
                            ("up-tack" "⊥" "b" "b")
-                           ("down-tack-jot" "⍎" ("S-b" ".") ("B" "."))
+                           ("down-tack-jot" "⍎" "S-b" "B")
                            ("down-tack" "⊤" "n" "n")
                            ("up-tack-jot" "⍕" ("S-n" "/") ("N" "/"))
                            ("divides" "∣" "m" "m")
@@ -143,7 +144,9 @@
 (defvar gnu-apl-mode-syntax-table
   (let ((table (make-syntax-table)))
     (loop for s in gnu-apl--symbols
-          do (modify-syntax-entry (aref (second s) 0) "." table))
+          for char = (second s)
+          when char
+          do (modify-syntax-entry (aref char 0) "." table))
     (modify-syntax-entry (aref "⍝" 0) "<" table)
     (modify-syntax-entry ?\n ">" table)
     table)
