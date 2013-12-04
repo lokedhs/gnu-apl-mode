@@ -30,7 +30,7 @@ or NIL if there is no active session.")
   (use-local-map gnu-apl-interactive-mode-map)
   ;;(setq comint-prompt-regexp "^\\(      \\)\\|\\(\\[[0-9]+\\] \\)")
   (setq comint-prompt-regexp "^\\(      \\)?")
-  (setq comint-process-echoes nil))
+  (setq comint-process-echoes t))
 
 (defun gnu-apl ()
   (interactive)
