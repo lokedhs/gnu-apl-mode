@@ -43,7 +43,7 @@
      "Encode" "Base-A representation of the value of B")
     ("∣"
      "Absolute value" "Magnitude of B"
-     "Modulo operation" "B modulo A")
+     "Modulo" "B modulo A")
     (","
      "Ravel" "Reshapes B into a vector"
      "Catenation" "Elements of B appended to the elements of A")
@@ -67,11 +67,11 @@
      "Logarithm" "Natural logarithm of B"
      "Logarithm" "Logarithm of B to base A")
     ("⍕"
-     "Monadic format" "A character representation of B"
-     "Dyadic format" "Format B into a character matrix according to A")
+     "Format" "A character representation of B"
+     "Format" "Format B into a character matrix according to A")
     ("⍉"
-     "Monadic transpose" "Reverse the axes of B"
-     "General transpose" "The axes of B are ordered by A")
+     "Transpose" "Reverse the axes of B"
+     "Transpose" "The axes of B are ordered by A")
     ("!"
      "Factorial" "Product of integers 1 to B"
      "Combinations" "Number of combinations of B taken A at a time")
@@ -80,7 +80,7 @@
     ("≤" nil nil
      "Less than or equal" "Comparison: 1 if true, 0 if false")
     ("=" nil nil
-     "Equality (mathematics)" "Comparison: 1 if true, 0 if false")
+     "Equality" "Comparison: 1 if true, 0 if false")
     ("≥" nil nil
      "Greater than or equal" "Comparison: 1 if true, 0 if false")
     (">" nil nil
