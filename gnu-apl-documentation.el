@@ -8,7 +8,7 @@
      "Negation" "Changes sign of B"
      "Subtraction" "A minus B")
     ("×"
-     "Signum" "¨1 if B<0; 0 if B=0; 1 if B>0"
+     "Signum" "¯1 if B<0; 0 if B=0; 1 if B>0"
      "Multiply" "A multiplied by B")
     ("÷"
      "Reciprocal" "1 divided by B"
