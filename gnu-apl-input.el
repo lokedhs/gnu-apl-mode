@@ -20,10 +20,12 @@
 (quail-select-package "APL-Z")
 
 (macrolet ((make-quail-define-rules ()
-             `(quail-define-rules
-               ,@(loop for command in gnu-apl--symbols
-                       for key-command = (fourth command)
-                       append (loop for s in (if (listp key-command) key-command (list key-command))
-                                    collect (list (concat "." s)
-                                                  (second command)))))))
+             (let ((prefix "."))
+               `(quail-define-rules
+                 ,@(loop for command in gnu-apl--symbols
+                         for key-command = (fourth command)
+                         append (loop for s in (if (listp key-command) key-command (list key-command))
+                                      collect (list (concat prefix s)
+                                                    (second command))))
+                 (,(concat prefix prefix) ,prefix)))))
   (make-quail-define-rules))
