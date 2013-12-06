@@ -8,10 +8,7 @@ or NIL if there is no active session.")
   (gnu-apl--make-mode-map "s-"))
 
 (defun gnu-apl-interactive-send-string (string)
-  (let ((proc-status (comint-check-proc gnu-apl-current-session)))
-    (unless (eq (car proc-status) 'run)
-      (error "No active GNU APL session")))
-  (let ((p (get-buffer-process gnu-apl-current-session))
+  (let ((p (get-buffer-process (gnu-apl--get-interactive-session)))
         (string-with-ret (if (= (aref string (1- (length string))) ?\n)
                              string
                            (concat string "\n"))))
@@ -22,6 +19,20 @@ or NIL if there is no active session.")
   (interactive "r")
   (gnu-apl-interactive-send-string (buffer-substring start end))
   (message "Region sent to APL"))
+
+(defun gnu-apl--get-interactive-session ()
+  (unless gnu-apl-current-session
+    (user-error "No active GNU APL session"))
+  (let ((proc-status (comint-check-proc gnu-apl-current-session)))
+    (unless (eq (car proc-status) 'run)
+      (user-error "GNU APL session has exited"))
+    gnu-apl-current-session))
+
+(defun gnu-apl--send-and-get-result (string)
+  (with-current-buffer (gnu-apl--get-interactive-session)
+    (let ((max (point-max)))
+      (gnu-apl-interactive-send-string string)
+      (comint-))))
 
 (define-derived-mode gnu-apl-interactive-mode comint-mode "GNU APL/Comint"
   "Major mode for interacting with GNU APL."
