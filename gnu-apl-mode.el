@@ -2,6 +2,8 @@
 
 (require 'cl)
 
+(load "gnu-apl-util")
+
 ;;;###autoload
 (defcustom gnu-apl-executable "apl"
   "Where the GNU APL implementaion is located."
