@@ -149,11 +149,11 @@ or NIL if there is no active session.")
                                 (point-max)))
              (buffer-content (buffer-substring (point-min) end-of-function))
              (content (if (eql (aref buffer-content (1- (length buffer-content))) ?\n)
-                          (concat buffer-content "\n")
-                        buffer-content)))
+                          buffer-content
+                        (concat buffer-content "\n"))))
 
         (gnu-apl-interactive-send-string (concat ")ERASE " (caddr function-arguments)))
-        (gnu-apl-interactive-send-string (concat content "\n∇\n"))
+        (gnu-apl-interactive-send-string (concat content "∇\n"))
         (kill-buffer (current-buffer))))))
 
 (defun gnu-apl--send (proc string)
