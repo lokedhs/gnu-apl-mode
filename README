@@ -1,8 +1,5 @@
 Emacs mode for GNU APL
 
-This is a very early version that just implements the absolute basics
-needed to run GNU APL in an Emacs buffer.
-
 Installing gnu-apl-mode
 =======================
 
