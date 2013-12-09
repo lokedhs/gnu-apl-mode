@@ -52,9 +52,7 @@ or NIL if there is no active session.")
                                (let ((s gnu-apl-current-function-text))
                                  (setq gnu-apl-current-function-text nil)
                                  (setq gnu-apl-reading-function nil)
-                                        ;(gnu-apl-open-external-function-buffer s)
-                                 (run-at-time "0 sec" nil #'(lambda () (gnu-apl-open-external-function-buffer s)))
-                                 ))
+                                 (gnu-apl--open-function-editor-with-timer s)))
                            (setq gnu-apl-current-function-text
                                  (append gnu-apl-current-function-text (list plain)))))
                         ((and (not gnu-apl-reading-function)
@@ -84,7 +82,8 @@ or NIL if there is no active session.")
   ;(setq comint-process-echoes t)
   (set (make-local-variable 'gnu-apl-current-function-text) nil)
   (set (make-local-variable 'gnu-apl-reading-function) nil)
-  (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t))
+  (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
+  (set (make-local-variable 'comint-input-sender) 'gnu-apl--send))
 
 (defun gnu-apl ()
   (interactive)
@@ -95,6 +94,9 @@ or NIL if there is no active session.")
                              "--noCIN" "--noColor")
       (gnu-apl-interactive-mode)
       (setq gnu-apl-current-session buffer))))
+
+(defun gnu-apl--open-function-editor-with-timer (lines)
+  (run-at-time "0 sec" nil #'(lambda () (gnu-apl-open-external-function-buffer lines))))
 
 (defun gnu-apl-open-external-function-buffer (lines)
   (llog "opening external, lines=%d" (length lines))
@@ -112,10 +114,11 @@ or NIL if there is no active session.")
 
 (defun gnu-apl--parse-function-header (string)
   (let ((line-fix (gnu-apl--trim "[ \t]" string)))
-    (when (string= (char-to-string (aref line-fix 0)) "∇")
+    (when (and (> (length line-fix) 0)
+               (string= (char-to-string (aref line-fix 0)) "∇"))
       (let ((line (subseq line-fix 1)))
-        (when (string-match (concat "^ *\\(?:\\([a-z]+\\) *← *\\)?" ; result variable
-                                    "\\([a-z ]+\\)" ; function and arguments
+        (when (string-match (concat "^ *\\(?:\\([a-z0-9∆]+\\) *← *\\)?" ; result variable
+                                    "\\([a-za-z0-9∆ ]+\\)" ; function and arguments
                                     "\\(;.*\\)?$" ; local variables
                                     )
                             line)
@@ -153,3 +156,9 @@ or NIL if there is no active session.")
         (gnu-apl-interactive-send-string (concat ")ERASE " (caddr function-arguments)))
         (gnu-apl-interactive-send-string (concat content "\n∇\n"))
         (kill-buffer (current-buffer))))))
+
+(defun gnu-apl--send (proc string)
+  (let ((parsed (gnu-apl--parse-function-header string)))
+    (if parsed
+        (gnu-apl--get-function (caddr parsed))
+      (comint-simple-send proc string))))
