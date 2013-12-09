@@ -99,7 +99,6 @@ or NIL if there is no active session.")
   (run-at-time "0 sec" nil #'(lambda () (gnu-apl-open-external-function-buffer lines))))
 
 (defun gnu-apl-open-external-function-buffer (lines)
-  (llog "opening external, lines=%d" (length lines))
   (let ((buffer (get-buffer-create "*gnu-apl edit function*")))
     (pop-to-buffer buffer)
     (delete-region (point-min) (point-max))
