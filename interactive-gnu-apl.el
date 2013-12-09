@@ -25,11 +25,14 @@ or NIL if there is no active session.")
       (user-error "GNU APL session has exited"))
     gnu-apl-current-session))
 
-(defvar *gnu-apl-function-text-start* "START")
-(defvar *gnu-apl-function-text-end* "END")
+(defvar *gnu-apl-function-text-start* "FUNCTION-CONTENT-START")
+(defvar *gnu-apl-function-text-end* "FUNCTION-CONTENT-END")
+(defvar *gnu-apl-ignore-start* "IGNORE-START")
+(defvar *gnu-apl-ignore-end* "IGNORE-END")
 
 (defun gnu-apl-edit-function (name)
   (interactive "MFunction name: ")
+  (setq gnu-apl-current-function-title name)
   (gnu-apl--get-function name))
 
 (defun gnu-apl--get-function (function)
@@ -49,19 +52,33 @@ or NIL if there is no active session.")
                          (if (string= plain *gnu-apl-function-text-end*)
                              (progn
                                (setq gnu-apl-reading-function nil)
-                               (let ((s gnu-apl-current-function-text))
+                               (let ((s (cond (gnu-apl-current-function-text
+                                               gnu-apl-current-function-text)
+                                              (gnu-apl-current-function-title
+                                               (list gnu-apl-current-function-title))
+                                              (t
+                                               nil))))
                                  (setq gnu-apl-current-function-text nil)
                                  (setq gnu-apl-reading-function nil)
+                                 (setq gnu-apl-current-function-title nil)
                                  (gnu-apl--open-function-editor-with-timer s)))
                            (setq gnu-apl-current-function-text
                                  (append gnu-apl-current-function-text (list plain)))))
+
                         ((and (not gnu-apl-reading-function)
                               (>= (length plain) (length *gnu-apl-function-text-start*))
                               (string= (subseq plain (- (length plain) (length *gnu-apl-function-text-start*)))
                                        *gnu-apl-function-text-start*))
                          (setq gnu-apl-reading-function t)
                          (setq gnu-apl-current-function-text nil))
-                        (t
+
+                        ((string= plain *gnu-apl-ignore-start*)
+                         (setq gnu-apl-dont-display t))
+
+                        ((string-match (concat "^ *" *gnu-apl-ignore-end*) plain)
+                         (setq gnu-apl-dont-display nil))
+
+                        ((not gnu-apl-dont-display)
                          (if first
                              (setq first nil)
                            (princ "\n"))
@@ -82,8 +99,10 @@ or NIL if there is no active session.")
   ;(setq comint-process-echoes t)
   (set (make-local-variable 'gnu-apl-current-function-text) nil)
   (set (make-local-variable 'gnu-apl-reading-function) nil)
-  (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
-  (set (make-local-variable 'comint-input-sender) 'gnu-apl--send))
+  (set (make-local-variable 'gnu-apl-current-function-title) nil)
+  (set (make-local-variable 'gnu-apl-dont-display) nil)
+  (set (make-local-variable 'comint-input-sender) 'gnu-apl--send)
+  (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t))
 
 (defun gnu-apl ()
   (interactive)
@@ -105,7 +124,7 @@ or NIL if there is no active session.")
     (delete-region (point-min) (point-max))
     (insert "∇")
     (dolist (line lines)
-      (insert line)
+      (insert (gnu-apl--trim " " line nil t))
       (insert "\n"))
     (goto-char (point-min))
     (forward-line 1)
@@ -154,7 +173,9 @@ or NIL if there is no active session.")
                           buffer-content
                         (concat buffer-content "\n"))))
 
+        (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-start* "'\n"))
         (gnu-apl-interactive-send-string (concat ")ERASE " (caddr function-arguments)))
+        (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-end* "'\n"))
         (gnu-apl-interactive-send-string (concat content "∇\n"))
         (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
                                         gnu-apl-window-configuration
@@ -164,7 +185,14 @@ or NIL if there is no active session.")
             (set-window-configuration window-configuration)))))))
 
 (defun gnu-apl--send (proc string)
-  (let ((parsed (gnu-apl--parse-function-header string)))
+  (let* ((trimmed (gnu-apl--trim " " string))
+         (parsed (gnu-apl--parse-function-header trimmed)))
     (if parsed
-        (gnu-apl--get-function (caddr parsed))
+        (progn
+          ;; At this point there should be a function definition symbol
+          ;; at the beginning of the string. Let's confirm this:
+          (unless (string= (subseq trimmed 0 1) "∇")
+            (error "Unexpected format in function definition command"))
+          (setq gnu-apl-current-function-title (gnu-apl--trim " " (subseq string 1)))
+          (gnu-apl--get-function (caddr parsed)))
       (comint-simple-send proc string))))
