@@ -99,7 +99,8 @@ or NIL if there is no active session.")
   (run-at-time "0 sec" nil #'(lambda () (gnu-apl-open-external-function-buffer lines))))
 
 (defun gnu-apl-open-external-function-buffer (lines)
-  (let ((buffer (get-buffer-create "*gnu-apl edit function*")))
+  (let ((window-configuration (current-window-configuration))
+        (buffer (get-buffer-create "*gnu-apl edit function*")))
     (pop-to-buffer buffer)
     (delete-region (point-min) (point-max))
     (insert "∇")
@@ -109,7 +110,8 @@ or NIL if there is no active session.")
     (goto-char (point-min))
     (forward-line 1)
     (gnu-apl-mode)
-    (local-set-key (kbd "C-c C-c") 'gnu-apl-save-function)))
+    (local-set-key (kbd "C-c C-c") 'gnu-apl-save-function)
+    (set (make-local-variable 'gnu-apl-window-configuration) window-configuration)))
 
 (defun gnu-apl--parse-function-header (string)
   (let ((line-fix (gnu-apl--trim "[ \t]" string)))
@@ -154,7 +156,12 @@ or NIL if there is no active session.")
 
         (gnu-apl-interactive-send-string (concat ")ERASE " (caddr function-arguments)))
         (gnu-apl-interactive-send-string (concat content "∇\n"))
-        (kill-buffer (current-buffer))))))
+        (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
+                                        gnu-apl-window-configuration
+                                      nil)))
+          (kill-buffer (current-buffer))
+          (when window-configuration
+            (set-window-configuration window-configuration)))))))
 
 (defun gnu-apl--send (proc string)
   (let ((parsed (gnu-apl--parse-function-header string)))
