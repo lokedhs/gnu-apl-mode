@@ -154,14 +154,19 @@
     table)
   "Syntax table for gnu-apl-mode")
 
+(defun gnu-apl--init-mode-common ()
+  (set (make-local-variable 'eldoc-documentation-function) 'gnu-apl--eldoc-data))
+
 (define-derived-mode gnu-apl-mode prog-mode "GNU APL"
   "Major mode for editing GNU APL files."
   :syntax-table gnu-apl-mode-syntax-table
   :group 'gnu-apl
-  (use-local-map gnu-apl-mode-map))
+  (use-local-map gnu-apl-mode-map)
+  (gnu-apl--init-mode-common))
 
 (load "gnu-apl-input")
 (load "interactive-gnu-apl")
+(load "gnu-apl-documentation")
 (load "gnu-apl-osx-workaround")
 
 (add-to-list 'auto-mode-alist '("\\.apl\\'" . gnu-apl-mode))

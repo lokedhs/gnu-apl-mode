@@ -95,7 +95,7 @@
      "Logical NOR" "Logic: 1 if both A and B are 0; otherwise 0")
     ("⍲" nil nil
      "Sheffer stroke" "Logic: 0 if both A and B are 1; otherwise 1")
-    ("∼"
+    ("∼" nil nil
      "Not" "Logical: ∼1 is 0, ∼0 is 1" nil)
     ("⍋"
      "Grade up" "Indices of B which will arrange B in ascending order"
@@ -104,7 +104,12 @@
      "Grade down" "Indices of B which will arrange B in descending order"
      nil nil)
     ("⍎" "Execute" "Execute an APL expression"
-     nil nil)))
+     nil nil)
+    ("←" nil nil
+     "Assignment" "Assign the value of B to A")
+    ("→"
+     "Goto" "Go to line B")
+    nil nil))
 
 (defun gnu-apl--make-readable-keymap ()
   (let ((base '(("`" "1" "2" "3" "4" "5" "6" "7" "8" "9" "0" "-" "=" "Backspace")
@@ -112,3 +117,34 @@
                 ("Control" "a" "s" "d" "f" "g" "h" "j" "k" "l" ";" "'" "Return")
                 ("Shift" "z" "x" "c" "v" "b" "n" "m" "," "." "/" "Shift"))))
     base))
+
+(defvar gnu-apl--function-regexp
+  (regexp-opt (mapcar #'car gnu-apl--symbol-doc)))
+
+(defun gnu-apl--is-point-on-argument-value ()
+  (save-excursion
+    (if (> (point) (point-min))
+        ;; There is stuff to the left of point, check what that stuff is
+        (progn
+          (backward-char 1)
+          (loop while (and (> (point) (point-min))
+                           (cl-find (char-after (point)) " \t"))
+                do (backward-char 1))
+          (let ((symbol (char-after (point))))
+            (and (not (string-match gnu-apl--function-regexp (char-to-string symbol)))
+                 (not (cl-find symbol " \t\n")))))
+      ;; No stuff to the left of point, that means the function is monadic
+      nil)))
+
+(defun gnu-apl--eldoc-data ()
+  (when (looking-at (concat "\\(" gnu-apl--function-regexp "\\)"))
+    (let* ((symbol (match-string 1))
+           (doc (cl-find symbol gnu-apl--symbol-doc :test #'equal :key #'car)))
+      (unless doc
+        (error "doc should not be null"))
+      ;; We have a documentation entry. Now we need to figure out if the call
+      ;; is monadic or dyadic. It can be done by searching backwards until we hit
+      ;; a non-space character or the beginning of the line.
+      (if (gnu-apl--is-point-on-argument-value)
+          (fifth doc)
+        (third doc)))))
