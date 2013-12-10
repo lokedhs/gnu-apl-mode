@@ -188,7 +188,7 @@ or NIL if there is no active session.")
 (defun gnu-apl--send (proc string)
   (let* ((trimmed (gnu-apl--trim " " string))
          (parsed (gnu-apl--parse-function-header trimmed)))
-    (if parsed
+    (if (and gnu-apl-auto-function-editor-popup parsed)
         (progn
           ;; At this point there should be a function definition symbol
           ;; at the beginning of the string. Let's confirm this:

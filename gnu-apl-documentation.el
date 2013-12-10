@@ -103,13 +103,17 @@
     ("⍒"
      "Grade down" "Indices of B which will arrange B in descending order"
      nil nil)
-    ("⍎" "Execute" "Execute an APL expression"
+    ("⍎"
+     "Execute" "Execute an APL expression"
      nil nil)
     ("←" nil nil
      "Assignment" "Assign the value of B to A")
     ("→"
-     "Goto" "Go to line B")
-    nil nil))
+     "Goto" "Go to line B"
+     nil nil)
+    ("∇"
+     "Function definition" "Define or modify a function"
+     nil nil)))
 
 (defun gnu-apl--make-readable-keymap ()
   (let ((base '(("`" "1" "2" "3" "4" "5" "6" "7" "8" "9" "0" "-" "=" "Backspace")
@@ -137,14 +141,17 @@
       nil)))
 
 (defun gnu-apl--eldoc-data ()
-  (when (looking-at (concat "\\(" gnu-apl--function-regexp "\\)"))
-    (let* ((symbol (match-string 1))
-           (doc (cl-find symbol gnu-apl--symbol-doc :test #'equal :key #'car)))
-      (unless doc
-        (error "doc should not be null"))
-      ;; We have a documentation entry. Now we need to figure out if the call
-      ;; is monadic or dyadic. It can be done by searching backwards until we hit
-      ;; a non-space character or the beginning of the line.
-      (if (gnu-apl--is-point-on-argument-value)
-          (fifth doc)
-        (third doc)))))
+  (labels ((make-doc-message (name short long)
+             (when (and short long)
+               (concat name long))))
+    (when (looking-at (concat "\\(" gnu-apl--function-regexp "\\)"))
+      (let* ((symbol (match-string 1))
+             (doc (cl-find symbol gnu-apl--symbol-doc :test #'equal :key #'car)))
+        (unless doc
+          (error "doc should not be null"))
+        ;; We have a documentation entry. Now we need to figure out if the call
+        ;; is monadic or dyadic. It can be done by searching backwards until we hit
+        ;; a non-space character or the beginning of the line.
+        (if (gnu-apl--is-point-on-argument-value)
+            (make-doc-message "Dyadic: " (fourth doc) (fifth doc))
+          (make-doc-message "Monadic: " (second doc) (third doc)))))))

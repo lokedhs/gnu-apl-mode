@@ -11,6 +11,13 @@
   :group 'gnu-apl)
 
 ;;;###autoload
+(defcustom gnu-apl-auto-function-editor-popup t
+  "If non-nil, the function editor will start automatically when
+the function definition command is entered. If nil, the
+function editor must be opened manually using the function
+`gnu-apl-edit-function'.")
+
+;;;###autoload
 (defface gnu-apl-default
   ()
   "Face used for APL buffers"
