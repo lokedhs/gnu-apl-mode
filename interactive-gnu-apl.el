@@ -47,7 +47,7 @@ or NIL if there is no active session.")
 (defun gnu-apl--preoutput-filter (line)
   (with-output-to-string
     (loop with first = t
-          for plain in (split-string line "\n")
+          for plain in (split-string line "\\(?:\n\r?\\)\\|\\(?:\r\\)")
           collect (cond (gnu-apl-reading-function
                          (if (string= plain *gnu-apl-function-text-end*)
                              (progn
@@ -78,7 +78,7 @@ or NIL if there is no active session.")
                         ((string-match (concat "^ *" *gnu-apl-ignore-end*) plain)
                          (setq gnu-apl-dont-display nil))
 
-                        ((not gnu-apl-dont-display)
+                        ((not (progn (llog "Fallback: '%s'" plain) gnu-apl-dont-display))
                          (if first
                              (setq first nil)
                            (princ "\n"))
@@ -111,7 +111,7 @@ or NIL if there is no active session.")
     (pop-to-buffer-same-window buffer)
     (unless (comint-check-proc buffer)
       (make-comint-in-buffer "apl" buffer gnu-apl-executable nil
-                             "--noCIN" "--noColor")
+                             "--noColor" "--rawCIN")
       (gnu-apl-interactive-mode)
       (setq gnu-apl-current-session buffer))))
 
@@ -176,8 +176,8 @@ or NIL if there is no active session.")
 
         (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-start* "'\n"))
         (gnu-apl-interactive-send-string (concat ")ERASE " (caddr function-arguments)))
-        (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-end* "'\n"))
         (gnu-apl-interactive-send-string (concat content "∇\n"))
+        (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-end* "'\n"))
         (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
                                         gnu-apl-window-configuration
                                       nil)))
