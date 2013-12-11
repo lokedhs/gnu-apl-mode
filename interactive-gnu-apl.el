@@ -47,7 +47,7 @@ or NIL if there is no active session.")
 (defun gnu-apl--preoutput-filter (line)
   (with-output-to-string
     (loop with first = t
-          for plain in (split-string line "\\(?:\n\r?\\)\\|\\(?:\r\\)")
+          for plain in (split-string line "\r?\n")
           collect (cond (gnu-apl-reading-function
                          (if (string= plain *gnu-apl-function-text-end*)
                              (progn
@@ -78,7 +78,7 @@ or NIL if there is no active session.")
                         ((string-match (concat "^ *" *gnu-apl-ignore-end*) plain)
                          (setq gnu-apl-dont-display nil))
 
-                        ((not (progn (llog "Fallback: '%s'" plain) gnu-apl-dont-display))
+                        ((not gnu-apl-dont-display)
                          (if first
                              (setq first nil)
                            (princ "\n"))
@@ -111,7 +111,7 @@ or NIL if there is no active session.")
     (pop-to-buffer-same-window buffer)
     (unless (comint-check-proc buffer)
       (make-comint-in-buffer "apl" buffer gnu-apl-executable nil
-                             "--noColor" "--rawCIN")
+                             "--noCIN" "--noColor" "--rawCIN")
       (gnu-apl-interactive-mode)
       (setq gnu-apl-current-session buffer))))
 
@@ -148,7 +148,7 @@ or NIL if there is no active session.")
                 (local-variables (match-string 3 line)))
             (let* ((parts (split-string function-and-arguments))
                    (length (length parts)))
-              (when (and (< 0 length) (> length 4))
+              (when (and (>= length 1) (<= length 3))
                 (append (list result-variable)
                         (ecase (length parts)
                           (1 (list nil (car parts) nil))
@@ -187,7 +187,6 @@ or NIL if there is no active session.")
             (set-window-configuration window-configuration)))))))
 
 (defun gnu-apl--send (proc string)
-  (llog "receiving: '%s'" string)
   (let* ((trimmed (gnu-apl--trim " " string))
          (parsed (gnu-apl--parse-function-header trimmed)))
     (if (and gnu-apl-auto-function-editor-popup parsed)
