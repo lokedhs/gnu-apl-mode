@@ -111,7 +111,7 @@ or NIL if there is no active session.")
     (pop-to-buffer-same-window buffer)
     (unless (comint-check-proc buffer)
       (make-comint-in-buffer "apl" buffer gnu-apl-executable nil
-                             "--noCIN" "--noColor" "--rawCIN")
+                             "--noColor" "--rawCIN")
       (gnu-apl-interactive-mode)
       (setq gnu-apl-current-session buffer))))
 
