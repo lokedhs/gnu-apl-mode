@@ -75,7 +75,7 @@ or NIL if there is no active session.")
                         ((string= plain *gnu-apl-ignore-start*)
                          (setq gnu-apl-dont-display t))
 
-                        ((string-match (concat "^ *" *gnu-apl-ignore-end*) plain)
+                        ((string-match *gnu-apl-ignore-end* plain)
                          (setq gnu-apl-dont-display nil))
 
                         ((not gnu-apl-dont-display)
