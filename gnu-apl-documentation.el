@@ -113,7 +113,13 @@
      nil nil)
     ("∇"
      "Function definition" "Define or modify a function"
-     nil nil)))
+     nil nil)
+    ("⊂"
+     "Enclose" "Produce a scalar from B"
+     "Partition" "Divide B into vectors based on A")
+    ("⊃"
+     "Disclose" "Produce an array from B"
+     "Pick" "Select a value from B based on A")))
 
 (defun gnu-apl--make-readable-keymap ()
   (let ((base '(("`" "1" "2" "3" "4" "5" "6" "7" "8" "9" "0" "-" "=" "Backspace")
