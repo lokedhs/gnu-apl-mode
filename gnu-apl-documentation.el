@@ -33,7 +33,8 @@
     ("⍴"
      "Shape" "Number of components in each dimension of B"
      "Reshape" "Array of shape A with data B")
-    ("↑" nil nil
+    ("↑"
+     "Take" "Select the first element of B"
      "Take" "Select the first (or last) A elements of B according to ×A")
     ("↓" nil nil
      "Drop " "Remove the first (or last) A elements of B according to ×A")
