@@ -66,7 +66,7 @@ function editor must be opened manually using the function
                            ("iota-underbar" "⍸" "S-i" "I")
                            ("omega" "⍵" "w" "w")
                            ("circle-stile" "⌽" "S-w" "W")
-                           ("epsilon" "ε" "e" "e")
+                           ("epsilon" "∈" "e" "e")
                            ("epsilon-underbar" "⍷" "S-e" "E")
                            ("tilde" "~" "t" "t")
                            ("circle-backslash" "⍉" "S-t" "T")
