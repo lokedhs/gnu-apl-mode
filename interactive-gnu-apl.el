@@ -177,8 +177,8 @@ or NIL if there is no active session.")
 
         (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-start* "'\n"))
         (gnu-apl-interactive-send-string (concat ")ERASE " (caddr function-arguments)))
-        (gnu-apl-interactive-send-string (concat content "∇\n"))
         (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-end* "'\n"))
+        (gnu-apl-interactive-send-string (concat content "∇\n"))
         (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
                                         gnu-apl-window-configuration
                                       nil)))
