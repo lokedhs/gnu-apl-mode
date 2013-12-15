@@ -1,6 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
 (require 'cl)
+(require 'thingatpt)
 
 (load "gnu-apl-util")
 
