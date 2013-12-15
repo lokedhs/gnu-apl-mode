@@ -10,6 +10,16 @@ To install, add the following to your init.el:
 
 You can then start the APL interaction using M-x gnu-apl.
 
+GNU APL version requirements
+============================
+
+This package requires certain features of GNU APL that at the time of
+this writing is only available in the latest versions from the
+Subversion repository. In partciular, it takes advantage of a command
+line option called --emacs which enables certain features that are
+used by this mode. If your version of GNU APL is too old, you will get
+an error message saying that the --emacs flag is not understood.
+
 Configuring APL font
 ====================
 
