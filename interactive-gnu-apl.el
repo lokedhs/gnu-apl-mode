@@ -158,8 +158,8 @@ or NIL if there is no active session.")
     (when (and (> (length line-fix) 0)
                (string= (char-to-string (aref line-fix 0)) "∇"))
       (let ((line (subseq line-fix 1)))
-        (when (string-match (concat "^ *\\(?:\\([a-z0-9∆]+\\) *← *\\)?" ; result variable
-                                    "\\([a-za-z0-9∆ ]+\\)" ; function and arguments
+        (when (string-match (concat "^ *\\(?:\\([a-z0-9∆_]+\\) *← *\\)?" ; result variable
+                                    "\\([a-za-z0-9∆_ ]+\\)" ; function and arguments
                                     "\\(;.*\\)?$" ; local variables
                                     )
                             line)
