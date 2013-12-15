@@ -44,9 +44,6 @@ or NIL if there is no active session.")
       )))
 
 (defun gnu-apl--parse-text (string)
-  (llog "parsing='%s'" string)
-  (when (plusp (length string))
-    (llog "first char:%d" (aref string 0)))
   (if (zerop (length string))
       (list 'normal string)
     (let ((char (aref string 0))
@@ -55,10 +52,9 @@ or NIL if there is no active session.")
         (#xf00c0 (list 'cin command))
         (#xf00c1 (list 'cout command))
         (#xf00c2 (list 'cerr command))
-        (t (list 'normal command))))))
+        (t (list 'normal string))))))
 
 (defun gnu-apl--set-face-for-text (type text)
-  (llog "Type=%s s='%s'" type text)
   (let ((s (copy-seq text)))
     (case type
       (cerr (add-text-properties 0 (length s) '(font-lock-face gnu-apl-error-face) s)))
@@ -69,6 +65,7 @@ or NIL if there is no active session.")
     (loop with first = t
           for plain in (split-string line "\r?\n")
           do (destructuring-bind (type command) (gnu-apl--parse-text plain)
+               (llog "rf=%s type=%s line='%s'" gnu-apl-reading-function type command)
                (cond (gnu-apl-reading-function
                       (if (string= command *gnu-apl-function-text-end*)
                           (progn
@@ -126,12 +123,15 @@ or NIL if there is no active session.")
   (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
   (setq font-lock-defaults '(nil t)))
 
-(defun gnu-apl ()
-  (interactive)
-  (let ((buffer (get-buffer-create "*gnu-apl*")))
+(defun gnu-apl (apl-executable)
+  (interactive (list (when current-prefix-arg (read-file-name "Location of GNU APL Executable: " nil nil t))))
+  (let ((buffer (get-buffer-create "*gnu-apl*"))
+        (resolved-binary (or apl-executable gnu-apl-executable)))
+    (unless resolved-binary
+      (user-error "GNU APL Executable was not set"))
     (pop-to-buffer-same-window buffer)
     (unless (comint-check-proc buffer)
-      (make-comint-in-buffer "apl" buffer gnu-apl-executable nil
+      (make-comint-in-buffer "apl" buffer resolved-binary nil
                              "--rawCIN" "--emacs")
       (gnu-apl-interactive-mode)
       (setq gnu-apl-current-session buffer))))
