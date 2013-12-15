@@ -120,7 +120,10 @@
      "Partition" "Divide B into vectors based on A")
     ("⊃"
      "Disclose" "Produce an array from B"
-     "Pick" "Select a value from B based on A")))
+     "Pick" "Select a value from B based on A")
+    ("∪"
+     "Unique" "Return an array of all unique elements in B"
+     nil nil)))
 
 (defun gnu-apl--make-readable-keymap ()
   (let ((base '(("`" "1" "2" "3" "4" "5" "6" "7" "8" "9" "0" "-" "=" "Backspace")
