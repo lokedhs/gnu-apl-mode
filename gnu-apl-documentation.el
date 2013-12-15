@@ -93,9 +93,9 @@
     ("∧" nil nil
      "Logical conjunction" "Logic: 1 if A and B are 1; 0 otherwise")
     ("⍱" nil nil
-     "Logical NOR" "Logic: 1 if both A and B are 0; otherwise 0")
+     "Logical Nor" "Logic: 1 if both A and B are 0; otherwise 0")
     ("⍲" nil nil
-     "Sheffer stroke" "Logic: 0 if both A and B are 1; otherwise 1")
+     "Logical Nand" "Logic: 0 if both A and B are 1; otherwise 1")
     ("∼" nil nil
      "Not" "Logical: ∼1 is 0, ∼0 is 1" nil)
     ("⍋"

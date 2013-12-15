@@ -76,7 +76,7 @@ function editor must be opened manually using the function
                            ("circle-stile" "⌽" "S-w" "W")
                            ("epsilon" "∈" "e" "e")
                            ("epsilon-underbar" "⍷" "S-e" "E")
-                           ("tilde" "~" "t" "t")
+                           ("tilde" "∼" "t" "t")
                            ("circle-backslash" "⍉" "S-t" "T")
                            ("uparrow" "↑" "y" "y")
                            ("yen-sign" "¥" "S-y" "Y")
