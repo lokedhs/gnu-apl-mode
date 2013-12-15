@@ -44,45 +44,64 @@ or NIL if there is no active session.")
                                                "' ⋄ '" *gnu-apl-function-text-end* "'"))
       )))
 
+(defun gnu-apl--parse-text (string)
+  (if (>= (length string) 0)
+      (list 'normal string)
+    (let ((char (aref string 0))
+          (command (subseq string 1)))
+      (case char
+        (#xf00c0 (list 'cin command))
+        (#xf00c1 (list 'cout command))
+        (#xf00c2 (list 'cerr command))
+        (t       (list 'normal command))))))
+
+(defun gnu-apl--set-face-for-text (type text)
+  (let ((s (copy-seq text)))
+    (case type
+      (cerr (add-text-properties 0 (length s) '(face gnu-apl-error-face) s)))
+    s))
+
 (defun gnu-apl--preoutput-filter (line)
-  (with-output-to-string
+  (let ((result ""))
     (loop with first = t
           for plain in (split-string line "\r?\n")
-          collect (cond (gnu-apl-reading-function
-                         (if (string= plain *gnu-apl-function-text-end*)
-                             (progn
-                               (setq gnu-apl-reading-function nil)
-                               (let ((s (cond (gnu-apl-current-function-text
-                                               gnu-apl-current-function-text)
-                                              (gnu-apl-current-function-title
-                                               (list gnu-apl-current-function-title))
-                                              (t
-                                               nil))))
-                                 (setq gnu-apl-current-function-text nil)
-                                 (setq gnu-apl-reading-function nil)
-                                 (setq gnu-apl-current-function-title nil)
-                                 (gnu-apl--open-function-editor-with-timer s)))
-                           (setq gnu-apl-current-function-text
-                                 (append gnu-apl-current-function-text (list plain)))))
+          do (destructuring-bind (type command) (gnu-apl--parse-text plain)
+               (cond (gnu-apl-reading-function
+                      (if (string= command *gnu-apl-function-text-end*)
+                          (progn
+                            (setq gnu-apl-reading-function nil)
+                            (let ((s (cond (gnu-apl-current-function-text
+                                            gnu-apl-current-function-text)
+                                           (gnu-apl-current-function-title
+                                            (list gnu-apl-current-function-title))
+                                           (t
+                                            nil))))
+                              (setq gnu-apl-current-function-text nil)
+                              (setq gnu-apl-reading-function nil)
+                              (setq gnu-apl-current-function-title nil)
+                              (gnu-apl--open-function-editor-with-timer s)))
+                        (setq gnu-apl-current-function-text
+                              (append gnu-apl-current-function-text (list command)))))
 
-                        ((and (not gnu-apl-reading-function)
-                              (>= (length plain) (length *gnu-apl-function-text-start*))
-                              (string= (subseq plain (- (length plain) (length *gnu-apl-function-text-start*)))
-                                       *gnu-apl-function-text-start*))
-                         (setq gnu-apl-reading-function t)
-                         (setq gnu-apl-current-function-text nil))
+                     ((and (not gnu-apl-reading-function)
+                           (>= (length command) (length *gnu-apl-function-text-start*))
+                           (string= (subseq command (- (length command) (length *gnu-apl-function-text-start*)))
+                                    *gnu-apl-function-text-start*))
+                      (setq gnu-apl-reading-function t)
+                      (setq gnu-apl-current-function-text nil))
 
-                        ((string= plain *gnu-apl-ignore-start*)
-                         (setq gnu-apl-dont-display t))
+                     ((string= command *gnu-apl-ignore-start*)
+                      (setq gnu-apl-dont-display t))
 
-                        ((string-match *gnu-apl-ignore-end* plain)
-                         (setq gnu-apl-dont-display nil))
+                     ((string-match *gnu-apl-ignore-end* command)
+                      (setq gnu-apl-dont-display nil))
 
-                        ((not gnu-apl-dont-display)
-                         (if first
-                             (setq first nil)
-                           (princ "\n"))
-                         (princ plain))))))
+                     ((not gnu-apl-dont-display)
+                      (if first
+                          (setq first nil)
+                        (setq result (concat result "\n")))
+                      (setq result (concat result command))))))
+    result))
 
 (defvar gnu-apl-interactive-mode-map
   (let ((map (gnu-apl--make-mode-map "s-")))
@@ -111,7 +130,7 @@ or NIL if there is no active session.")
     (pop-to-buffer-same-window buffer)
     (unless (comint-check-proc buffer)
       (make-comint-in-buffer "apl" buffer gnu-apl-executable nil
-                             "--noColor" "--rawCIN")
+                             "--noColor" "--rawCIN" "--emacs")
       (gnu-apl-interactive-mode)
       (setq gnu-apl-current-session buffer))))
 

@@ -23,6 +23,13 @@ function editor must be opened manually using the function
   "Face used for APL buffers"
   :group 'gnu-apl)
 
+;;;###autoload
+(defface gnu-apl-error-face
+  '((((class color))
+     :foreground "red"))
+  "Face used for error messages in the interactive APL buffer"
+  :group 'gnu-apl)
+
 ;;; ' ( ) + , - . /  :  ; < = >  ? [ ]
 ;;; \ _ ¨ ¯ × ÷ ← ↑ → ↓ ∆ ∇ ∘ ∣ ∧ ∨
 ;;; ∩ ∪ ∼ ≠ ≤ ≥ ≬ ⊂ ⊃ ⌈ ⌊ ⊤ ⊥ ⋆ ⌶ ⌷
