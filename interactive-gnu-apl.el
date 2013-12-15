@@ -30,6 +30,9 @@ or NIL if there is no active session.")
 (defvar *gnu-apl-ignore-end* "IGNORE-END")
 
 (defun gnu-apl-edit-function (name)
+  "Open the function with the given name in a separate buffer.
+After editing the function, use `gnu-apl-save-function' to save
+the function and set it in the running APL interpreter."
   (interactive "MFunction name: ")
   (setq gnu-apl-current-function-title name)
   (gnu-apl--get-function name))
@@ -154,6 +157,10 @@ or NIL if there is no active session.")
     (set (make-local-variable 'gnu-apl-window-configuration) window-configuration)))
 
 (defun gnu-apl--parse-function-header (string)
+  "Parse a function definition string. Returns a list of four
+elements. The
+values are: Result variable, left argument, function name, right
+argument."
   (let ((line-fix (gnu-apl--trim "[ \t]" string)))
     (when (and (> (length line-fix) 0)
                (string= (char-to-string (aref line-fix 0)) "∇"))
@@ -176,6 +183,7 @@ or NIL if there is no active session.")
                           (3 (list (car parts) (cadr parts) (caddr parts)))))))))))))
 
 (defun gnu-apl-save-function ()
+  "Save the currently edited function."
   (interactive)
   (goto-char (point-min))
   (let ((definition (thing-at-point 'line)))

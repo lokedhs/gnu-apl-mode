@@ -131,6 +131,7 @@ function editor must be opened manually using the function
                            ;; Extras
                            ("pi" "π")
                            ("star-diaeresis" "⍣")
+                           ("delta-underbar" "⍙")
                            ))
 
 (defun gnu-apl--make-key-command-sym (n)
