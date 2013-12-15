@@ -65,7 +65,6 @@ or NIL if there is no active session.")
     (loop with first = t
           for plain in (split-string line "\r?\n")
           do (destructuring-bind (type command) (gnu-apl--parse-text plain)
-               (llog "rf=%s type=%s line='%s'" gnu-apl-reading-function type command)
                (cond (gnu-apl-reading-function
                       (if (string= command *gnu-apl-function-text-end*)
                           (progn
