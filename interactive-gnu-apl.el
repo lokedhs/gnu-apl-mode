@@ -55,12 +55,14 @@ the function and set it in the running APL interpreter."
         (#xf00c0 (list 'cin command))
         (#xf00c1 (list 'cout command))
         (#xf00c2 (list 'cerr command))
+        (#xf00c3 (list 'app-error command))
         (t (list 'normal string))))))
 
 (defun gnu-apl--set-face-for-text (type text)
   (let ((s (copy-seq text)))
     (case type
-      (cerr (add-text-properties 0 (length s) '(font-lock-face gnu-apl-error-face) s)))
+      (cerr (add-text-properties 0 (length s) '(font-lock-face gnu-apl-error-face) s))
+      (app-error (add-text-properties 0 (length s) '(font-lock-face gnu-apl-user-status-text-face))))
     s))
 
 (defun gnu-apl--preoutput-filter (line)
