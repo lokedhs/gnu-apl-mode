@@ -153,7 +153,7 @@
 (defun gnu-apl--eldoc-data ()
   (labels ((make-doc-message (name short long)
              (when (and short long)
-               (concat name long))))
+               (format "%s: %s: %s" name short long))))
     (when (looking-at (concat "\\(" gnu-apl--function-regexp "\\)"))
       (let* ((symbol (match-string 1))
              (doc (cl-find symbol gnu-apl--symbol-doc :test #'equal :key #'car)))
@@ -163,5 +163,5 @@
         ;; is monadic or dyadic. It can be done by searching backwards until we hit
         ;; a non-space character or the beginning of the line.
         (if (gnu-apl--is-point-on-argument-value)
-            (make-doc-message "Dyadic: " (fourth doc) (fifth doc))
-          (make-doc-message "Monadic: " (second doc) (third doc)))))))
+            (make-doc-message "Dyadic" (fourth doc) (fifth doc))
+          (make-doc-message "Monadic" (second doc) (third doc)))))))
