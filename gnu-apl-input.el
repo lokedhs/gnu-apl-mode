@@ -23,7 +23,7 @@
              (let ((prefix "."))
                `(quail-define-rules
                  ,@(loop for command in gnu-apl--symbols
-                         for key-command = (fourth command)
+                         for key-command = (third command)
                          append (loop for s in (if (listp key-command) key-command (list key-command))
                                       collect (list (concat prefix s)
                                                     (second command))))
