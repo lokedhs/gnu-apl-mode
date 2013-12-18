@@ -28,19 +28,21 @@ or NIL if there is no active session.")
 (defvar *gnu-apl-function-text-end* "FUNCTION-CONTENT-END")
 (defvar *gnu-apl-ignore-start* "IGNORE-START")
 (defvar *gnu-apl-ignore-end* "IGNORE-END")
+(defvar *gnu-apl-read-si-start* "READ-SI-STATUS-START")
+(defvar *gnu-apl-read-si-end* "READ-SI-STATUS-END")
 
 (defun gnu-apl-edit-function (name)
   "Open the function with the given name in a separate buffer.
 After editing the function, use `gnu-apl-save-function' to save
 the function and set it in the running APL interpreter."
   (interactive "MFunction name: ")
-  (setq gnu-apl-current-function-title name)
   (gnu-apl--get-function name))
 
 (defun gnu-apl--get-function (function)
-  (gnu-apl-interactive-send-string (concat "'" *gnu-apl-function-text-start*
-                                           "' ⋄ ⎕CR '" function
-                                           "' ⋄ '" *gnu-apl-function-text-end* "'")))
+  (setq gnu-apl-current-function-title function)
+  (gnu-apl-interactive-send-string (concat "'" *gnu-apl-read-si-start* "'"))
+  (gnu-apl-interactive-send-string (concat ")SI"))
+  (gnu-apl-interactive-send-string (concat "'" *gnu-apl-read-si-end* "'")))
 
 (defun gnu-apl--parse-text (string)
   (if (zerop (length string))
@@ -63,6 +65,7 @@ the function and set it in the running APL interpreter."
 
 (defun gnu-apl--preoutput-filter (line)
   (let ((result ""))
+    (llog "PREOUTPUT:line='%s'" line)
     (loop with first = t
           for plain in (split-string line "\r?\n")
           do (destructuring-bind (type command) (gnu-apl--parse-text plain)
@@ -73,6 +76,8 @@ the function and set it in the running APL interpreter."
                                 (setq gnu-apl-preoutput-filter-state 'reading-function))
                                ((string-match *gnu-apl-ignore-start* command)
                                 (setq gnu-apl-preoutput-filter-state 'ignore))
+                               ((string-match *gnu-apl-read-si-start* command)
+                                (setq gnu-apl-preoutput-filter-state 'read-si))
                                (t
                                 (if first
                                     (setq first nil)
@@ -92,6 +97,17 @@ the function and set it in the running APL interpreter."
                                           (setq gnu-apl-preoutput-filter-state 'normal))
                                          (t
                                           (push command gnu-apl-current-function-text))))
+                 ;; Read the output of )SI
+                 (read-si (cond ((string-match *gnu-apl-read-si-end* command)
+                                 (unless gnu-apl-current-function-title
+                                   (error "End of )SI output but no active function"))
+                                 (llog "Got SI: '%s'" gnu-apl-current-si)
+                                 (gnu-apl-interactive-send-string (concat "'" *gnu-apl-function-text-start*
+                                             "' ⋄ ⎕CR '" gnu-apl-current-function-title
+                                             "' ⋄ '" *gnu-apl-function-text-end* "'"))
+                                 (setq gnu-apl-preoutput-filter-state 'normal))
+                                (t
+                                 (push command gnu-apl-current-si))))
                  ;; Ignoring output
                  (ignore (cond ((string-match *gnu-apl-ignore-end* command)
                                 (setq gnu-apl-preoutput-filter-state 'normal))
@@ -111,11 +127,20 @@ the function and set it in the running APL interpreter."
   (use-local-map gnu-apl-interactive-mode-map)
   (gnu-apl--init-mode-common)
   (setq comint-prompt-regexp "^\\(      \\)\\|\\(\\[[0-9]+\\] \\)")
+
+  ;; Holds the current state
   (set (make-local-variable 'gnu-apl-preoutput-filter-state) 'normal)
-  (set (make-local-variable 'gnu-apl-current-function-text) nil)
-  (set (make-local-variable 'gnu-apl-reading-function) nil)
+
+  ;;
+  ;; === Function editor variables
+  ;;
+  ;; Holds the function name while getting all the SI and function information
   (set (make-local-variable 'gnu-apl-current-function-title) nil)
-  (set (make-local-variable 'gnu-apl-dont-display) nil)
+  ;; List of lines in the function being read (in reverse)
+  (set (make-local-variable 'gnu-apl-current-function-text) nil)
+  ;; List of the output lines in )SI (reverse)
+  (set (make-local-variable 'gnu-apl-current-si) nil)
+
   (set (make-local-variable 'comint-input-sender) 'gnu-apl--send)
   (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
   (setq font-lock-defaults '(nil t)))
