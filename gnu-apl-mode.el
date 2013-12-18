@@ -188,7 +188,7 @@ function editor must be opened manually using the function
   (gnu-apl--init-mode-common))
 
 (load "gnu-apl-input")
-(load "interactive-gnu-apl")
+(load "gnu-apl-interactive")
 (load "gnu-apl-documentation")
 (load "gnu-apl-osx-workaround")
 
