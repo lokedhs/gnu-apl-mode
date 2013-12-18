@@ -38,12 +38,9 @@ the function and set it in the running APL interpreter."
   (gnu-apl--get-function name))
 
 (defun gnu-apl--get-function (function)
-  (with-current-buffer (gnu-apl--get-interactive-session)
-    (let ((max (point-max)))
-      (gnu-apl-interactive-send-string (concat "'" *gnu-apl-function-text-start*
-                                               "' ⋄ ⎕CR '" function
-                                               "' ⋄ '" *gnu-apl-function-text-end* "'"))
-      )))
+  (gnu-apl-interactive-send-string (concat "'" *gnu-apl-function-text-start*
+                                           "' ⋄ ⎕CR '" function
+                                           "' ⋄ '" *gnu-apl-function-text-end* "'")))
 
 (defun gnu-apl--parse-text (string)
   (if (zerop (length string))
