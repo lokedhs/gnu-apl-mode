@@ -40,7 +40,6 @@ the function and set it in the running APL interpreter."
 (defun gnu-apl--get-function (function)
   (with-current-buffer (gnu-apl--get-interactive-session)
     (let ((max (point-max)))
-      (setq gnu-apl-current-function-text nil)
       (gnu-apl-interactive-send-string (concat "'" *gnu-apl-function-text-start*
                                                "' ⋄ ⎕CR '" function
                                                "' ⋄ '" *gnu-apl-function-text-end* "'"))
