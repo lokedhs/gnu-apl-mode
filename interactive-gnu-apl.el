@@ -62,7 +62,7 @@ the function and set it in the running APL interpreter."
   (let ((s (copy-seq text)))
     (case type
       (cerr (add-text-properties 0 (length s) '(font-lock-face gnu-apl-error-face) s))
-      (app-error (add-text-properties 0 (length s) '(font-lock-face gnu-apl-user-status-text-face))))
+      (app-error (add-text-properties 0 (length s) '(font-lock-face gnu-apl-user-status-text-face) s)))
     s))
 
 (defun gnu-apl--preoutput-filter (line)
