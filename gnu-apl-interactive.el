@@ -70,41 +70,37 @@ the function and set it in the running APL interpreter."
     (loop with first = t
           for plain in (split-string line "\r?\n")
           do (destructuring-bind (type command) (gnu-apl--parse-text plain)
-               (cond (gnu-apl-reading-function
-                      (if (string= command *gnu-apl-function-text-end*)
-                          (progn
-                            (setq gnu-apl-reading-function nil)
-                            (let ((s (cond (gnu-apl-current-function-text
-                                            gnu-apl-current-function-text)
-                                           (gnu-apl-current-function-title
-                                            (list gnu-apl-current-function-title))
-                                           (t
-                                            nil))))
-                              (setq gnu-apl-current-function-text nil)
-                              (setq gnu-apl-reading-function nil)
-                              (setq gnu-apl-current-function-title nil)
-                              (gnu-apl--open-function-editor-with-timer s)))
-                        (setq gnu-apl-current-function-text
-                              (append gnu-apl-current-function-text (list command)))))
-
-                     ((and (not gnu-apl-reading-function)
-                           (>= (length command) (length *gnu-apl-function-text-start*))
-                           (string= (subseq command (- (length command) (length *gnu-apl-function-text-start*)))
-                                    *gnu-apl-function-text-start*))
-                      (setq gnu-apl-reading-function t)
-                      (setq gnu-apl-current-function-text nil))
-
-                     ((string= command *gnu-apl-ignore-start*)
-                      (setq gnu-apl-dont-display t))
-
-                     ((string-match *gnu-apl-ignore-end* command)
-                      (setq gnu-apl-dont-display nil))
-
-                     ((not gnu-apl-dont-display)
-                      (if first
-                          (setq first nil)
-                        (setq result (concat result "\n")))
-                      (setq result (concat result (gnu-apl--set-face-for-text type command)))))))
+               (ecase gnu-apl-preoutput-filter-state
+                 ;; Default parse state
+                 (normal (cond ((string-match *gnu-apl-function-text-start* command)
+                                (setq gnu-apl-current-function-text nil)
+                                (setq gnu-apl-preoutput-filter-state 'reading-function))
+                               ((string-match *gnu-apl-ignore-start* command)
+                                (setq gnu-apl-preoutput-filter-state 'ignore))
+                               (t
+                                (if first
+                                    (setq first nil)
+                                  (setq result (concat result "\n")))
+                                (setq result (concat result (gnu-apl--set-face-for-text type command))))))
+                 ;; Reading the content of a function
+                 (reading-function (cond ((string-match *gnu-apl-function-text-end* command)
+                                          (let ((s (cond (gnu-apl-current-function-text
+                                                          (reverse gnu-apl-current-function-text))
+                                                         (gnu-apl-current-function-title
+                                                          (list gnu-apl-current-function-title))
+                                                         (t
+                                                          (error "No function content found and title was not set")))))
+                                            (setq gnu-apl-current-function-text nil)
+                                            (setq gnu-apl-current-function-title nil)
+                                            (gnu-apl--open-function-editor-with-timer s))
+                                          (setq gnu-apl-preoutput-filter-state 'normal))
+                                         (t
+                                          (push command gnu-apl-current-function-text))))
+                 ;; Ignoring output
+                 (ignore (cond ((string-match *gnu-apl-ignore-end* command)
+                                (setq gnu-apl-preoutput-filter-state 'normal))
+                               (t
+                                nil))))))
     result))
 
 (defvar gnu-apl-interactive-mode-map
@@ -119,6 +115,7 @@ the function and set it in the running APL interpreter."
   (use-local-map gnu-apl-interactive-mode-map)
   (gnu-apl--init-mode-common)
   (setq comint-prompt-regexp "^\\(      \\)\\|\\(\\[[0-9]+\\] \\)")
+  (set (make-local-variable 'gnu-apl-preoutput-filter-state) 'normal)
   (set (make-local-variable 'gnu-apl-current-function-text) nil)
   (set (make-local-variable 'gnu-apl-reading-function) nil)
   (set (make-local-variable 'gnu-apl-current-function-title) nil)
