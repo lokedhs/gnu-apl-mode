@@ -19,6 +19,20 @@ function editor must be opened manually using the function
 `gnu-apl-edit-function'.")
 
 ;;;###autoload
+(defcustom gnu-apl-redefine-function-when-is-use-action 'error
+  "This parameter control the behaviour when an attempt is made
+to redefine a function which is already on the )SI stack.
+Permitted values are:
+
+    error - Signal an error message
+    clear - Clear the SI stack before editing
+    allow - Allow the edit to continue
+    ask - Ask the user whether to clear the )SI stack or not"
+  :type 'symbol
+  :options '(error clear allow ask)
+  :group 'gnu-apl)
+
+;;;###autoload
 (defface gnu-apl-default
   ()
   "Face used for APL buffers"
