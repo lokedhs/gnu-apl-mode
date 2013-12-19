@@ -108,6 +108,7 @@ Permitted values are:
                            ("circle-star" "⍟" "P")
                            ("leftarrow" "←" "[")
                            ("rightarrow" "→" "]")
+                           ("zilde" "⍬" "}")
                            ("shoe-jot" "⍝" "\\")
                            ("backslash-bar" "⍀" "|")
                            ("rho" "⍴" "r")
@@ -115,7 +116,6 @@ Permitted values are:
 
                            ;; Second row
                            ("alpha" "⍺" "a")
-                           ;("zilde" "⍬" "A")
                            ("circled-minus" "⊖" "A")
                            ("left-ceiling" "⌈" "s")
                            ("left-floor" "⌊" "d")
