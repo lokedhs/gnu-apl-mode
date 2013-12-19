@@ -86,7 +86,6 @@ the function and set it in the running APL interpreter."
       (loop with first = t
             for plain in (split-string line "\n")
             do (destructuring-bind (type command) (gnu-apl--parse-text plain)
-                 (llog "INCOMINGLINE:type=%s command='%s'" type command)
                  (ecase gnu-apl-preoutput-filter-state
                    ;; Default parse state
                    (normal (cond ((string-match *gnu-apl-function-text-start* command)
@@ -121,7 +120,6 @@ the function and set it in the running APL interpreter."
                                      (error "End of )SI output but no active function"))
                                    (let ((si (gnu-apl--process-si-lines gnu-apl-current-si)))
                                      (setq gnu-apl-current-si nil)
-                                     (dolist (zz si) (llog "SI:'%s'" zz))
                                      (if (cl-find gnu-apl-current-function-title si :test #'equal)
                                        (ecase gnu-apl-redefine-function-when-is-use-action
                                          (error (message "Function already on the )SI stack"))
