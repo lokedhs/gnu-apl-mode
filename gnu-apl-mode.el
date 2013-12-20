@@ -67,7 +67,7 @@ Permitted values are:
                            ("diamond" "⋄" "`")
                            ("tilde-diaeresis" "⍨" "~")
                            ("diaeresis" "¨" "1")
-                           ("identical-to" "≡" "!")
+                           ("inverted-exclamation-mark" "¡" "!")
                            ("macron" "¯" "2")
                            ("not-identical-to" "≢" "@")
                            ("less-than" "<" "3")
