@@ -1,7 +1,14 @@
 Emacs mode for GNU APL
+======================
+
+Author contact information
+--------------------------
+
+  - Elias Martenson
+  - Email: lokedhs@gmail.com
 
 Installing gnu-apl-mode
-=======================
+-----------------------
 
 To install, add the following to your init.el:
 
@@ -13,7 +20,7 @@ To install, add the following to your init.el:
 You can then start the APL interaction using `M-x gnu-apl`.
 
 GNU APL version requirements
-============================
+----------------------------
 
 This package requires certain features of GNU APL that at the time of
 this writing is only available in the latest versions from the
@@ -23,7 +30,7 @@ used by this mode. If your version of GNU APL is too old, you will get
 an error message saying that the `--emacs` flag is not understood.
 
 Configuring APL font
-====================
+--------------------
 
 Usually, one wants to use a different font for APL buffers. This can
 be done using the following configuration:
@@ -41,7 +48,7 @@ This enables `buffer-face-mode` with the chosen font when an APL
 buffer is opened.
 
 Keymap
-======
+------
 
 This mode provides two different ways to input APL characters. The
 first is part of the mode itself, and implements the full GNU APL
@@ -54,9 +61,9 @@ provide the same keymap, but prefixed by ".". Pressing dot twice will
 output a dot on its own.
 
 Keyboard help
-=============
+-------------
 
 By default, the keyboard help buffer is opened whenever the GNU APL
 interactive mode is started. If you do not want this behaviour, set
-the variable `gnu-apl-show-keymap-on-startup` to nil. This value can
+the variable `gnu-apl-show-keymap-on-startup` to `nil`. This value can
 be customised using `M-x customize-variable`.
