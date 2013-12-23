@@ -104,7 +104,7 @@ buffer can also be toggled using the command
                            ("iota-underbar" "⍸" "I")
                            ("omega" "⍵" "w")
                            ("circle-stile" "⌽" "W")
-                           ("epsilon" "∈" "e")
+                           ("epsilon" "∊" "e")
                            ("epsilon-underbar" "⍷" "E")
                            ("tilde" "∼" "t")
                            ("circle-backslash" "⍉" "T")
@@ -182,7 +182,9 @@ buffer can also be toggled using the command
       (let ((key-sequence (caddr command)))
         (dolist (s (if (listp key-sequence) key-sequence (list key-sequence)))
           (define-key map (kbd (concat prefix s)) (gnu-apl--make-key-command-sym (car command))))
-        (define-key map (kbd "C-c k") 'gnu-apl-show-keyboard)))
+        (define-key map (kbd "C-c k") 'gnu-apl-show-keyboard)
+        (define-key map [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
+        (define-key map [menu-bar gnu-apl toggle-keyboard] '("Toggle Keyboard" . gnu-apl-show-keyboard))))
     map))
 
 (defvar gnu-apl-mode-map

@@ -22,7 +22,7 @@
     ("?"
      "Roll" "One integer selected randomly from the first B integers"
      "Deal" "A distinct integers selected randomly from the first B integers")
-    ("∈" nil nil
+    ("∊" nil nil
      "Membership" "1 for elements of A present in B; 0 where not.")
     ("⌈"
      "Ceiling" "Least integer greater than or equal to B"
@@ -212,6 +212,7 @@
                  (found (cl-find key gnu-apl--symbols :key #'third :test #'equal))
                  (result-string (if found (gnu-apl--make-clickable (second found) keymap) " ")))
             (replace-match (concat key result-string) t t)))
+        (add-text-properties (point-min) (point-max) (list 'face 'gnu-apl-default))
         (gnu-apl-keymap-mode))
       buffer)))
 
