@@ -5,10 +5,12 @@ Installing gnu-apl-mode
 
 To install, add the following to your init.el:
 
+```lisp
 (add-to-list 'load-path "~/path-to/gnu-apl-mode")
 (require 'gnu-apl-mode)
+```
 
-You can then start the APL interaction using M-x gnu-apl.
+You can then start the APL interaction using `M-x gnu-apl`.
 
 GNU APL version requirements
 ============================
@@ -16,9 +18,9 @@ GNU APL version requirements
 This package requires certain features of GNU APL that at the time of
 this writing is only available in the latest versions from the
 Subversion repository. In partciular, it takes advantage of a command
-line option called --emacs which enables certain features that are
+line option called `--emacs` which enables certain features that are
 used by this mode. If your version of GNU APL is too old, you will get
-an error message saying that the --emacs flag is not understood.
+an error message saying that the `--emacs` flag is not understood.
 
 Configuring APL font
 ====================
@@ -26,15 +28,17 @@ Configuring APL font
 Usually, one wants to use a different font for APL buffers. This can
 be done using the following configuration:
 
+```lisp
 (defun em-gnu-apl-init ()
   (setq buffer-face-mode-face '(:height 130 :family "APL385 Unicode"))
   (buffer-face-mode))
 
 (add-hook 'gnu-apl-interactive-mode-hook 'em-gnu-apl-init)
 (add-hook 'gnu-apl-mode-hook 'em-gnu-apl-init)
+```
 
-This enables buffer-face-mode with the chosen font when an APL buffer
-is opened.
+This enables `buffer-face-mode` with the chosen font when an APL
+buffer is opened.
 
 Keymap
 ======
@@ -45,7 +49,7 @@ keymap, when the "super" key is active.
 
 If your keyboard does not have a super key (I highly recommend that
 you map one, for example the otherwise useless windows key), you can
-also use the APL-Z mode. Simply press C-\ and choose APL-Z. This will
+also use the `APL-Z` mode. Simply press `C-\` and choose `APL-Z`. This will
 provide the same keymap, but prefixed by ".". Pressing dot twice will
 output a dot on its own.
 
@@ -54,5 +58,5 @@ Keyboard help
 
 By default, the keyboard help buffer is opened whenever the GNU APL
 interactive mode is started. If you do not want this behaviour, set
-the variable `gnu-apl-show-keymap-on-startup' to nil. This value can
-be customised using M-x customize-variable.
+the variable `gnu-apl-show-keymap-on-startup` to nil. This value can
+be customised using `M-x customize-variable`.
