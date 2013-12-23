@@ -48,3 +48,11 @@ you map one, for example the otherwise useless windows key), you can
 also use the APL-Z mode. Simply press C-\ and choose APL-Z. This will
 provide the same keymap, but prefixed by ".". Pressing dot twice will
 output a dot on its own.
+
+Keyboard help
+=============
+
+By default, the keyboard help buffer is opened whenever the GNU APL
+interactive mode is started. If you do not want this behaviour, set
+the variable `gnu-apl-show-keymap-on-startup' to nil. This value can
+be customised using M-x customize-variable.
