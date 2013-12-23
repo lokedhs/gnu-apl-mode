@@ -33,6 +33,15 @@ Permitted values are:
   :group 'gnu-apl)
 
 ;;;###autoload
+(defcustom gnu-apl-show-keymap-on-startup t
+  "When non-nil, automatically display the keymap when activatibg
+the GNU APL buffer using the command `gnu-apl'. The keyboard help
+buffer can also be toggled using the command
+`gnu-apl-show-keyboard'."
+  :type 'boolean
+  :group 'gnu-apl)
+
+;;;###autoload
 (defface gnu-apl-default
   ()
   "Face used for APL buffers"
@@ -172,7 +181,8 @@ Permitted values are:
     (dolist (command gnu-apl--symbols)
       (let ((key-sequence (caddr command)))
         (dolist (s (if (listp key-sequence) key-sequence (list key-sequence)))
-          (define-key map (kbd (concat prefix s)) (gnu-apl--make-key-command-sym (car command))))))
+          (define-key map (kbd (concat prefix s)) (gnu-apl--make-key-command-sym (car command))))
+        (define-key map (kbd "C-c k") 'gnu-apl-show-keyboard)))
     map))
 
 (defvar gnu-apl-mode-map

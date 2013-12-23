@@ -178,7 +178,9 @@ the function and set it in the running APL interpreter."
       (make-comint-in-buffer "apl" buffer resolved-binary nil
                              "--rawCIN" "--emacs")
       (gnu-apl-interactive-mode)
-      (setq gnu-apl-current-session buffer))))
+      (setq gnu-apl-current-session buffer))
+    (when gnu-apl-show-keymap-on-startup
+      (run-at-time "0 sec" nil #'(lambda () (gnu-apl-show-keyboard 1))))))
 
 (defun gnu-apl--open-function-editor-with-timer (lines)
   (run-at-time "0 sec" nil #'(lambda () (gnu-apl-open-external-function-buffer lines))))

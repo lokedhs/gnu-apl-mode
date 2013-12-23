@@ -149,6 +149,39 @@
   (use-local-map gnu-apl-keymap-mode-map)
   (read-only-mode))
 
+(defun gnu-apl--make-clickable (string keymap)
+  (propertize string
+              'mouse-face 'highlight
+              'help-echo (concat "mouse-2: Insert " string " in GNU APL buffer")
+              'gnu-apl-insert string
+              'keymap keymap))
+
+(defun gnu-apl-mouse-insert-from-keymap (event)
+  "In the keymap buffer, insert the symbol that was clicked."
+  (interactive "e")
+  (let ((window (posn-window (event-end event)))
+        (pos (posn-point (event-end event))))
+    (unless (windowp window)
+      (error "Can't find window"))
+    (let ((string (with-current-buffer (window-buffer window)
+                    (get-text-property pos 'gnu-apl-insert)))
+          (session (gnu-apl--get-interactive-session)))
+      (with-current-buffer session
+        (insert string)))))
+
+(defun gnu-apl-symbol-insert-from-keymap ()
+  (interactive)
+  (let ((string (get-text-property (point) 'gnu-apl-insert))
+        (session (gnu-apl--get-interactive-session)))
+    (with-current-buffer session
+      (insert string))))
+
+(defun gnu-apl--make-help-property-keymap ()
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-2] 'gnu-apl-mouse-insert-from-keymap)
+    (define-key map (kbd "RET") 'gnu-apl-symbol-insert-from-keymap)
+    map))
+
 (defun gnu-apl--make-readable-keymap ()
   (let ((keymap-template "╔════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦═════════╗
 ║ ~∇ ║ !∇ ║ @∇ ║ #∇ ║ $∇ ║ %∇ ║ ^∇ ║ &∇ ║ *∇ ║ (∇ ║ )∇ ║ _∇ ║ +∇ ║         ║
@@ -163,7 +196,13 @@
 ║             ║ Z∇ ║ X∇ ║ C∇ ║ V∇ ║ B∇ ║ N∇ ║ M∇ ║ <∇ ║ >∇ ║ ?∇ ║          ║
 ║  SHIFT      ║ z∇ ║ x∇ ║ c∇ ║ v∇ ║ b∇ ║ n∇ ║ m∇ ║ ,∇ ║ .∇ ║ /∇ ║  SHIFT   ║
 ╚═════════════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩══════════╝"))
-    (let ((buffer (get-buffer-create *gnu-apl-keymap-buffer-name*)))
+    ;; Ensure that the buffer is recreated
+    (let ((old-buffer (get-buffer *gnu-apl-keymap-buffer-name*)))
+      (when old-buffer
+        (kill-buffer old-buffer)))
+    ;; Recreate the buffer according to the active keymap.
+    (let ((buffer (get-buffer-create *gnu-apl-keymap-buffer-name*))
+          (keymap (gnu-apl--make-help-property-keymap)))
       (with-current-buffer buffer
         (delete-region (point-min) (point-max))
         (insert keymap-template)
@@ -171,18 +210,29 @@
         (while (search-forward-regexp "\\(.\\)∇" nil t)
           (let* ((key (match-string 1))
                  (found (cl-find key gnu-apl--symbols :key #'third :test #'equal))
-                 (result-string (if found (second found) " ")))
+                 (result-string (if found (gnu-apl--make-clickable (second found) keymap) " ")))
             (replace-match (concat key result-string) t t)))
         (gnu-apl-keymap-mode))
       buffer)))
 
-(defun gnu-apl-show-keyboard ()
-  (interactive)
-  (let ((buffer (or (when nil ; Make sure the buffer is always created
-                      (get-buffer *gnu-apl-keymap-buffer-name*))
-                    (gnu-apl--make-readable-keymap))))
-    (let ((window (split-window nil (- (with-current-buffer buffer (1+ (count-lines (point-min) (point-max))))))))
-      (set-window-buffer window buffer))))
+(defun gnu-apl-show-keyboard (&optional arg)
+  "When arg is nil, toggle the display of the keyboard help. If
+positive, always show the buffer, if negative close the buffer if
+it is open."
+  (interactive "P")
+  (let ((keyboard-help (get-buffer *gnu-apl-keymap-buffer-name*)))
+    (if (and keyboard-help (get-buffer-window keyboard-help))
+        ;; The buffer is displayed. Maybe close it.
+        (when (or (null arg) (minusp arg))
+          (gnu-apl-keymap-mode-kill-buffer))
+      ;; The buffer is not displayed, check if it's supposed to be displayed
+      (when (or (null arg) (plusp arg))
+        (let* ((buffer (or (when nil ; Make sure the buffer is always created
+                             (get-buffer *gnu-apl-keymap-buffer-name*))
+                           (gnu-apl--make-readable-keymap)))
+               (window (split-window nil (- (with-current-buffer buffer
+                                              (1+ (count-lines (point-min) (point-max))))))))
+          (set-window-buffer window buffer))))))
 
 (defvar gnu-apl--function-regexp
   (regexp-opt (mapcar #'car gnu-apl--symbol-doc)))
