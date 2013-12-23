@@ -34,7 +34,7 @@ Permitted values are:
 
 ;;;###autoload
 (defcustom gnu-apl-show-keymap-on-startup t
-  "When non-nil, automatically display the keymap when activatibg
+  "When non-nil, automatically display the keymap when activating
 the GNU APL buffer using the command `gnu-apl'. The keyboard help
 buffer can also be toggled using the command
 `gnu-apl-show-keyboard'."
