@@ -10,7 +10,7 @@ Author contact information
 Installing gnu-apl-mode
 -----------------------
 
-To install, add the following to your init.el:
+To install, add the following to your `init.el`:
 
 ```lisp
 (add-to-list 'load-path "~/path-to/gnu-apl-mode")
