@@ -25,9 +25,9 @@ to redefine a function which is already on the )SI stack.
 Permitted values are:
 
     error - Signal an error message
-    clear - Clear the SI stack before editing
+    clear - Clear the )SI stack before editing
     allow - Allow the edit to continue
-    ask - Ask the user whether to clear the )SI stack or not"
+    ask - Ask the user what action to take"
   :type 'symbol
   :options '(error clear allow ask)
   :group 'gnu-apl)

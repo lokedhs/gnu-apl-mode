@@ -125,29 +125,71 @@
      "Unique" "Return an array of all unique elements in B"
      nil nil)))
 
+;;;
+;;; Keymap buffer
+;;;
+
+(defvar *gnu-apl-keymap-buffer-name* "*gnu-apl keymap*")
+
+(defun gnu-apl-keymap-mode-kill-buffer ()
+  (interactive)
+  (let ((buffer (get-buffer *gnu-apl-keymap-buffer-name*)))
+    (when buffer
+      (delete-windows-on buffer)
+      (kill-buffer buffer))))
+
+(defvar gnu-apl-keymap-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "q") 'gnu-apl-keymap-mode-kill-buffer)
+    map)
+  "Keymap for keymap mode buffers")
+
+(define-derived-mode gnu-apl-keymap-mode fundamental-mode "GNU APL Keymap"
+  "Major mode for displaying the keymap help"
+  (use-local-map gnu-apl-keymap-mode-map)
+  (read-only-mode))
+
 (defun gnu-apl--make-readable-keymap ()
-  (let ((base '((("`" "~") ("1" "!") ("2" "@") ("3" "#") ("4" "$") ("5" "%") ("6" "^") ("7" "&") ("8" "*") ("9" "(") ("0" ")") ("-" "_") ("=" "+") "Backspace")
-                ("Tab" ("q" "Q") ("w" "W") ("e" "E") ("r" "R") ("t" "T") ("y" "Y") ("u" "U") ("i" "I") ("o" "O") ("p" "P") ("[" "{") ("]" "}") ("\\" "|"))
-                ("Control" ("a" "A") ("s" "S") ("d" "D") ("f" "F") ("g" "G") ("h" "H") ("j" "J") ("k" "K") ("l" "L") (";" ":") ("'" "\"") "Return")
-                ("Shift" ("z" "Z") ("x" "X") ("c" "C") ("v" "V") ("b" "B") ("n" "N") ("m" "M") ("," "<") ("." ">") ("/" "?") "Shift"))))
-    (let ((buffer (get-buffer-create "*gnu-apl keymap*")))
+  (let ((keymap-template "╔════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦═════════╗
+║ ~∇ ║ !∇ ║ @∇ ║ #∇ ║ $∇ ║ %∇ ║ ^∇ ║ &∇ ║ *∇ ║ (∇ ║ )∇ ║ _∇ ║ +∇ ║         ║
+║ `∇ ║ 1∇ ║ 2∇ ║ 3∇ ║ 4∇ ║ 5∇ ║ 6∇ ║ 7∇ ║ 8∇ ║ 9∇ ║ 0∇ ║ -∇ ║ =∇ ║ BACKSP  ║
+╠════╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦══════╣
+║       ║ Q∇ ║ W∇ ║ E∇ ║ R∇ ║ T∇ ║ Y∇ ║ U∇ ║ I∇ ║ O∇ ║ P∇ ║ {∇ ║ }∇ ║  |∇  ║
+║  TAB  ║ q∇ ║ w∇ ║ e∇ ║ r∇ ║ t∇ ║ y∇ ║ u∇ ║ i∇ ║ o∇ ║ p∇ ║ [∇ ║ ]∇ ║  \\∇  ║
+╠═══════╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩══════╣
+║ (CAPS   ║ A∇ ║ S∇ ║ D∇ ║ F∇ ║ G∇ ║ H∇ ║ J∇ ║ K∇ ║ L∇ ║ :∇ ║ \"∇ ║         ║
+║  LOCK)  ║ a∇ ║ s∇ ║ d∇ ║ f∇ ║ g∇ ║ h∇ ║ j∇ ║ k∇ ║ l∇ ║ ;∇ ║ '∇ ║ RETURN  ║
+╠═════════╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═════════╣
+║             ║ Z∇ ║ X∇ ║ C∇ ║ V∇ ║ B∇ ║ N∇ ║ M∇ ║ <∇ ║ >∇ ║ ?∇ ║          ║
+║  SHIFT      ║ z∇ ║ x∇ ║ c∇ ║ v∇ ║ b∇ ║ n∇ ║ m∇ ║ ,∇ ║ .∇ ║ /∇ ║  SHIFT   ║
+╚═════════════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩══════════╝"))
+    (let ((buffer (get-buffer-create *gnu-apl-keymap-buffer-name*)))
       (with-current-buffer buffer
         (delete-region (point-min) (point-max))
-        (insert "foo\nbar\nblip")
-        (add-text-properties (point-min) (point-max) '(readonly t)))
+        (insert keymap-template)
+        (goto-char (point-min))
+        (while (search-forward-regexp "\\(.\\)∇" nil t)
+          (let* ((key (match-string 1))
+                 (found (cl-find key gnu-apl--symbols :key #'third :test #'equal))
+                 (result-string (if found (second found) " ")))
+            (replace-match (concat key result-string) t t)))
+        (gnu-apl-keymap-mode))
       buffer)))
-
-(defun gnu-apl--make-keymap-buffer ()
-  (let ((buffer (get-buffer "*gnu-apl keymap*")))
-    (or buffer (gnu-apl--make-readable-keymap))))
 
 (defun gnu-apl-show-keyboard ()
   (interactive)
-  (let ((buffer (gnu-apl--make-keymap-buffer)))
-    (split-window nil (- (with-current-buffer buffer (count-lines (point-min) (point-max)))))))
+  (let ((buffer (or (when nil ; Make sure the buffer is always created
+                      (get-buffer *gnu-apl-keymap-buffer-name*))
+                    (gnu-apl--make-readable-keymap))))
+    (let ((window (split-window nil (- (with-current-buffer buffer (1+ (count-lines (point-min) (point-max))))))))
+      (set-window-buffer window buffer))))
 
 (defvar gnu-apl--function-regexp
   (regexp-opt (mapcar #'car gnu-apl--symbol-doc)))
+
+;;;
+;;;  Eldoc integration
+;;;
 
 (defun gnu-apl--is-point-on-argument-value ()
   (save-excursion
