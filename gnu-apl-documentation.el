@@ -22,7 +22,8 @@
     ("?"
      "Roll" "One integer selected randomly from the first B integers"
      "Deal" "A distinct integers selected randomly from the first B integers")
-    ("∊" nil nil
+    ("∊"
+     "Enlist" "Create a vector containing all scalars in B"
      "Membership" "1 for elements of A present in B; 0 where not.")
     ("⌈"
      "Ceiling" "Least integer greater than or equal to B"
