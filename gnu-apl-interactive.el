@@ -73,18 +73,6 @@ the function and set it in the running APL interpreter."
         when processed
         collect processed))
 
-(defun gnu-apl--replace-enclose (string)
-  "This function is a hack to replace the use of U+2208 with
-U+220A when the output of ⎕CR is requested. This is needed
-because U+2208 doesn't render very well in Emacs."
-  (if (string-match "\\([└┗]\\)\\(∈+\\)" string)
-      (replace-match (with-output-to-string
-                       (princ (match-string 1 string))
-                       (loop repeat (length (match-string 2 string))
-                             do (princ "∊")))
-                     t t string)
-    string))
-
 (defun gnu-apl--preoutput-filter (line)
   (let ((result ""))
     (labels ((add-to-result (s)
@@ -111,7 +99,7 @@ because U+2208 doesn't render very well in Emacs."
                                   (if first
                                       (setq first nil)
                                     (add-to-result "\n"))
-                                  (add-to-result (gnu-apl--set-face-for-text type (gnu-apl--replace-enclose command))))))
+                                  (add-to-result (gnu-apl--set-face-for-text type command)))))
                    ;; Reading the content of a function
                    (reading-function (cond ((string-match *gnu-apl-function-text-end* command)
                                             (let ((s (cond (gnu-apl-current-function-text
