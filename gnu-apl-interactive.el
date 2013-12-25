@@ -167,6 +167,10 @@ the function and set it in the running APL interpreter."
   (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
   (setq font-lock-defaults '(nil t)))
 
+(defun gnu-apl-open-customise ()
+  (interactive)
+  (customize-group 'gnu-apl t))
+
 (defun gnu-apl (apl-executable)
   (interactive (list (when current-prefix-arg (read-file-name "Location of GNU APL Executable: " nil nil t))))
   (let ((buffer (get-buffer-create "*gnu-apl*"))
@@ -174,9 +178,27 @@ the function and set it in the running APL interpreter."
     (unless resolved-binary
       (user-error "GNU APL Executable was not set"))
     (pop-to-buffer-same-window buffer)
+    (when gnu-apl-show-tips-on-start
+      (insert "To toggle keyboard help, call M-x gnu-apl-show-keyboard (C-c k by default).\n"
+              "APL symbols are bound to the standard keys with the Super key. You can also\n"
+              "activate the APL-Z input method (M-x toggle-input method or C-\\) which\n"
+              "allows you to input APL symbols by prefixing the key with a \".\" (period).\n\n"
+              "There are several "
+              (propertize "customisation"
+                          'face 'link
+                          'mouse-face 'highlight
+                          'help-echo "mouse-2: Customise group gnu-apl"
+                          'keymap (let ((keymap (make-sparse-keymap)))
+                                    (define-key keymap [mouse-2] 'gnu-apl-open-customise)
+                                    (define-key keymap (kbd "RET") 'gnu-apl-open-customise)
+                                    keymap))
+              " options that can be set.\n"
+              "click the link or run M-x customize-group RET gnu-apl to set up.\n\n"
+              "To disable this message, set gnu-apl-show-tips-on-start to nil.\n\n"))
     (unless (comint-check-proc buffer)
-      (make-comint-in-buffer "apl" buffer resolved-binary nil
-                             "--rawCIN" "--emacs")
+      (apply #'make-comint-in-buffer
+             "apl" buffer resolved-binary nil
+             "--rawCIN" "--emacs" (append (if (not gnu-apl-show-apl-welcome) (list "--silent"))))
       (gnu-apl-interactive-mode)
       (setq gnu-apl-current-session buffer))
     (when gnu-apl-show-keymap-on-startup

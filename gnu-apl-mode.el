@@ -41,6 +41,17 @@ buffer can also be toggled using the command
   :type 'boolean
   :group 'gnu-apl)
 
+(defcustom gnu-apl-show-apl-welcome t
+  "When non-nil, display the APL welcome screen. When this value
+is nil, the apl binary is called with the --silent flag."
+  :type 'boolean
+  :group 'gnu-apl)
+
+(defcustom gnu-apl-show-tips-on-start t
+  "When non-nil, show some help when starting a new APL session."
+  :type 'boolean
+  :group 'gnu-apl)
+
 ;;;###autoload
 (defface gnu-apl-default
   ()
