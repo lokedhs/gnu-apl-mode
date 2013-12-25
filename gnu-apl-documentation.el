@@ -37,11 +37,14 @@
     ("↑"
      "Take" "Select the first element of B"
      "Take" "Select the first (or last) A elements of B according to ×A")
-    ("↓" nil nil
+    ("↓"
+     nil nil
      "Drop " "Remove the first (or last) A elements of B according to ×A")
-    ("⊥" nil nil
+    ("⊥"
+     nil nil
      "Decode" "Value of a polynomial whose coefficients are B at A")
-    ("⊤" nil nil
+    ("⊤"
+     nil nil
      "Encode" "Base-A representation of the value of B")
     ("∣"
      "Absolute value" "Magnitude of B"
@@ -49,10 +52,15 @@
     (","
      "Ravel" "Reshapes B into a vector"
      "Catenation" "Elements of B appended to the elements of A")
-    ("\\" nil nil
+    ("\\"
+     nil nil
      "Expansion" "Insert zeros (or blanks) in B corresponding to zeros in A")
-    ("/" nil nil
-     "Compression" "Select elements in B corresponding to ones in A")
+    ("/"
+     nil nil
+     "Compression" "Select elements in B corresponding to ones in A"
+     "Axis operator: Reduce: A/B where A is an operator and B is
+     an array, acts as if A is interspersed between every element
+     of B.")
     ("⍳"
      "Index generator" "Vector of the first B integers"
      "Index of" "The location (index) of B in A; 1+⌈/⍳⍴A if not found")
@@ -124,7 +132,11 @@
      "Pick" "Select a value from B based on A")
     ("∪"
      "Unique" "Return an array of all unique elements in B"
-     nil nil)))
+     nil nil))
+  "Documentation for APL symbols. Each element is a list of six
+elements: The APL symbol, name of monadic operator, description
+of the monadic operator, name of the dyadic operator, description
+of the dyadic operator, extra documentation.")
 
 ;;;
 ;;; Keymap buffer
@@ -150,10 +162,20 @@
   (use-local-map gnu-apl-keymap-mode-map)
   (read-only-mode))
 
+(defun gnu-apl--get-full-docstring-for-symbol (string)
+  (let ((doc (cl-find string gnu-apl--symbol-doc :key #'car :test #'string=)))
+    (when doc
+      (apply #'concat
+             (concat "Documentation for " string "\n\n")
+             (append (when (second doc) (list (concat "Monadic: " (second doc) ": " (third doc) "\n")))
+                     (when (fourth doc) (list (concat "Dyadic: " (fourth doc) ": " (fifth doc) "\n")))
+                     (when (sixth doc) (list (concat (sixth doc) "\n"))))))))
+
 (defun gnu-apl--make-clickable (string keymap)
   (propertize string
               'mouse-face 'highlight
-              'help-echo (concat "mouse-2: Insert " string " in GNU APL buffer")
+              'help-echo (concat "mouse-1: Show documentation for " string "\n"
+                                 "mouse-2: Insert " string " in GNU APL buffer")
               'gnu-apl-insert string
               'keymap keymap))
 
