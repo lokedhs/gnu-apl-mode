@@ -196,10 +196,10 @@ the function and set it in the running APL interpreter."
         (resolved-binary (or apl-executable gnu-apl-executable)))
     (unless resolved-binary
       (user-error "GNU APL Executable was not set"))
-    (pop-to-buffer-same-window buffer)
-    (when gnu-apl-show-tips-on-start
-      (gnu-apl--insert-tips))
+    (pop-to-buffer-same-window buffer)    
     (unless (comint-check-proc buffer)
+      (when gnu-apl-show-tips-on-start
+        (gnu-apl--insert-tips))
       (apply #'make-comint-in-buffer
              "apl" buffer resolved-binary nil
              "--rawCIN" "--emacs" (append (if (not gnu-apl-show-apl-welcome) (list "--silent"))))
