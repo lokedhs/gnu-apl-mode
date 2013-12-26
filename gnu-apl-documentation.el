@@ -201,9 +201,7 @@ of the dyadic operator, extra documentation.")
         (goto-char (point-min))
         (read-only-mode 1)
         (local-set-key (kbd "q") 'gnu-apl-close-documentation-buffer))
-      (let ((window (split-window nil (- (with-current-buffer buffer
-                                           (1+ (count-lines (point-min) (point-max))))))))
-        (set-window-buffer window buffer)))))
+      (pop-to-buffer buffer))))
 
 (defun gnu-apl--make-clickable (string keymap)
   (propertize string
