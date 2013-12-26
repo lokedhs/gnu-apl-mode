@@ -19,7 +19,7 @@ function editor must be opened manually using the function
 `gnu-apl-edit-function'.")
 
 ;;;###autoload
-(defcustom gnu-apl-redefine-function-when-is-use-action 'error
+(defcustom gnu-apl-redefine-function-when-is-use-action 'ask
   "This parameter controls the behaviour when an attempt is made
 to redefine a function which is already on the )SI stack.
 Permitted values are:
