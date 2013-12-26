@@ -39,21 +39,29 @@ the function and set it in the running APL interpreter."
   (gnu-apl--get-function name))
 
 (defun gnu-apl--get-function (function-definition)
-  (setq gnu-apl-current-function-title function-definition)
-  (gnu-apl-interactive-send-string (concat "'" *gnu-apl-read-si-start* "'"))
-  (gnu-apl-interactive-send-string (concat ")SI"))
-  (gnu-apl-interactive-send-string (concat "'" *gnu-apl-read-si-end* "'")))
+  (let ((function-name (gnu-apl--parse-function-header function-definition)))
+    (unless function-name
+      (error "Unable to parse function definition: %s" function-definition))
+    (with-current-buffer (gnu-apl--get-interactive-session)
+      (setq gnu-apl-current-function-title function-definition)
+      (gnu-apl-interactive-send-string (concat "'" *gnu-apl-function-text-start*
+                                               "' ⋄ ⎕CR '" function-name
+                                               "' ⋄ '" *gnu-apl-function-text-end* "'")))))
 
 (defun gnu-apl--send (proc string)
+  "Filter for any commands that are sent to comint"
   (let* ((trimmed (gnu-apl--trim-spaces string)))
-    (if (and gnu-apl-auto-function-editor-popup
-             (plusp (length trimmed))
-             (string= (subseq trimmed 0 1) "∇"))
-        (progn
-          (unless (gnu-apl--parse-function-header (subseq trimmed 1))
-            (user-error "Error when parsing function definition command"))
-          (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1))))
-      (comint-simple-send proc string))))
+    (cond ((and gnu-apl-auto-function-editor-popup
+                 (plusp (length trimmed))
+                 (string= (subseq trimmed 0 1) "∇"))
+           ;; The command is a functiond definition command
+           (unless (gnu-apl--parse-function-header (subseq trimmed 1))
+             (user-error "Error when parsing function definition command"))
+           (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1))))
+
+          (t
+           ;; Default, simply pass the input to the process
+           (comint-simple-send proc string)))))
 
 (defun gnu-apl--parse-text (string)
   (if (zerop (length string))
@@ -64,14 +72,14 @@ the function and set it in the running APL interpreter."
         (#xf00c0 (list 'cin command))
         (#xf00c1 (list 'cout command))
         (#xf00c2 (list 'cerr command))
-        (#xf00c3 (list 'app-error command))
+        (#xf00c3 (list 'uerr command))
         (t (list 'normal string))))))
 
 (defun gnu-apl--set-face-for-text (type text)
   (let ((s (copy-seq text)))
     (case type
       (cerr (add-text-properties 0 (length s) '(font-lock-face gnu-apl-error-face) s))
-      (app-error (add-text-properties 0 (length s) '(font-lock-face gnu-apl-user-status-text-face) s)))
+      (uerr (add-text-properties 0 (length s) '(font-lock-face gnu-apl-user-status-text-face) s)))
     s))
 
 (defun gnu-apl--process-si-line (line)
@@ -84,15 +92,16 @@ the function and set it in the running APL interpreter."
         when processed
         collect processed))
 
+(defun gnu-apl--erase-and-set-function (name content)
+  (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-start* "'\n"))
+  (gnu-apl-interactive-send-string (concat ")ERASE " name))
+  (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-end* "'\n"))
+  (gnu-apl-interactive-send-string (concat content "∇\n")))
+
 (defun gnu-apl--preoutput-filter (line)
   (let ((result ""))
     (labels ((add-to-result (s)
-               (setq result (concat result s)))
-
-             (send-edit-function (title)
-               (gnu-apl-interactive-send-string (concat "'" *gnu-apl-function-text-start*
-                                                        "' ⋄ ⎕CR '" title
-                                                        "' ⋄ '" *gnu-apl-function-text-end* "'"))))
+               (setq result (concat result s))))
 
       (loop with first = t
             for plain in (split-string line "\n")
@@ -111,6 +120,7 @@ the function and set it in the running APL interpreter."
                                       (setq first nil)
                                     (add-to-result "\n"))
                                   (add-to-result (gnu-apl--set-face-for-text type command)))))
+
                    ;; Reading the content of a function
                    (reading-function (cond ((string-match *gnu-apl-function-text-end* command)
                                             (let ((s (cond (gnu-apl-current-function-text
@@ -123,20 +133,31 @@ the function and set it in the running APL interpreter."
                                               (setq gnu-apl-current-function-title nil)
                                               (gnu-apl--open-function-editor-with-timer s))
                                             (setq gnu-apl-preoutput-filter-state 'normal))
+                                           ;; No special input, collect the function line
                                            (t
                                             (push command gnu-apl-current-function-text))))
+
                    ;; Read the output of )SI
                    (read-si (cond ((string-match *gnu-apl-read-si-end* command)
                                    (unless gnu-apl-current-function-title
                                      (error "End of )SI output but no active function"))
-                                   (let ((si (gnu-apl--process-si-lines gnu-apl-current-si)))
+                                   (let ((si (gnu-apl--process-si-lines gnu-apl-current-si))
+                                         (function-name (gnu-apl--parse-function-header gnu-apl-current-function-title))
+                                         (content gnu-apl-content))
                                      (setq gnu-apl-current-si nil)
+                                     (setq gnu-apl-current-function-title nil)
+                                     (setq gnu-apl-content nil)
+
+                                     (unless (and function-name content)
+                                       (error "About to save function but function name or content missing"))
+
                                      (labels ((send-edit ()
-                                                (send-edit-function gnu-apl-current-function-title))
+                                                (gnu-apl--erase-and-set-function function-name content))
                                               (send-clear-and-edit ()
                                                 (gnu-apl-interactive-send-string ")SIC")
                                                 (send-edit)))
-                                       (if (cl-find gnu-apl-current-function-title si :test #'equal)
+
+                                       (if (cl-find function-name si :test #'equal)
                                            (ecase gnu-apl-redefine-function-when-in-use-action
                                              (error (message "Function already on the )SI stack"))
                                              (clear (send-clear-and-edit))
@@ -148,6 +169,7 @@ the function and set it in the running APL interpreter."
                                      (setq gnu-apl-preoutput-filter-state 'normal)))
                                   (t
                                    (push command gnu-apl-current-si))))
+
                    ;; Ignoring output
                    (ignore (cond ((string-match *gnu-apl-ignore-end* command)
                                   (setq gnu-apl-preoutput-filter-state 'normal))
@@ -181,6 +203,8 @@ the function and set it in the running APL interpreter."
   (set (make-local-variable 'gnu-apl-current-function-text) nil)
   ;; List of the output lines in )SI (reverse)
   (set (make-local-variable 'gnu-apl-current-si) nil)
+  ;; List of the lines in the function definition to be sent after checking )SI stack
+  (set (make-local-variable 'gnu-apl-content) nil)
 
   (set (make-local-variable 'comint-input-sender) 'gnu-apl--send)
   (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
@@ -209,12 +233,13 @@ the function and set it in the running APL interpreter."
           "To disable this message, set gnu-apl-show-tips-on-start to nil.\n\n"))
 
 (defun gnu-apl (apl-executable)
-  (interactive (list (when current-prefix-arg (read-file-name "Location of GNU APL Executable: " nil nil t))))
+  (interactive (list (when current-prefix-arg
+                       (read-file-name "Location of GNU APL Executable: " nil nil t))))
   (let ((buffer (get-buffer-create "*gnu-apl*"))
         (resolved-binary (or apl-executable gnu-apl-executable)))
     (unless resolved-binary
       (user-error "GNU APL Executable was not set"))
-    (pop-to-buffer-same-window buffer)    
+    (pop-to-buffer-same-window buffer)
     (unless (comint-check-proc buffer)
       (when gnu-apl-show-tips-on-start
         (gnu-apl--insert-tips))
@@ -250,9 +275,9 @@ the function and set it in the running APL interpreter."
 function or nil if the function could not be parsed."
   (let ((line (gnu-apl--trim-spaces string)))
     (cond ((string-match (concat "^\\(?:[a-z0-9∆_]+ *← *\\)?" ; result variable
-                                  "\\([a-za-z0-9∆_ ]+\\)" ; function and arguments
-                                  "\\(?:;.*\\)?$" ; local variables
-                                  )
+                                 "\\([a-za-z0-9∆_ ]+\\)" ; function and arguments
+                                 "\\(?:;.*\\)?$" ; local variables
+                                 )
                          line)
            ;; Plain function definition
            (let ((parts (split-string (match-string 1 line))))
@@ -262,9 +287,9 @@ function or nil if the function could not be parsed."
                (3 (cadr parts)))))
           
           ((string-match (concat "^\\(?:[a-z0-9∆_]+ *← *\\)?" ; result variable
-                                  "(\\([a-za-z0-9∆_ ]+\\))" ; left argument and function name
-                                  ".*$" ; don't care about what comes after
-                                  )
+                                 "(\\([a-za-z0-9∆_ ]+\\))" ; left argument and function name
+                                 ".*$" ; don't care about what comes after
+                                 )
                          line)
            ;; Axis operator definition
            (let ((parts (split-string (match-string 1 line))))
@@ -280,7 +305,8 @@ function or nil if the function could not be parsed."
       (user-error "Function header does not start with function definition symbol"))
     (unless (zerop (forward-line))
       (user-error "Empty function definition"))
-    (let ((function-name (gnu-apl--parse-function-header (subseq definition 1))))
+    (let* ((function-header (subseq definition 1))
+           (function-name (gnu-apl--parse-function-header function-header)))
       (unless function-name
         (user-error "Illegal function header"))
 
@@ -294,13 +320,23 @@ function or nil if the function could not be parsed."
                           buffer-content
                         (concat buffer-content "\n"))))
 
-        (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-start* "'\n"))
-        (gnu-apl-interactive-send-string (concat ")ERASE " function-name))
-        (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-end* "'\n"))
-        (gnu-apl-interactive-send-string (concat content "∇\n"))
-        (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
-                                        gnu-apl-window-configuration
-                                      nil)))
-          (kill-buffer (current-buffer))
-          (when window-configuration
-            (set-window-configuration window-configuration)))))))
+        ;; At this point, we have the following needed information:
+        ;;   function-header: the first line of the definition (minus the function definitio symbol)
+        ;;   content: a list of strings making up the function
+        ;;
+        ;; Now, we need to first check the )SI stack to make sure there is no
+        ;; active definition already (and take appropriate action), and then send
+        ;; the function to the APL interpreter.
+        (with-current-buffer (gnu-apl--get-interactive-session)
+          (setq gnu-apl-current-function-title function-header)
+          (setq gnu-apl-content content)
+          (gnu-apl-interactive-send-string (concat "'" *gnu-apl-read-si-start* "'"))
+          (gnu-apl-interactive-send-string (concat ")SI"))
+          (gnu-apl-interactive-send-string (concat "'" *gnu-apl-read-si-end* "'"))))
+
+      (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
+                                      gnu-apl-window-configuration
+                                    nil)))
+        (kill-buffer (current-buffer))
+        (when window-configuration
+          (set-window-configuration window-configuration))))))
