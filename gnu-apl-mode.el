@@ -228,6 +228,10 @@ is nil, the apl binary is called with the --silent flag."
   (use-local-map gnu-apl-mode-map)
   (gnu-apl--init-mode-common))
 
+;;;
+;;;  Load the other source files
+;;;
+
 (load "gnu-apl-input")
 (load "gnu-apl-interactive")
 (load "gnu-apl-documentation")

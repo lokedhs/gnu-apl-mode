@@ -44,6 +44,17 @@ the function and set it in the running APL interpreter."
   (gnu-apl-interactive-send-string (concat ")SI"))
   (gnu-apl-interactive-send-string (concat "'" *gnu-apl-read-si-end* "'")))
 
+(defun gnu-apl--send (proc string)
+  (let* ((trimmed (gnu-apl--trim-spaces string)))
+    (if (and gnu-apl-auto-function-editor-popup
+             (plusp (length trimmed))
+             (string= (subseq trimmed 0 1) "∇"))
+        (progn
+          (unless (gnu-apl--parse-function-header (subseq trimmed 1))
+            (user-error "Error when parsing function definition command"))
+          (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1))))
+      (comint-simple-send proc string))))
+
 (defun gnu-apl--parse-text (string)
   (if (zerop (length string))
       (list 'normal string)
@@ -293,14 +304,3 @@ function or nil if the function could not be parsed."
           (kill-buffer (current-buffer))
           (when window-configuration
             (set-window-configuration window-configuration)))))))
-
-(defun gnu-apl--send (proc string)
-  (let* ((trimmed (gnu-apl--trim-spaces string)))
-    (if (and gnu-apl-auto-function-editor-popup
-             (plusp (length trimmed))
-             (string= (subseq trimmed 0 1) "∇"))
-        (progn
-          (unless (gnu-apl--parse-function-header (subseq trimmed 1))
-            (user-error "Error when parsing function definition command"))
-          (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1))))
-      (comint-simple-send proc string))))
