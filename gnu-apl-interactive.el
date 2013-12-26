@@ -228,9 +228,8 @@ the function and set it in the running APL interpreter."
 
 (defun gnu-apl--parse-function-header (string)
   "Parse a function definition string. Returns a list of four
-elements. The
-values are: Result variable, left argument, function name, right
-argument."
+elements. The values are: Result variable, left argument,
+function name, right argument."
   (let ((line-fix (gnu-apl--trim "[ \t]" string)))
     (when (and (> (length line-fix) 0)
                (string= (char-to-string (aref line-fix 0)) "∇"))
