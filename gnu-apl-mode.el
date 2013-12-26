@@ -19,7 +19,7 @@ function editor must be opened manually using the function
 `gnu-apl-edit-function'.")
 
 ;;;###autoload
-(defcustom gnu-apl-redefine-function-when-is-use-action 'ask
+(defcustom gnu-apl-redefine-function-when-in-use-action 'ask
   "This parameter controls the behaviour when an attempt is made
 to redefine a function which is already on the )SI stack.
 Permitted values are:
@@ -28,8 +28,10 @@ Permitted values are:
     clear - Clear the )SI stack before editing
     allow - Allow the edit to continue
     ask - Ask the user what action to take"
-  :type 'symbol
-  :options '(error clear allow ask)
+  :type '(choice (const :tag "error" error)
+                 (const :tag "clear" clear)
+                 (const :tag "allow" allow)
+                 (const :tag "ask" ask))
   :group 'gnu-apl)
 
 ;;;###autoload

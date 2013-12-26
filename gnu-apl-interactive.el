@@ -126,7 +126,7 @@ the function and set it in the running APL interpreter."
                                                 (gnu-apl-interactive-send-string ")SIC")
                                                 (send-edit)))
                                        (if (cl-find gnu-apl-current-function-title si :test #'equal)
-                                           (ecase gnu-apl-redefine-function-when-is-use-action
+                                           (ecase gnu-apl-redefine-function-when-in-use-action
                                              (error (message "Function already on the )SI stack"))
                                              (clear (send-clear-and-edit))
                                              (allow (send-edit))
