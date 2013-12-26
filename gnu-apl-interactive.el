@@ -172,9 +172,10 @@ the function and set it in the running APL interpreter."
   (customize-group 'gnu-apl t))
 
 (defun gnu-apl--insert-tips ()
-  (insert "To toggle keyboard help, call M-x gnu-apl-show-keyboard (C-c k by default).\n"
+  (insert "This is the gnu-apl-mode interactive buffer.\n\n"
+          "To toggle keyboard help, call M-x gnu-apl-show-keyboard (C-c k by default).\n"
           "APL symbols are bound to the standard keys with the Super key. You can also\n"
-          "activate the APL-Z input method (M-x toggle-input method or C-\\) which\n"
+          "activate the APL-Z input method (M-x toggle-input-method or C-\\) which\n"
           "allows you to input APL symbols by prefixing the key with a \".\" (period).\n\n"
           "There are several "
           (propertize "customisation"
