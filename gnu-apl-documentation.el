@@ -236,6 +236,7 @@ of the dyadic operator, extra documentation.")
                  (result-string (if found (gnu-apl--make-clickable (second found) keymap) " ")))
             (replace-match (concat key result-string) t t)))
         (add-text-properties (point-min) (point-max) (list 'face 'gnu-apl-default))
+        (goto-char (point-min))
         (gnu-apl-keymap-mode))
       buffer)))
 
