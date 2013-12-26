@@ -225,7 +225,7 @@ the function and set it in the running APL interpreter."
     (delete-region (point-min) (point-max))
     (insert "∇")
     (dolist (line lines)
-      (insert (gnu-apl--trim " " line nil t))
+      (insert (gnu-apl--trim-spaces line nil t))
       (insert "\n"))
     (goto-char (point-min))
     (forward-line 1)
@@ -235,39 +235,42 @@ the function and set it in the running APL interpreter."
     (message "To save the buffer, use M-x gnu-apl-save-function (C-c C-c)")))
 
 (defun gnu-apl--parse-function-header (string)
-  "Parse a function definition string. Returns a list of four
-elements. The values are: Result variable, left argument,
-function name, right argument."
-  (let ((line-fix (gnu-apl--trim "[ \t]" string)))
-    (when (and (> (length line-fix) 0)
-               (string= (char-to-string (aref line-fix 0)) "∇"))
-      (let ((line (subseq line-fix 1)))
-        (when (string-match (concat "^ *\\(?:\\([a-z0-9∆_]+\\) *← *\\)?" ; result variable
-                                    "\\([a-za-z0-9∆_ ]+\\)" ; function and arguments
-                                    "\\(;.*\\)?$" ; local variables
-                                    )
-                            line)
-          (let ((result-variable (match-string 1 line))
-                (function-and-arguments (match-string 2 line))
-                (local-variables (match-string 3 line)))
-            (let* ((parts (split-string function-and-arguments))
-                   (length (length parts)))
-              (when (and (>= length 1) (<= length 3))
-                (append (list result-variable)
-                        (ecase (length parts)
-                          (1 (list nil (car parts) nil))
-                          (2 (list nil (car parts) (cadr parts)))
-                          (3 (list (car parts) (cadr parts) (caddr parts)))))))))))))
+  "Parse a function definition string. Returns the name of the
+function or nil if the function could not be parsed."
+  (let ((line (gnu-apl--trim-spaces string)))
+    (cond ((string-match (concat "^\\(?:[a-z0-9∆_]+ *← *\\)?" ; result variable
+                                  "\\([a-za-z0-9∆_ ]+\\)" ; function and arguments
+                                  "\\(?:;.*\\)?$" ; local variables
+                                  )
+                         line)
+           ;; Plain function definition
+           (let ((parts (split-string (match-string 1 line))))
+             (ecase (length parts)
+               (1 (car parts))
+               (2 (car parts))
+               (3 (cadr parts)))))
+          
+          ((string-match (concat "^\\(?:[a-z0-9∆_]+ *← *\\)?" ; result variable
+                                  "(\\([a-za-z0-9∆_ ]+\\))" ; left argument and function name
+                                  ".*$" ; don't care about what comes after
+                                  )
+                         line)
+           ;; Axis operator definition
+           (let ((parts (split-string (match-string 1 line))))
+             (when (= (length parts) 2)
+               (cadr parts)))))))
 
 (defun gnu-apl-save-function ()
   "Save the currently edited function."
   (interactive)
   (goto-char (point-min))
-  (let ((definition (thing-at-point 'line)))
+  (let ((definition (gnu-apl--trim-spaces (thing-at-point 'line))))
+    (unless (string= (subseq definition 0 1) "∇")
+      (user-error "Function header does not start with function definition symbol"))
     (unless (zerop (forward-line))
       (user-error "Empty function definition"))
-    (let ((function-arguments (gnu-apl--parse-function-header definition)))
-      (unless function-arguments
+    (let ((function-name (gnu-apl--parse-function-header (subseq definition 1))))
+      (unless function-name
         (user-error "Illegal function header"))
 
       ;; Ensure that there are no function-end markers in the buffer
@@ -281,7 +284,7 @@ function name, right argument."
                         (concat buffer-content "\n"))))
 
         (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-start* "'\n"))
-        (gnu-apl-interactive-send-string (concat ")ERASE " (caddr function-arguments)))
+        (gnu-apl-interactive-send-string (concat ")ERASE " function-name))
         (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-end* "'\n"))
         (gnu-apl-interactive-send-string (concat content "∇\n"))
         (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
@@ -292,13 +295,12 @@ function name, right argument."
             (set-window-configuration window-configuration)))))))
 
 (defun gnu-apl--send (proc string)
-  (let* ((trimmed (gnu-apl--trim " " string))
-         (parsed (gnu-apl--parse-function-header trimmed)))
-    (if (and gnu-apl-auto-function-editor-popup parsed)
+  (let* ((trimmed (gnu-apl--trim-spaces string)))
+    (if (and gnu-apl-auto-function-editor-popup
+             (plusp (length trimmed))
+             (string= (subseq trimmed 0 1) "∇"))
         (progn
-          ;; At this point there should be a function definition symbol
-          ;; at the beginning of the string. Let's confirm this:
-          (unless (string= (subseq trimmed 0 1) "∇")
-            (error "Unexpected format in function definition command"))
-          (gnu-apl--get-function (gnu-apl--trim " " (subseq string 1))))
+          (unless (gnu-apl--parse-function-header (subseq trimmed 1))
+            (user-error "Error when parsing function definition command"))
+          (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1))))
       (comint-simple-send proc string))))

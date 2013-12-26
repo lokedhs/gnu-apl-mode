@@ -15,3 +15,6 @@
         (setq res (replace-match "" t t res)))
       res)
     string))
+
+(cl-defun gnu-apl--trim-spaces (string &optional (start t) (end t))
+  (gnu-apl--trim "[ \t]" string start end))
