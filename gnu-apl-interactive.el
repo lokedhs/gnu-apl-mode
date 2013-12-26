@@ -38,8 +38,8 @@ the function and set it in the running APL interpreter."
   (interactive "MFunction name: ")
   (gnu-apl--get-function name))
 
-(defun gnu-apl--get-function (function)
-  (setq gnu-apl-current-function-title function)
+(defun gnu-apl--get-function (function-definition)
+  (setq gnu-apl-current-function-title function-definition)
   (gnu-apl-interactive-send-string (concat "'" *gnu-apl-read-si-start* "'"))
   (gnu-apl-interactive-send-string (concat ")SI"))
   (gnu-apl-interactive-send-string (concat "'" *gnu-apl-read-si-end* "'")))
@@ -294,6 +294,5 @@ function name, right argument."
           ;; at the beginning of the string. Let's confirm this:
           (unless (string= (subseq trimmed 0 1) "∇")
             (error "Unexpected format in function definition command"))
-          (setq gnu-apl-current-function-title (gnu-apl--trim " " (subseq string 1)))
-          (gnu-apl--get-function (caddr parsed)))
+          (gnu-apl--get-function (gnu-apl--trim " " (subseq string 1))))
       (comint-simple-send proc string))))
