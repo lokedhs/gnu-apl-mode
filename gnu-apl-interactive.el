@@ -183,18 +183,17 @@ the function and set it in the running APL interpreter."
   (insert "This is the gnu-apl-mode interactive buffer.\n\n"
           "To toggle keyboard help, call M-x gnu-apl-show-keyboard (C-c k by default).\n"
           "APL symbols are bound to the standard keys with the Super key. You can also\n"
-          "activate the APL-Z input method (M-x toggle-input-method or C-\\) which\n"
+          "activate the APL-Z ")
+  (insert-button "input method"
+                 'action 'toggle-input-method
+                 'follow-link t)
+  (insert " (M-x toggle-input-method or C-\\) which\n"
           "allows you to input APL symbols by prefixing the key with a \".\" (period).\n\n"
-          "There are several "
-          (propertize "customisation"
-                      'face 'link
-                      'mouse-face 'highlight
-                      'help-echo "mouse-2: Customise group gnu-apl"
-                      'keymap (let ((keymap (make-sparse-keymap)))
-                                (define-key keymap [mouse-2] 'gnu-apl-open-customise)
-                                (define-key keymap (kbd "RET") 'gnu-apl-open-customise)
-                                keymap))
-          " options that can be set.\n"
+          "There are several ")
+  (insert-button "customisation"
+                 'action #'(lambda (event) (customize-group 'gnu-apl t))
+                 'follow-link t)
+  (insert " options that can be set.\n"
           "click the link or run M-x customize-group RET gnu-apl to set up.\n\n"
           "To disable this message, set gnu-apl-show-tips-on-start to nil.\n\n"))
 
