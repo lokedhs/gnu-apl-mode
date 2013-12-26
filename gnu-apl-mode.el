@@ -194,8 +194,10 @@ is nil, the apl binary is called with the --silent flag."
         (dolist (s (if (listp key-sequence) key-sequence (list key-sequence)))
           (define-key map (kbd (concat prefix s)) (gnu-apl--make-key-command-sym (car command))))
         (define-key map (kbd "C-c k") 'gnu-apl-show-keyboard)
+        (define-key map (kbd "C-c s") 'gnu-apl-show-help-for-symbol-point)
         (define-key map [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
-        (define-key map [menu-bar gnu-apl toggle-keyboard] '("Toggle Keyboard" . gnu-apl-show-keyboard))))
+        (define-key map [menu-bar gnu-apl toggle-keyboard] '("Toggle keyboard" . gnu-apl-show-keyboard))
+        (define-key map [menu-bar gnu-apl show-help-for-symbol] '("Documentation for character" . gnu-apl-show-help-for-symbol-point))))
     map))
 
 (defvar gnu-apl-mode-map

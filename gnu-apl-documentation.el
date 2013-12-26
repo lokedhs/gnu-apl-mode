@@ -171,13 +171,48 @@ of the dyadic operator, extra documentation.")
                      (when (fourth doc) (list (concat "Dyadic: " (fourth doc) ": " (fifth doc) "\n")))
                      (when (sixth doc) (list (concat (sixth doc) "\n"))))))))
 
+(defun gnu-apl-show-help-for-symbol-point ()
+  "Open the help window for the symbol at point."
+  (interactive)
+  (let ((char (char-after (point))))
+    (when char
+      (gnu-apl-show-help-for-symbol char))))
+
+(defvar *gnu-apl-documentation-buffer-name* "*gnu-apl documentation*")
+
+(defun gnu-apl-close-documentation-buffer ()
+  "Closes the active documentation window"
+  (interactive)
+  (quit-window))
+
+(defun gnu-apl-show-help-for-symbol (symbol)
+  "Open the help window for SYMBOL."
+  (interactive "cSymbol: ")
+  (let ((string (gnu-apl--get-full-docstring-for-symbol (char-to-string symbol))))
+    (unless string
+      (user-error "No documentation available for %c" symbol))
+    (let ((old-buffer (get-buffer *gnu-apl-documentation-buffer-name*)))
+      (when old-buffer
+        (kill-buffer old-buffer)))
+    (let ((buffer (get-buffer-create *gnu-apl-documentation-buffer-name*)))
+      (with-current-buffer buffer
+        (delete-region (point-min) (point-max))
+        (insert string)
+        (goto-char (point-min))
+        (read-only-mode 1)
+        (local-set-key (kbd "q") 'gnu-apl-close-documentation-buffer))
+      (let ((window (split-window nil (- (with-current-buffer buffer
+                                           (1+ (count-lines (point-min) (point-max))))))))
+        (set-window-buffer window buffer)))))
+
 (defun gnu-apl--make-clickable (string keymap)
   (propertize string
               'mouse-face 'highlight
               'help-echo (concat "mouse-1: Show documentation for " string "\n"
                                  "mouse-2: Insert " string " in GNU APL buffer")
               'gnu-apl-insert string
-              'keymap keymap))
+              'keymap keymap
+              'follow-link t))
 
 (defun gnu-apl-mouse-insert-from-keymap (event)
   "In the keymap buffer, insert the symbol that was clicked."
