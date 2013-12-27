@@ -290,6 +290,7 @@ function or nil if the function could not be parsed."
                (3 (cadr parts)))))
           
           ((string-match (concat "^\\(?:[a-z0-9∆_]+ *← *\\)?" ; result variable
+                                 "\\(?: *[a-z0-9∆_]+ *\\)" ; optional left argument
                                  "(\\([a-za-z0-9∆_ ]+\\))" ; left argument and function name
                                  ".*$" ; don't care about what comes after
                                  )
