@@ -290,15 +290,16 @@ function or nil if the function could not be parsed."
                (3 (cadr parts)))))
           
           ((string-match (concat "^\\(?:[a-z0-9∆_]+ *← *\\)?" ; result variable
-                                 "\\(?: *[a-z0-9∆_]+ *\\)" ; optional left argument
+                                 "\\(?: *[a-z0-9∆_]+ *\\)?" ; optional left argument
                                  "(\\([a-za-z0-9∆_ ]+\\))" ; left argument and function name
                                  ".*$" ; don't care about what comes after
                                  )
                          line)
            ;; Axis operator definition
            (let ((parts (split-string (match-string 1 line))))
-             (when (= (length parts) 2)
-               (cadr parts)))))))
+             (case (length parts)
+               (2 (cadr parts))
+               (3 (cadr parts))))))))
 
 (defun gnu-apl-save-function ()
   "Save the currently edited function."
