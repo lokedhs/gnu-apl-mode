@@ -164,7 +164,10 @@ the function and set it in the running APL interpreter."
                                              (allow (send-edit))
                                              (ask (if (y-or-n-p "Function already on )SI stack. Clear )SI stack? ")
                                                       (send-clear-and-edit)
-                                                    (message "Function save cancelled"))))
+                                                    (progn
+                                                      (unless (string= (subseq content 0 1) "∇")
+                                                        (error "Content does not start with function definition symbol"))
+                                                      (gnu-apl--open-function-editor-with-timer (split-string (subseq content 1) "\n"))))))
                                          (send-edit)))
                                      (setq gnu-apl-preoutput-filter-state 'normal)))
                                   (t
