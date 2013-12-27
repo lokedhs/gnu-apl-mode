@@ -13,14 +13,16 @@
 
 ;;;###autoload
 (defcustom gnu-apl-auto-function-editor-popup t
-  "If non-nil, the function editor will start automatically when
+  "Edit function definitions in an Emacs buffer.
+If non-nil, the function editor will start automatically when
 the function definition command is entered. If nil, the
 function editor must be opened manually using the function
 `gnu-apl-edit-function'.")
 
 ;;;###autoload
 (defcustom gnu-apl-redefine-function-when-in-use-action 'ask
-  "This parameter controls the behaviour when an attempt is made
+  "What action to take when trying to save a function that is on the )SI stack.
+This parameter controls the behaviour when an attempt is made
 to redefine a function which is already on the )SI stack.
 Permitted values are:
 
@@ -36,7 +38,8 @@ Permitted values are:
 
 ;;;###autoload
 (defcustom gnu-apl-show-keymap-on-startup t
-  "When non-nil, automatically display the keymap when activating
+  "Choose if the keymap should be automatically displayed.
+When non-nil, automatically display the keymap when activating
 the GNU APL buffer using the command `gnu-apl'. The keyboard help
 buffer can also be toggled using the command
 `gnu-apl-show-keyboard'."
@@ -44,7 +47,8 @@ buffer can also be toggled using the command
   :group 'gnu-apl)
 
 (defcustom gnu-apl-show-apl-welcome t
-  "When non-nil, display the APL welcome screen. When this value
+  "Choose if the GNU APL welcome screen should be displayed.
+When non-nil, display the GNU APL welcome screen. When this value
 is nil, the apl binary is called with the --silent flag."
   :type 'boolean
   :group 'gnu-apl)
