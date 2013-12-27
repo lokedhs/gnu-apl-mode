@@ -113,7 +113,6 @@ the function and set it in the running APL interpreter."
 
       (dolist (plain (split-string line "\n"))
         (destructuring-bind (type command) (gnu-apl--parse-text plain)
-          (llog "state=%S, type=%S, command=%S" gnu-apl-preoutput-filter-state type command)
           (ecase gnu-apl-preoutput-filter-state
             ;; Default parse state
             (normal
@@ -185,7 +184,6 @@ the function and set it in the running APL interpreter."
 
             ;; Sending a new function definition
             (send-content
-             (llog "sending. lines remaining=%d, incoming=%S" (length gnu-apl-function-content-lines) command)
              (cond ((not (string-match "^?\\(?:      \\)\\|\\(?:\\[[0-9]+\\] \\)" command))
                     (message "Error while sending function")
                     (setq gnu-apl-function-content-lines nil)
