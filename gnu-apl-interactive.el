@@ -159,12 +159,12 @@ the function and set it in the running APL interpreter."
 
                                        (if (cl-find function-name si :test #'equal)
                                            (ecase gnu-apl-redefine-function-when-in-use-action
-                                             (error (message "Function already on the )SI stack"))
+                                             (error (error "Function already on the )SI stack"))
                                              (clear (send-clear-and-edit))
                                              (allow (send-edit))
                                              (ask (if (y-or-n-p "Function already on )SI stack. Clear )SI stack? ")
                                                       (send-clear-and-edit)
-                                                    (send-edit))))
+                                                    (message "Function save cancelled"))))
                                          (send-edit)))
                                      (setq gnu-apl-preoutput-filter-state 'normal)))
                                   (t
