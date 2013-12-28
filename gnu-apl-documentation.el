@@ -335,3 +335,41 @@ it is open."
         (if (gnu-apl--is-point-on-argument-value)
             (make-doc-message "Dyadic" (fourth doc) (fifth doc))
           (make-doc-message "Monadic" (second doc) (third doc)))))))
+
+;;;
+;;;  Help search
+;;;
+
+(defvar *gnu-apl-apropos-symbol-buffer-name* "*gnu-apl apropos symbol*")
+
+(defun gnu-apl-apropos-kill-buffer ()
+  (interactive)
+  (let ((buffer (get-buffer *gnu-apl-apropos-symbol-buffer-name*)))
+    (when buffer
+      (delete-windows-on buffer)
+      (kill-buffer buffer))))
+
+(defun gnu-apl--open-apropos-results (result)
+  (let ((buffer (gnu-apl--open-new-buffer *gnu-apl-apropos-symbol-buffer-name*)))
+    (with-current-buffer buffer
+      (dolist (s result)
+        (insert s "\n"))
+      (local-set-key "q" 'gnu-apl-apropos-kill-buffer)
+      (read-only-mode 1))
+    (pop-to-buffer buffer)))
+
+(defun gnu-apl-apropos-symbol (regexp)
+  (interactive "MApropos symbol: ")
+  (let ((result (loop for v in gnu-apl--symbol-doc
+                      when (and (second v)
+                                (or (string-match regexp (second v))
+                                    (string-match regexp (third v))))
+                      collect (concat (first v) ": Monadic: " (second v) ": " (third v))
+                      when (and (fourth v)
+                                (or (string-match regexp (fourth v))
+                                    (string-match regexp (fifth v))))
+                      collect (concat (first v) ": Dyadic: " (fourth v) ": " (fifth v)))))
+    (if result
+        (progn
+          (gnu-apl--open-apropos-results result))
+      (message "No match"))))

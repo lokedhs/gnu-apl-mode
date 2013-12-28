@@ -18,3 +18,10 @@
 
 (cl-defun gnu-apl--trim-spaces (string &optional (start t) (end t))
   (gnu-apl--trim "[ \t]" string start end))
+
+(defun gnu-apl--open-new-buffer (name)
+  (let ((buffer (get-buffer name)))
+    (when buffer
+      (delete-windows-on buffer)
+      (kill-buffer buffer))
+    (get-buffer-create name)))
