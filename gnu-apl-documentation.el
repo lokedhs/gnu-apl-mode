@@ -132,7 +132,10 @@
      "Pick" "Select a value from B based on A")
     ("∪"
      "Unique" "Return an array of all unique elements in B"
-     nil nil))
+     nil nil)
+    ("⍷"
+     nil nil
+     "Find" "Return a boolean array indicating the positions of the array A in B"))
   "Documentation for APL symbols. Each element is a list of six
 elements: The APL symbol, name of monadic operator, description
 of the monadic operator, name of the dyadic operator, description
