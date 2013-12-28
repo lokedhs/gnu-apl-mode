@@ -135,7 +135,10 @@
      nil nil)
     ("⍷"
      nil nil
-     "Find" "Return a boolean array indicating the positions of the array A in B"))
+     "Find" "Return a boolean array indicating the positions of the array A in B")
+    ("≡"
+     "Depth" "Return the levels of nesting in B"
+     "Match" "Returns true if A has the same structure as well as data as B"))
   "Documentation for APL symbols. Each element is a list of six
 elements: The APL symbol, name of monadic operator, description
 of the monadic operator, name of the dyadic operator, description
