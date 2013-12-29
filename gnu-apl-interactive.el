@@ -116,21 +116,21 @@ the function and set it in the running APL interpreter."
           (ecase gnu-apl-preoutput-filter-state
             ;; Default parse state
             (normal
-             (cond ((string-match *gnu-apl-function-text-start* command)
+             (cond ((string-match (regexp-quote *gnu-apl-function-text-start*) command)
                     (setq gnu-apl-current-function-text nil)
                     (setq gnu-apl-preoutput-filter-state 'reading-function))
-                   ((string-match *gnu-apl-ignore-start* command)
+                   ((string-match (regexp-quote *gnu-apl-ignore-start*) command)
                     (setq gnu-apl-preoutput-filter-state 'ignore))
-                   ((string-match *gnu-apl-read-si-start* command)
+                   ((string-match (regexp-quote *gnu-apl-read-si-start*) command)
                     (setq gnu-apl-preoutput-filter-state 'read-si))
-                   ((string-match *gnu-apl-send-content-start* command)
+                   ((string-match (regexp-quote *gnu-apl-send-content-start*) command)
                     (setq gnu-apl-preoutput-filter-state 'send-content))
                    (t
                     (add-to-result (gnu-apl--set-face-for-text type command)))))
 
             ;; Reading the content of a function
             (reading-function
-             (cond ((string-match *gnu-apl-function-text-end* command)
+             (cond ((string-match (regexp-quote *gnu-apl-function-text-end*) command)
                     (let ((s (cond (gnu-apl-current-function-text
                                     (reverse gnu-apl-current-function-text))
                                    (gnu-apl-current-function-title
@@ -147,7 +147,7 @@ the function and set it in the running APL interpreter."
 
             ;; Read the output of )SI
             (read-si
-             (cond ((string-match *gnu-apl-read-si-end* command)
+             (cond ((string-match (regexp-quote *gnu-apl-read-si-end*) command)
                     (unless gnu-apl-current-function-title
                       (error "End of )SI output but no active function"))
                     (let ((si (gnu-apl--process-si-lines gnu-apl-current-si))
@@ -200,7 +200,7 @@ the function and set it in the running APL interpreter."
 
             ;; Ignoring output
             (ignore
-             (cond ((string-match *gnu-apl-ignore-end* command)
+             (cond ((string-match (regexp-quote *gnu-apl-ignore-end*) command)
                     (setq gnu-apl-preoutput-filter-state 'normal))
                    (t
                     nil)))))))
