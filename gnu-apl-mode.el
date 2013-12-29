@@ -208,7 +208,8 @@ is nil, the apl binary is called with the --silent flag."
 
 (defvar gnu-apl-mode-map
   (let ((map (gnu-apl--make-mode-map "s-")))
-    (define-key map (kbd "C-c c") 'gnu-apl-interactive-send-region)
+    (define-key map (kbd "C-c r") 'gnu-apl-interactive-send-region)
+    (define-key map (kbd "C-c C-c") 'gnu-apl-interactive-send-current-function)
     map))
 
 (defvar gnu-apl-mode-syntax-table

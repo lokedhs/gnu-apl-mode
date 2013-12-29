@@ -19,6 +19,9 @@
 (cl-defun gnu-apl--trim-spaces (string &optional (start t) (end t))
   (gnu-apl--trim "[ \t]" string start end))
 
+(cl-defun gnu-apl--trim-trailing-newline (string)
+  (gnu-apl--trim "[\n\r]" string nil t))
+
 (defun gnu-apl--open-new-buffer (name)
   (let ((buffer (get-buffer name)))
     (when buffer

@@ -17,6 +17,44 @@ or NIL if there is no active session.")
   (gnu-apl-interactive-send-string (buffer-substring start end))
   (message "Region sent to APL"))
 
+(defun gnu-apl-interactive-send-current-function ()
+  (interactive)
+
+  (labels ((full-function-definition-p (line)
+                                       (when (and (plusp (length line))
+                                                  (string= (subseq line 0 1) "∇"))
+                                         (llog "parsing line=%S" line)
+                                         (let ((parsed (gnu-apl--parse-function-header (subseq line 1))))
+                                           (unless parsed
+                                             (user-error "Function end marker above cursor"))
+                                           parsed))))
+
+    (save-excursion
+      (beginning-of-line)
+      (let ((start (loop for line = (gnu-apl--trim-spaces (thing-at-point 'line))
+                         when (full-function-definition-p line)
+                         return (point)
+                         when (plusp (forward-line -1))
+                         return nil)))
+        (unless start
+          (user-error "Can't find function definition above cursor"))
+
+        (unless (zerop (forward-line 1))
+          (user-error "No end marker found"))
+        (let ((end (loop for line = (gnu-apl--trim-trailing-newline
+                                     (gnu-apl--trim-spaces (thing-at-point 'line)))
+                         do (llog "checking for end marker: line=%S" line)
+                         when (string= line "∇")
+                         return (progn (end-of-line) (point))
+                         when (plusp (forward-line 1))
+                         return nil)))
+          (unless end
+            (user-error "No end marker found"))
+          (let ((overlay (make-overlay start end)))
+            (overlay-put overlay 'face '(background-color . "green"))
+            (run-at-time "0.5 sec" nil #'(lambda () (delete-overlay overlay))))
+          (llog "function definition: %S" (buffer-substring start end)))))))
+
 (defun gnu-apl--get-interactive-session ()
   (unless gnu-apl-current-session
     (user-error "No active GNU APL session"))
