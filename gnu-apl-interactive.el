@@ -5,55 +5,13 @@
 or NIL if there is no active session.")
 
 (defun gnu-apl-interactive-send-string (string)
+  (llog "programmatically sending string: %S" string)
   (let ((p (get-buffer-process (gnu-apl--get-interactive-session)))
         (string-with-ret (if (and (plusp (length string))
                                   (= (aref string (1- (length string))) ?\n))
                              string
                            (concat string "\n"))))
     (comint-send-string p string-with-ret)))
-
-(defun gnu-apl-interactive-send-region (start end)
-  (interactive "r")
-  (gnu-apl-interactive-send-string (buffer-substring start end))
-  (message "Region sent to APL"))
-
-(defun gnu-apl-interactive-send-current-function ()
-  (interactive)
-
-  (labels ((full-function-definition-p (line)
-                                       (when (and (plusp (length line))
-                                                  (string= (subseq line 0 1) "∇"))
-                                         (llog "parsing line=%S" line)
-                                         (let ((parsed (gnu-apl--parse-function-header (subseq line 1))))
-                                           (unless parsed
-                                             (user-error "Function end marker above cursor"))
-                                           parsed))))
-
-    (save-excursion
-      (beginning-of-line)
-      (let ((start (loop for line = (gnu-apl--trim-spaces (thing-at-point 'line))
-                         when (full-function-definition-p line)
-                         return (point)
-                         when (plusp (forward-line -1))
-                         return nil)))
-        (unless start
-          (user-error "Can't find function definition above cursor"))
-
-        (unless (zerop (forward-line 1))
-          (user-error "No end marker found"))
-        (let ((end (loop for line = (gnu-apl--trim-trailing-newline
-                                     (gnu-apl--trim-spaces (thing-at-point 'line)))
-                         do (llog "checking for end marker: line=%S" line)
-                         when (string= line "∇")
-                         return (progn (end-of-line) (point))
-                         when (plusp (forward-line 1))
-                         return nil)))
-          (unless end
-            (user-error "No end marker found"))
-          (let ((overlay (make-overlay start end)))
-            (overlay-put overlay 'face '(background-color . "green"))
-            (run-at-time "0.5 sec" nil #'(lambda () (delete-overlay overlay))))
-          (llog "function definition: %S" (buffer-substring start end)))))))
 
 (defun gnu-apl--get-interactive-session ()
   (unless gnu-apl-current-session
@@ -151,6 +109,7 @@ the function and set it in the running APL interpreter."
 
       (dolist (plain (split-string line "\n"))
         (destructuring-bind (type command) (gnu-apl--parse-text plain)
+          (llog "parsing command type=%S, command=%S" type command)
           (ecase gnu-apl-preoutput-filter-state
             ;; Default parse state
             (normal
@@ -195,6 +154,7 @@ the function and set it in the running APL interpreter."
                       (setq gnu-apl-current-function-title nil)
                       (setq gnu-apl-content nil)
 
+                      (llog "will save: name=%S, content=%S" function-name content)
                       (unless (and function-name content)
                         (error "About to save function but function name or content missing"))
 
@@ -214,7 +174,8 @@ the function and set it in the running APL interpreter."
                                      (progn
                                        (unless (string= (subseq content 0 1) "∇")
                                          (error "Content does not start with function definition symbol"))
-                                       (gnu-apl--open-function-editor-with-timer (split-string (subseq content 1) "\n"))))))
+                                       (when gnu-apl-edit-when-si-fail
+                                         (function-editor (gnu-apl--open-function-editor-with-timer (split-string (subseq content 1) "\n"))))))))
                           (send-edit)))
                       (setq gnu-apl-preoutput-filter-state 'normal)))
                    (t
@@ -274,6 +235,8 @@ the function and set it in the running APL interpreter."
   (set (make-local-variable 'gnu-apl-content) nil)
   ;; List of the lines in the function definition while being sent
   (set (make-local-variable 'gnu-apl-function-content-lines) nil)
+  ;; Action to take after )SI check fails
+  (set (make-local-variable 'gnu-apl-si-fail-action) nil)
 
   (set (make-local-variable 'comint-input-sender) 'gnu-apl--send)
   (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
@@ -320,25 +283,6 @@ the function and set it in the running APL interpreter."
     (when gnu-apl-show-keymap-on-startup
       (run-at-time "0 sec" nil #'(lambda () (gnu-apl-show-keyboard 1))))))
 
-(defun gnu-apl--open-function-editor-with-timer (lines)
-  (run-at-time "0 sec" nil #'(lambda () (gnu-apl-open-external-function-buffer lines))))
-
-(defun gnu-apl-open-external-function-buffer (lines)
-  (let ((window-configuration (current-window-configuration))
-        (buffer (get-buffer-create "*gnu-apl edit function*")))
-    (pop-to-buffer buffer)
-    (delete-region (point-min) (point-max))
-    (insert "∇")
-    (dolist (line lines)
-      (insert (gnu-apl--trim-spaces line nil t))
-      (insert "\n"))
-    (goto-char (point-min))
-    (forward-line 1)
-    (gnu-apl-mode)
-    (local-set-key (kbd "C-c C-c") 'gnu-apl-save-function)
-    (set (make-local-variable 'gnu-apl-window-configuration) window-configuration)
-    (message "To save the buffer, use M-x gnu-apl-save-function (C-c C-c)")))
-
 (defun gnu-apl--parse-function-header (string)
   "Parse a function definition string. Returns the name of the
 function or nil if the function could not be parsed."
@@ -366,48 +310,3 @@ function or nil if the function could not be parsed."
              (case (length parts)
                (2 (cadr parts))
                (3 (cadr parts))))))))
-
-(defun gnu-apl-save-function ()
-  "Save the currently edited function."
-  (interactive)
-  (goto-char (point-min))
-  (let ((definition (gnu-apl--trim-spaces (thing-at-point 'line))))
-    (unless (string= (subseq definition 0 1) "∇")
-      (user-error "Function header does not start with function definition symbol"))
-    (unless (zerop (forward-line))
-      (user-error "Empty function definition"))
-    (let* ((function-header (subseq definition 1))
-           (function-name (gnu-apl--parse-function-header function-header)))
-      (unless function-name
-        (user-error "Illegal function header"))
-
-      ;; Ensure that there are no function-end markers in the buffer
-      ;; (unless it's the last character in the buffer)
-      (let* ((end-of-function (if (search-forward "∇" nil t)
-                                  (1- (point))
-                                (point-max)))
-             (buffer-content (buffer-substring (point-min) end-of-function))
-             (content (if (eql (aref buffer-content (1- (length buffer-content))) ?\n)
-                          buffer-content
-                        (concat buffer-content "\n"))))
-
-        ;; At this point, we have the following needed information:
-        ;;   function-header: the first line of the definition (minus the function definitio symbol)
-        ;;   content: a list of strings making up the function
-        ;;
-        ;; Now, we need to first check the )SI stack to make sure there is no
-        ;; active definition already (and take appropriate action), and then send
-        ;; the function to the APL interpreter.
-        (with-current-buffer (gnu-apl--get-interactive-session)
-          (setq gnu-apl-current-function-title function-header)
-          (setq gnu-apl-content content)
-          (gnu-apl-interactive-send-string (concat "'" *gnu-apl-read-si-start* "'"))
-          (gnu-apl-interactive-send-string (concat ")SI"))
-          (gnu-apl-interactive-send-string (concat "'" *gnu-apl-read-si-end* "'"))))
-
-      (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
-                                      gnu-apl-window-configuration
-                                    nil)))
-        (kill-buffer (current-buffer))
-        (when window-configuration
-          (set-window-configuration window-configuration))))))
