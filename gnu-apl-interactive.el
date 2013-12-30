@@ -5,7 +5,6 @@
 or NIL if there is no active session.")
 
 (defun gnu-apl-interactive-send-string (string)
-  (llog "programmatically sending string: %S" string)
   (let ((p (get-buffer-process (gnu-apl--get-interactive-session)))
         (string-with-ret (if (and (plusp (length string))
                                   (= (aref string (1- (length string))) ?\n))
@@ -109,7 +108,6 @@ the function and set it in the running APL interpreter."
 
       (dolist (plain (split-string line "\n"))
         (destructuring-bind (type command) (gnu-apl--parse-text plain)
-          (llog "parsing command type=%S, command=%S" type command)
           (ecase gnu-apl-preoutput-filter-state
             ;; Default parse state
             (normal
@@ -154,7 +152,6 @@ the function and set it in the running APL interpreter."
                       (setq gnu-apl-current-function-title nil)
                       (setq gnu-apl-content nil)
 
-                      (llog "will save: name=%S, content=%S" function-name content)
                       (unless (and function-name content)
                         (error "About to save function but function name or content missing"))
 

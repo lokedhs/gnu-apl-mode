@@ -11,7 +11,6 @@
   (labels ((full-function-definition-p (line)
                                        (when (and (plusp (length line))
                                                   (string= (subseq line 0 1) "∇"))
-                                         (llog "parsing line=%S" line)
                                          (let ((parsed (gnu-apl--parse-function-header (subseq line 1))))
                                            (unless parsed
                                              (user-error "Function end marker above cursor"))
@@ -31,7 +30,6 @@
           (user-error "No end marker found"))
         (let ((end (loop for line = (gnu-apl--trim-trailing-newline
                                      (gnu-apl--trim-spaces (thing-at-point 'line)))
-                         do (llog "checking for end marker: line=%S" line)
                          when (string= line "∇")
                          return (progn (forward-line -1) (end-of-line) (point))
                          when (plusp (forward-line 1))
