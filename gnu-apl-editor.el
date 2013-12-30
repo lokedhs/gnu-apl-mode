@@ -101,17 +101,12 @@ function being sent."
         (when window-configuration
           (set-window-configuration window-configuration))))))
 
-(defvar gnu-apl-edit-function-mode-map
-  (let ((map (gnu-apl--make-mode-map "s-")))
-    (define-key map (kbd "C-c C-c") 'gnu-apl-save-function)
-    map))
-
-(define-derived-mode gnu-apl-edit-function-mode prog-mode "GNU APL Function editor"
-  "Major mode for editing functions in the GNU APL function editor"
-  :syntax-table gnu-apl-mode-syntax-table
-  :group 'gnu-apl
-  (use-local-map gnu-apl-edit-function-mode-map)
-  (gnu-apl--init-mode-common))
+(define-minor-mode gnu-apl-interactive-edit-mode
+  "Minor mode for editing functions in the GNU APL function editor"
+  nil
+  " APLFunction"
+  (list (cons (kbd "C-c C-c") 'gnu-apl-save-function))
+  :group 'gnu-apl)
 
 (defun gnu-apl--open-function-editor-with-timer (lines)
   (run-at-time "0 sec" nil #'(lambda () (gnu-apl-open-external-function-buffer lines))))
@@ -127,7 +122,7 @@ function being sent."
       (insert "\n"))
     (goto-char (point-min))
     (forward-line 1)
-    (gnu-apl-edit-function-mode)
-    (local-set-key (kbd "C-c C-c") 'gnu-apl-save-function)
+    (gnu-apl-mode)
+    (gnu-apl-interactive-edit-mode 1)
     (set (make-local-variable 'gnu-apl-window-configuration) window-configuration)
     (message "To save the buffer, use M-x gnu-apl-save-function (C-c C-c)")))
