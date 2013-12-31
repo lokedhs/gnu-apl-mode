@@ -203,7 +203,8 @@ is nil, the apl binary is called with the --silent flag."
         (define-key map (kbd "C-c s") 'gnu-apl-show-help-for-symbol-point)
         (define-key map [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
         (define-key map [menu-bar gnu-apl toggle-keyboard] '("Toggle keyboard" . gnu-apl-show-keyboard))
-        (define-key map [menu-bar gnu-apl show-help-for-symbol] '("Documentation for character" . gnu-apl-show-help-for-symbol-point))))
+        (define-key map [menu-bar gnu-apl show-help-for-symbol] '("Documentation for character" . gnu-apl-show-help-for-symbol-point))
+        (define-key map [menu-bar gnu-apl apropos-symbol] '("Search symbols" . gnu-apl-apropos-symbol))))
     map))
 
 (defvar gnu-apl-mode-map
