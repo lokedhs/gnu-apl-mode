@@ -1,2 +1,4 @@
 *~
 .apl.history
+*.o
+*.so

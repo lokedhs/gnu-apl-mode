@@ -57,10 +57,22 @@
      "Expansion" "Insert zeros (or blanks) in B corresponding to zeros in A")
     ("/"
      nil nil
-     "Compression" "Select elements in B corresponding to ones in A"
-     "Axis operator: Reduce: A/B where A is an operator and B is
-     an array, acts as if A is interspersed between every element
-     of B.")
+     "Compress" "Select elements in B corresponding to ones in A"
+     "  Z←LO/R Selects subarrays along the last axis under the control of the vector LO.
+
+  LO: Simple scalar or vector, Boolean
+  Z: Nonscalar array
+
+  ¯1↓ρZ ←→ 1↓⍴R
+  ⍴⍴Z ←→ ⍴⍴R
+
+Axis operator: Reduce
+  Z←LO/ R Has the effect of placing the function LO between adjacent pairs of items along
+          the last axis of R and evaluating the resulting expression for each subarray.
+
+  LO: Dyadic function
+  ⍴Z ←→ 1↓⍴R
+  ⍴⍴Z ←→ 0⌈¯1+⍴⍴R")
     ("⍳"
      "Index generator" "Vector of the first B integers"
      "Index of" "The location (index) of B in A; 1+⌈/⍳⍴A if not found")

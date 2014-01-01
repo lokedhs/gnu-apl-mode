@@ -1,3 +1,5 @@
 ^\.apl.history$
 ~$
 \.orig$
+\.o$
+\.so$
