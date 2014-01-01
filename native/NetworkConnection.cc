@@ -92,8 +92,7 @@ void NetworkConnection::show_si( void )
     std::cout << "showing si" << std::endl;
     std::stringstream out;
     for( const StateIndicator *si = Workspace::SI_top() ; si ; si = si->get_parent() ) {
-        si->print( out );
-        out << '\n';
+        out << si->function_name() << "\n";
     }
 
     out << "END\n";
