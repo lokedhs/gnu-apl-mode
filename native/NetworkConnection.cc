@@ -1,4 +1,5 @@
 #include "NetworkConnection.hh"
+#include "Native_interface.hh"
 
 #include <iostream>
 #include <sstream>
@@ -8,15 +9,17 @@
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
+#include <string.h>
 
-static std::string read_line_from_fd( int fd )
+std::string NetworkConnection::read_line_from_fd()
 {
     std::stringstream in;
     int end = 0;
     while( !end ) {
         char buf[1024];
 
-        int res = read( fd, (void *)buf, sizeof( buf ) - 1 );
+        int res = read( socket_fd, (void *)buf, sizeof( buf ) - 1 );
         if( res == -1 ) {
             throw "error";
         }
@@ -25,10 +28,15 @@ static std::string read_line_from_fd( int fd )
         }
 
         if( buf[res - 1] == '\n' ) {
-            buf[res - 1] = 0;
+            if( res >= 2 && buf[res - 2] == '\r' ) {
+                buf[res - 2] = 0;
+            }
+            else {
+                buf[res - 1] = 0;
+            }
             end = 1;
         }
-        else { 
+        else {
             buf[res] = 0;
         }
         in << buf;
@@ -36,7 +44,22 @@ static std::string read_line_from_fd( int fd )
     return in.str();
 }
 
-static std::vector<std::string> split(const std::string &s, char delim) {
+void NetworkConnection::write_string_to_fd( const std::string &s )
+{
+    const char *buf = s.c_str();
+    int n = strlen( buf );
+    int pos = 0;
+    while( pos < n ) {
+        int res = write( socket_fd, buf + pos, n - pos );
+        if( res == -1 ) {
+            abort();
+        }
+        pos += res;
+    }
+}
+
+static std::vector<std::string> split(const std::string &s, char delim)
+{
     std::stringstream ss(s);
     std::string item;
     std::vector<std::string> elems;
@@ -46,10 +69,37 @@ static std::vector<std::string> split(const std::string &s, char delim) {
     return elems;
 }
 
-void process_command( const std::string &command )
+int NetworkConnection::process_command( const std::string &command )
 {
     std::vector<std::string> elements = split( command, ':' );
-    std::cout << "size=" << elements.size() << std::endl;
+    if( elements.size() > 0 ) {
+        std::string operation = elements[0];
+        if( operation == "si" ) {
+            show_si();
+        }
+        else {
+            CERR << "unknown command: >" << operation << "<" << endl;
+        }
+    }
+    else {
+        CERR << "empty command" << endl;
+    }
+    return 0;
+}
+
+void NetworkConnection::show_si( void )
+{
+    std::cout << "showing si" << std::endl;
+    std::stringstream out;
+    for( const StateIndicator *si = Workspace::SI_top() ; si ; si = si->get_parent() ) {
+        si->print( out );
+        out << '\n';
+    }
+
+    out << "END\n";
+
+    std::cout << "si:" << out.str() << "end of list" << std::endl;
+    write_string_to_fd( out.str() );
 }
 
 void NetworkConnection::run( void )
@@ -61,8 +111,11 @@ void NetworkConnection::run( void )
         abort();
     }
 
+    socket_fd = socket;
+
     int end = 0;
     while( !end ) {
-        end = process_command( read_line_from_fd( socket ) );
+        std::string command = read_line_from_fd();
+        end = process_command( command );
     }
 }

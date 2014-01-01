@@ -10,7 +10,12 @@ public:
 
 private:
     int server_socket;
+    int socket_fd;
+
+    std::string read_line_from_fd( void );
+    void write_string_to_fd( const std::string &s );
     int process_command( const std::string &command );
+    void show_si( void );
 };
 
 #endif

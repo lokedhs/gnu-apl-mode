@@ -24,6 +24,9 @@ Token start_listener( int port )
         DOMAIN_ERROR;
     }
 
+    int v = 1;
+    setsockopt( server_socket, SOL_SOCKET, SO_REUSEADDR, (void *)&v, sizeof( v ) );
+
     struct sockaddr_in addr;
     memset( &addr, 0, sizeof( addr ) );
     addr.sin_family = AF_INET;
