@@ -9,7 +9,7 @@
                                        :type 'plain
                                        :return-list nil
                                        :end-of-command "\n")))
-      (set-process-filter proc #'gnu-apl--filter-network)
+      (set-process-filter proc 'gnu-apl--filter-network)
       (set (make-local-variable 'gnu-apl--connection) proc)
       (set (make-local-variable 'gnu-apl--current-incoming) nil)
       (set (make-local-variable 'gnu-apl--ignore-num) 0)
