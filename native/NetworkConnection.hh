@@ -15,6 +15,8 @@ private:
     void write_string_to_fd( const std::string &s );
     int process_command( const std::string &command );
     void show_si( void );
+    void clear_si_stack( void );
+    void show_function( const std::string &name );
 };
 
 class ConnectionError {

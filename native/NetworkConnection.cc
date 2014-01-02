@@ -58,6 +58,46 @@ void NetworkConnection::write_string_to_fd( const std::string &s )
     }
 }
 
+void NetworkConnection::show_function( const std::string &name )
+{
+    std::stringstream out;
+
+    UCS_string ucs_name( name.c_str() );
+    NamedObject *obj = Workspace::lookup_existing_name( ucs_name );
+    if( obj == NULL ) {
+        out << "undefined\n";
+    }
+    else if( !obj->is_user_defined() ) {
+        out << "system function\n";
+    }
+    else {
+        const Function *function = obj->get_function();
+        if( function == NULL ) {
+            out << "symbol is not a function";
+        }
+        else if( function->get_exec_properties()[0] != 0 ) {
+            out << "function is not executable\n";
+        }
+        else {
+            const UCS_string ucs = function->canonical( false );
+            vector<UCS_string> tlines;
+            ucs.to_vector( tlines );
+
+            for( vector<UCS_string>::iterator i = tlines.begin() ; i != tlines.end() ; i++ ) {
+                out << i->to_string() << "\n";
+            }
+        }
+    }
+    out << "END\n";
+
+    write_string_to_fd( out.str() );
+}
+
+void NetworkConnection::clear_si_stack( void )
+{
+    Workspace::clear_SI( COUT );
+}
+
 static std::vector<std::string> split(const std::string &s, char delim)
 {
     std::stringstream ss(s);
@@ -76,6 +116,16 @@ int NetworkConnection::process_command( const std::string &command )
         std::string operation = elements[0];
         if( operation == "si" ) {
             show_si();
+        }
+        else if( operation == "sic" ) {
+            clear_si_stack();
+        }
+        else if( operation == "fn" ) {
+            show_function( elements[1] );
+        }
+        else if( operation == "quit" ) {
+            close( socket_fd );
+            throw ConnectionError( "quit received" );
         }
         else {
             CERR << "unknown command: '" << operation << "'" << endl;
