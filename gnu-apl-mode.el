@@ -241,6 +241,7 @@ is nil, the apl binary is called with the --silent flag."
 (load "gnu-apl-input")
 (load "gnu-apl-interactive")
 (load "gnu-apl-editor")
+(load "gnu-apl-network")
 (load "gnu-apl-documentation")
 (load "gnu-apl-osx-workaround")
 

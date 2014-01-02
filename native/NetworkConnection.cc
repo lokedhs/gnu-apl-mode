@@ -150,6 +150,8 @@ void NetworkConnection::show_si( void )
 
 void NetworkConnection::run( void )
 {
+//    write_string_to_fd( "APL connection protocol version 1\n" );
+
     int end = 0;
     while( !end ) {
         std::string command = read_line_from_fd();

@@ -20,13 +20,11 @@ or NIL if there is no active session.")
       (user-error "GNU APL session has exited"))
     gnu-apl-current-session))
 
-(defvar *gnu-apl-function-text-start* "FUNCTION-CONTENT-START")
-(defvar *gnu-apl-function-text-end* "FUNCTION-CONTENT-END")
+(defvar *gnu-apl-native-lib* "EE")
 (defvar *gnu-apl-ignore-start* "IGNORE-START")
 (defvar *gnu-apl-ignore-end* "IGNORE-END")
-(defvar *gnu-apl-read-si-start* "READ-SI-STATUS-START")
-(defvar *gnu-apl-read-si-end* "READ-SI-STATUS-END")
-(defvar *gnu-apl-send-content-start* "SEND-CONTENT-START")
+(defvar *gnu-apl-network-start* "NATIVE-STARTUP-START")
+(defvar *gnu-apl-network-end* "NATIVE-STARTUP-END")
 
 (defun gnu-apl-edit-function (name)
   "Open the function with the given name in a separate buffer.
@@ -111,15 +109,10 @@ the function and set it in the running APL interpreter."
           (ecase gnu-apl-preoutput-filter-state
             ;; Default parse state
             (normal
-             (cond ((string-match (regexp-quote *gnu-apl-function-text-start*) command)
-                    (setq gnu-apl-current-function-text nil)
-                    (setq gnu-apl-preoutput-filter-state 'reading-function))
-                   ((string-match (regexp-quote *gnu-apl-ignore-start*) command)
+             (cond ((string-match (regexp-quote *gnu-apl-ignore-start*) command)
                     (setq gnu-apl-preoutput-filter-state 'ignore))
-                   ((string-match (regexp-quote *gnu-apl-read-si-start*) command)
-                    (setq gnu-apl-preoutput-filter-state 'read-si))
-                   ((string-match (regexp-quote *gnu-apl-send-content-start*) command)
-                    (setq gnu-apl-preoutput-filter-state 'send-content))
+                   ((string-match (regexp-quote *gnu-apl-network-start*) command)
+                    (setq gnu-apl-preoutput-filter-state 'native))
                    (t
                     (add-to-result (gnu-apl--set-face-for-text type command)))))
 
@@ -199,7 +192,15 @@ the function and set it in the running APL interpreter."
              (cond ((string-match (regexp-quote *gnu-apl-ignore-end*) command)
                     (setq gnu-apl-preoutput-filter-state 'normal))
                    (t
-                    nil)))))))
+                    nil)))
+
+            ;; Initialising native code
+            (native
+             (cond ((string-match (regexp-quote *gnu-apl-network-end*) command)
+                    (setq gnu-apl-preoutput-filter-state 'normal))
+                   ((string-match "Network listener started" command)
+                    (gnu-apl--connect 7293)))
+             (add-to-result (gnu-apl--set-face-for-text type command)))))))
     result))
 
 (defvar gnu-apl-interactive-mode-map
@@ -276,7 +277,13 @@ the function and set it in the running APL interpreter."
              "apl" buffer resolved-binary nil
              "--rawCIN" "--emacs" (append (if (not gnu-apl-show-apl-welcome) (list "--silent"))))
       (gnu-apl-interactive-mode)
-      (setq gnu-apl-current-session buffer))
+      (setq gnu-apl-current-session buffer)
+      (when t
+        (gnu-apl--send buffer (concat "'" *gnu-apl-network-start* "'"))
+        (gnu-apl--send buffer (concat "'/home/elias/prog/gnu-apl-mode/native/libemacs.so' ⎕FX "
+                                      "'" *gnu-apl-native-lib* "'"))
+        (gnu-apl--send buffer (concat *gnu-apl-native-lib* "[1] 0"))
+        (gnu-apl--send buffer (concat "'" *gnu-apl-network-end* "'"))))
     (when gnu-apl-show-keymap-on-startup
       (run-at-time "0 sec" nil #'(lambda () (gnu-apl-show-keyboard 1))))))
 
