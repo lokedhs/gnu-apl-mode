@@ -21,10 +21,10 @@ std::string NetworkConnection::read_line_from_fd()
 
         int res = read( socket_fd, (void *)buf, sizeof( buf ) - 1 );
         if( res == -1 ) {
-            throw "error";
+            throw ConnectionError( "network error" );
         }
         if( res == 0 ) {
-            throw "disconnected";
+            throw ConnectionError( "disconnected" );
         }
 
         if( buf[res - 1] == '\n' ) {
@@ -78,7 +78,7 @@ int NetworkConnection::process_command( const std::string &command )
             show_si();
         }
         else {
-            CERR << "unknown command: >" << operation << "<" << endl;
+            CERR << "unknown command: '" << operation << "'" << endl;
         }
     }
     else {
@@ -89,29 +89,17 @@ int NetworkConnection::process_command( const std::string &command )
 
 void NetworkConnection::show_si( void )
 {
-    std::cout << "showing si" << std::endl;
     std::stringstream out;
     for( const StateIndicator *si = Workspace::SI_top() ; si ; si = si->get_parent() ) {
         out << si->function_name() << "\n";
     }
-
     out << "END\n";
 
-    std::cout << "si:" << out.str() << "end of list" << std::endl;
     write_string_to_fd( out.str() );
 }
 
 void NetworkConnection::run( void )
 {
-    struct sockaddr addr;
-    socklen_t length;
-    int socket = accept( server_socket, &addr, &length );
-    if( socket == -1 ) {
-        abort();
-    }
-
-    socket_fd = socket;
-
     int end = 0;
     while( !end ) {
         std::string command = read_line_from_fd();

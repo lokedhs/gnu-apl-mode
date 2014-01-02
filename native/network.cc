@@ -7,10 +7,46 @@
 #include <netinet/in.h>
 #include <errno.h>
 
+struct ListenerLoopData {
+    int server_socket;
+};
+
+static void *connection_loop( void *arg )
+{
+    NetworkConnection *connection = (NetworkConnection *)arg;
+    try {
+        connection->run();
+    }
+    catch( ConnectionError &connection_error ) {
+        CERR << "Disconnected: " << connection_error.get_message() << endl;
+    }
+    return NULL;
+}
+
 static void *listener_loop( void *arg )
 {
-    NetworkConnection *listener = (NetworkConnection *)arg;
-    listener->run();
+    ListenerLoopData *data = (ListenerLoopData *)arg;
+    int server_socket = data->server_socket;
+    delete data;
+
+    while( 1 ) {
+        struct sockaddr addr;
+        socklen_t length;
+        int socket = accept( server_socket, &addr, &length );
+        if( socket == -1 ) {
+            CERR << "Error accepting network connection: " << strerror( errno ) << endl;
+        }
+        else {
+            NetworkConnection *conn = new NetworkConnection( socket );
+            pthread_t thread_id;
+            int ret = pthread_create( &thread_id, NULL, connection_loop, conn );
+            if( ret != 0 ) {
+                CERR << "Error creating thread" << endl;
+                delete conn;
+            }
+        }
+    }
+
     return NULL;
 }
 
@@ -40,10 +76,18 @@ Token start_listener( int port )
 
     if( listen( server_socket, 2 ) == -1 ) {
         CERR << "Error calling accept: " << strerror( errno ) << endl;
+        close( server_socket );
         DOMAIN_ERROR;
     }
 
-    pthread_create( &thread_id, NULL, listener_loop, new NetworkConnection( server_socket ) );
+    int res = pthread_create( &thread_id, NULL, listener_loop, new NetworkConnection( server_socket ) );
+    if( res != 0 ) {
+        CERR << "Unable to start network connection thread" << endl;
+        close( server_socket );
+        DOMAIN_ERROR;
+    }
+
+    COUT << "Network listener started on port " << port << endl;
 
     return Token(TOK_APL_VALUE1, Value::Str0_P);
 }

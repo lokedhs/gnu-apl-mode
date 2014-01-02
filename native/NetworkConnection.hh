@@ -5,17 +5,26 @@
 
 class NetworkConnection {
 public:
-    NetworkConnection( int server_socket_in ) : server_socket(server_socket_in) {};
+    NetworkConnection( int socket_in ) : socket_fd(socket_in) {};
     void run( void );
 
 private:
-    int server_socket;
     int socket_fd;
 
     std::string read_line_from_fd( void );
     void write_string_to_fd( const std::string &s );
     int process_command( const std::string &command );
     void show_si( void );
+};
+
+class ConnectionError {
+public:
+    ConnectionError( const std::string &message_in ) : message( message_in ) {};
+    virtual ~ConnectionError() {};
+    std::string get_message( void ) { return message; };
+
+private:
+    const std::string message;
 };
 
 #endif
