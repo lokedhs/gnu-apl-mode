@@ -1,6 +1,6 @@
-APL_DIST = /home/elias/src/apl
+APL_DIST = $(HOME)/src/apl
 CC = c++
-CXXFLAGS = -fPIC -g -I$(APL_DIST)/src
+CXXFLAGS = -Wall -fPIC -g -I$(APL_DIST)/src
 LIBS = -lpthread
 LIBNAME = libemacs.so
 OBJS = emacs.o network.o NetworkConnection.o

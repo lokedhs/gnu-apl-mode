@@ -1,4 +1,4 @@
-#include "Native_interface.hh"
+#include "emacs.hh"
 #include "NetworkConnection.hh"
 
 #include <pthread.h>
@@ -11,6 +11,7 @@ static void *listener_loop( void *arg )
 {
     NetworkConnection *listener = (NetworkConnection *)arg;
     listener->run();
+    return NULL;
 }
 
 Token start_listener( int port )

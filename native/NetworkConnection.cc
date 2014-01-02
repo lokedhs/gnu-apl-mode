@@ -1,5 +1,5 @@
+#include "emacs.hh"
 #include "NetworkConnection.hh"
-#include "Native_interface.hh"
 
 #include <iostream>
 #include <sstream>

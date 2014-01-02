@@ -1,5 +1,4 @@
-#include "Native_interface.hh"
-
+#include "emacs.hh"
 #include "network.hh"
 
 extern "C" {
@@ -44,11 +43,14 @@ Token eval_XB(Value_P X, Value_P B)
         CERR << "Bad function number: " << function_number << endl;
         DOMAIN_ERROR;
     }
+
+    return Token(TOK_APL_VALUE1, Value::Str0_P);
 }
 
 Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
 {
     COUT << "eval_AXB" << endl;
+    return Token(TOK_APL_VALUE1, Value::Str0_P);
 }
 
 void *get_function_mux( const char *function_name )
