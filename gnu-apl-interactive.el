@@ -280,7 +280,7 @@ the function and set it in the running APL interpreter."
       (setq gnu-apl-current-session buffer)
       (when t
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-start* "'"))
-        (gnu-apl--send buffer (concat "'/home/elias/prog/gnu-apl-mode/native/libemacs.so' ⎕FX "
+        (gnu-apl--send buffer (concat "'" (getenv "HOME") "/prog/gnu-apl-mode/native/libemacs.so' ⎕FX "
                                       "'" *gnu-apl-native-lib* "'"))
         (gnu-apl--send buffer (concat *gnu-apl-native-lib* "[1] 0"))
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-end* "'"))))
