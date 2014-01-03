@@ -38,10 +38,12 @@ the function and set it in the running APL interpreter."
     (unless function-name
       (error "Unable to parse function definition: %s" function-definition))
     (with-current-buffer (gnu-apl--get-interactive-session)
-      (setq gnu-apl-current-function-title function-definition)
-      (gnu-apl-interactive-send-string (concat "'" *gnu-apl-function-text-start*
-                                               "' ⋄ ⎕CR '" function-name
-                                               "' ⋄ '" *gnu-apl-function-text-end* "'")))))
+      (gnu-apl--send-network-command (concat "fn:" function-name))
+      (let* ((reply (gnu-apl--read-network-reply-block))
+             (content (if (and reply (null (cdr reply)) (string= (car reply) "undefined"))
+                          (list function-definition)
+                        reply)))
+        (gnu-apl--open-function-editor-with-timer content)))))
 
 (defun gnu-apl--send (proc string)
   "Filter for any commands that are sent to comint"
@@ -116,77 +118,6 @@ the function and set it in the running APL interpreter."
                    (t
                     (add-to-result (gnu-apl--set-face-for-text type command)))))
 
-            ;; Reading the content of a function
-            (reading-function
-             (cond ((string-match (regexp-quote *gnu-apl-function-text-end*) command)
-                    (let ((s (cond (gnu-apl-current-function-text
-                                    (reverse gnu-apl-current-function-text))
-                                   (gnu-apl-current-function-title
-                                    (list gnu-apl-current-function-title))
-                                   (t
-                                    (error "No function content found and title was not set")))))
-                      (setq gnu-apl-current-function-text nil)
-                      (setq gnu-apl-current-function-title nil)
-                      (gnu-apl--open-function-editor-with-timer s))
-                    (setq gnu-apl-preoutput-filter-state 'normal))
-                   ;; No special input, collect the function line
-                   (t
-                    (push command gnu-apl-current-function-text))))
-
-            ;; Read the output of )SI
-            (read-si
-             (cond ((string-match (regexp-quote *gnu-apl-read-si-end*) command)
-                    (unless gnu-apl-current-function-title
-                      (error "End of )SI output but no active function"))
-                    (let ((si (gnu-apl--process-si-lines gnu-apl-current-si))
-                          (function-name (gnu-apl--parse-function-header gnu-apl-current-function-title))
-                          (content gnu-apl-content))
-                      (setq gnu-apl-current-si nil)
-                      (setq gnu-apl-current-function-title nil)
-                      (setq gnu-apl-content nil)
-
-                      (unless (and function-name content)
-                        (error "About to save function but function name or content missing"))
-
-                      (labels ((send-edit ()
-                                          (gnu-apl--erase-and-set-function function-name content))
-                               (send-clear-and-edit ()
-                                                    (gnu-apl-interactive-send-string ")SIC")
-                                                    (send-edit)))
-
-                        (if (cl-find function-name si :test #'equal)
-                            (ecase gnu-apl-redefine-function-when-in-use-action
-                              (error (error "Function already on the )SI stack"))
-                              (clear (send-clear-and-edit))
-                              (allow (send-edit))
-                              (ask (if (y-or-n-p "Function already on )SI stack. Clear )SI stack? ")
-                                       (send-clear-and-edit)
-                                     (progn
-                                       (unless (string= (subseq content 0 1) "∇")
-                                         (error "Content does not start with function definition symbol"))
-                                       (when gnu-apl-edit-when-si-fail
-                                         (function-editor (gnu-apl--open-function-editor-with-timer (split-string (subseq content 1) "\n"))))))))
-                          (send-edit)))
-                      (setq gnu-apl-preoutput-filter-state 'normal)))
-                   (t
-                    (push command gnu-apl-current-si))))
-
-            ;; Sending a new function definition
-            (send-content
-             (cond ((not (string-match "^?\\(?:      \\)\\|\\(?:\\[[0-9]+\\] \\)" command))
-                    (message "Error while sending function")
-                    (setq gnu-apl-function-content-lines nil)
-                    (setq gnu-apl-preoutput-filter-state 'normal)
-                    (add-to-result (gnu-apl--set-face-for-text type command)))
-                   (gnu-apl-function-content-lines
-                    ;; There are still lines to be sent
-                    (gnu-apl-interactive-send-string (car gnu-apl-function-content-lines))
-                    (setq gnu-apl-function-content-lines (cdr gnu-apl-function-content-lines)))
-                   (t
-                    ;; Function send done, mark the send as finished
-                    (gnu-apl-interactive-send-string "∇")
-                    (setq gnu-apl-preoutput-filter-state 'normal))))
-
             ;; Ignoring output
             (ignore
              (cond ((string-match (regexp-quote *gnu-apl-ignore-end*) command)
@@ -219,22 +150,6 @@ the function and set it in the running APL interpreter."
 
   ;; Holds the current state
   (set (make-local-variable 'gnu-apl-preoutput-filter-state) 'normal)
-
-  ;;
-  ;; === Function editor variables
-  ;;
-  ;; Holds the function name while getting all the SI and function information
-  (set (make-local-variable 'gnu-apl-current-function-title) nil)
-  ;; List of lines in the function being read (in reverse)
-  (set (make-local-variable 'gnu-apl-current-function-text) nil)
-  ;; List of the output lines in )SI (reverse)
-  (set (make-local-variable 'gnu-apl-current-si) nil)
-  ;; Content of the function definition to be sent after checking )SI stack
-  (set (make-local-variable 'gnu-apl-content) nil)
-  ;; List of the lines in the function definition while being sent
-  (set (make-local-variable 'gnu-apl-function-content-lines) nil)
-  ;; Action to take after )SI check fails
-  (set (make-local-variable 'gnu-apl-si-fail-action) nil)
 
   (set (make-local-variable 'comint-input-sender) 'gnu-apl--send)
   (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)

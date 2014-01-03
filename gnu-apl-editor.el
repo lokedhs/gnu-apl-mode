@@ -41,25 +41,33 @@
             (run-at-time "0.5 sec" nil #'(lambda () (delete-overlay overlay))))
           (gnu-apl--send-si-and-send-new-function (buffer-substring start end) nil))))))
 
+(defun gnu-apl--send-new-function (content)
+  (llog "will send function: %S" content))
+
 (defun gnu-apl--send-si-and-send-new-function (content edit-when-fail)
   "Send an )SI request that should be checked against the current
 function being sent."
-  (with-current-buffer (gnu-apl--get-interactive-session)
-    (let ((parts (split-string content "\n")))
-      (unless parts
-        (error "Missing content"))
-      (let ((trimmed (gnu-apl--trim-spaces (car parts))))
-        (unless (string= (subseq trimmed 0 1) "∇")
-          (error "Illegal function header format"))
-        (let ((function-header (subseq trimmed 1)))
-          (unless (gnu-apl--parse-function-header function-header)
-            (error "Unable to parse function header"))
-          (setq gnu-apl-current-function-title function-header)
-          (setq gnu-apl-content content)
-          (setq gnu-apl-edit-when-si-fail edit-when-fail)
-          (gnu-apl-interactive-send-string (concat "'" *gnu-apl-read-si-start* "'"))
-          (gnu-apl-interactive-send-string (concat ")SI"))
-          (gnu-apl-interactive-send-string (concat "'" *gnu-apl-read-si-end* "'")))))))
+  (let ((parts (split-string content "\n")))
+    (unless parts
+      (error "Missing content"))
+    (let ((trimmed (gnu-apl--trim-spaces (car parts))))
+      (unless (string= (subseq trimmed 0 1) "∇")
+        (error "Illegal function header format"))
+      (let* ((function-header (subseq trimmed 1))
+             (function-name (gnu-apl--parse-function-header function-header)))
+        (unless function-name
+          (error "Unable to parse function header"))
+        (gnu-apl--send-network-command "si")
+        (let ((reply (gnu-apl--read-network-reply-block)))
+          (if (cl-find function-name reply :test #'string=)
+              (ecase gnu-apl-redefine-function-when-in-use-action
+                     (error (error "Function already on the )SI stack"))
+                     (clear (gnu-apl--send-network-command "sic")
+                            (gnu-apl--send-new-function content))
+                     (ask (when (y-or-n-p "Function already on )SI stack. Clear )SI stack? ")
+                            (gnu-apl--send-network-command "sic")
+                            (gnu-apl--send-new-function content))))
+            (gnu-apl--send-new-function content)))))))
 
 (defun gnu-apl-save-function ()
   "Save the currently edited function."

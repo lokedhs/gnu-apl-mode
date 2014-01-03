@@ -28,11 +28,9 @@ Permitted values are:
 
     error - Signal an error message
     clear - Clear the )SI stack before editing
-    allow - Allow the edit to continue
     ask - Ask the user what action to take"
   :type '(choice (const :tag "error" error)
                  (const :tag "clear" clear)
-                 (const :tag "allow" allow)
                  (const :tag "ask" ask))
   :group 'gnu-apl)
 
