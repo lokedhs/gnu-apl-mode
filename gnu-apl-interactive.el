@@ -282,7 +282,7 @@ the function and set it in the running APL interpreter."
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-start* "'"))
         (gnu-apl--send buffer (concat "'" (getenv "HOME") "/prog/gnu-apl-mode/native/libemacs.so' ⎕FX "
                                       "'" *gnu-apl-native-lib* "'"))
-        (gnu-apl--send buffer (concat *gnu-apl-native-lib* "[1] 0"))
+        (gnu-apl--send buffer (format "%s[1] %d" *gnu-apl-native-lib* 7293))
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-end* "'"))))
     (when gnu-apl-show-keymap-on-startup
       (run-at-time "0 sec" nil #'(lambda () (gnu-apl-show-keyboard 1))))))

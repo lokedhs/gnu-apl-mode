@@ -37,7 +37,16 @@ Token eval_XB(Value_P X, Value_P B)
         return list_functions( CERR );
 
     case 1:
-        return start_listener( 7293 );
+    {
+        int port;
+        if( B->is_empty() ) {
+            port = 7293;
+        }
+        else {
+            port = B->get_ravel( 0 ).get_near_int( qct );
+        }
+        return start_listener( port );
+    }
 
     default:
         CERR << "Bad function number: " << function_number << endl;
