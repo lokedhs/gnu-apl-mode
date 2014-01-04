@@ -4,14 +4,48 @@
 #include <pthread.h>
 
 static pthread_mutex_t apl_main_lock = PTHREAD_MUTEX_INITIALIZER;
-static bool initialised = false;
+static pthread_cond_t apl_main_cond = PTHREAD_COND_INITIALIZER;
+static bool apl_active = false;
+
+extern void (*start_input)();
+extern void (*end_input)();
 
 extern "C" {
     void *get_function_mux( const char *function_name );
 }
 
+void set_active( bool v )
+{
+    pthread_mutex_lock( &apl_main_lock );
+    if( !apl_active && !v ) {
+        std::cerr << "Unlocking while the lock is unlocked" << std::endl;
+        abort();
+    }
+    if( v ) {
+        while( apl_active ) {
+            pthread_cond_wait( &apl_main_cond, &apl_main_lock );
+        }
+    }
+    apl_active = v;
+    pthread_cond_broadcast( &apl_main_cond );
+    pthread_mutex_unlock( &apl_main_lock );
+}
+
+static void active_disable( void )
+{
+    set_active( false );
+}
+
+static void active_enable( void )
+{
+    set_active( true );
+}
+
 Fun_signature get_signature()
 {
+    set_active( true );
+    start_input = active_disable;
+    end_input = active_enable;
     return SIG_Z_A_F2_B;
 }
 
@@ -69,27 +103,10 @@ Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
 
 void *get_function_mux( const char *function_name )
 {
-    if( !initialised ) {
-        pthread_mutex_lock( &apl_main_lock );
-        initialised = true;
-    }
-
     if (!strcmp(function_name, "get_signature"))   return (void *)&get_signature;
     if (!strcmp(function_name, "eval_B"))          return (void *)&eval_B;
     if (!strcmp(function_name, "eval_AB"))         return (void *)&eval_AB;
     if (!strcmp(function_name, "eval_XB"))         return (void *)&eval_XB;
     if (!strcmp(function_name, "eval_AXB"))        return (void *)&eval_AXB;
     return 0;
-}
-
-void start_input( void )
-{
-    COUT << "start" << endl;
-    pthread_mutex_unlock( &apl_main_lock );
-}
-
-void end_input( void )
-{
-    COUT << "end" << endl;
-    pthread_mutex_lock( &apl_main_lock );
 }
