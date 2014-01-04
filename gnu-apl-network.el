@@ -1,5 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
+(defvar *gnu-apl-end-tag* "APL_NATIVE_END_TAG")
+
 (defun gnu-apl--connect (port)
   (with-current-buffer (gnu-apl--get-interactive-session)
     (when (and (boundp 'gnu-apl--connection)
@@ -33,15 +35,26 @@
 
 (defun gnu-apl--send-network-command (command)
   (with-current-buffer (gnu-apl--get-interactive-session)
+    (llog "OUT:%S (+NL)" command)
     (process-send-string gnu-apl--connection (concat command "\n"))))
+
+(defun gnu-apl--send-block (lines)
+  (dolist (line lines)
+    (gnu-apl--send-network-command line))
+  (gnu-apl--send-network-command *gnu-apl-end-tag*)
+  (llog "OUT:BLOCK SENT"))
 
 (defun gnu-apl--read-network-reply ()
   (with-current-buffer (gnu-apl--get-interactive-session)
     (loop while (null gnu-apl--results)
           do (accept-process-output gnu-apl--connection 3))
-    (pop gnu-apl--results)))
+    (let ((value (pop gnu-apl--results)))
+      (llog "IN:%S" value)
+      value)))
 
 (defun gnu-apl--read-network-reply-block ()
-  (loop for line = (gnu-apl--read-network-reply)
-        while (not (string= line "END"))
-        collect line))
+  (prog1
+      (loop for line = (gnu-apl--read-network-reply)
+            while (not (string= line *gnu-apl-end-tag*))
+            collect line)
+    (llog "IN:BLOCK READY")))

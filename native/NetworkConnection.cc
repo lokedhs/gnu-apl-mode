@@ -1,5 +1,7 @@
 #include "emacs.hh"
+#include "util.hh"
 #include "NetworkConnection.hh"
+#include "UserFunction.hh"
 
 #include <iostream>
 #include <sstream>
@@ -58,6 +60,21 @@ void NetworkConnection::write_string_to_fd( const std::string &s )
     }
 }
 
+std::vector<std::string> NetworkConnection::load_block( void )
+{
+    std::vector<std::string> result;
+    while( 1 ) {
+        COUT << "reading line" << endl;
+        std::string v = read_line_from_fd();
+        COUT << "got line:'" << v << "', comp:" << v.compare(END_TAG) << endl;
+        if( v == END_TAG ) {
+            break;
+        }
+        result.push_back( v );
+    }
+    return result;
+}
+
 void NetworkConnection::show_function( const std::string &name )
 {
     std::stringstream out;
@@ -88,7 +105,7 @@ void NetworkConnection::show_function( const std::string &name )
             }
         }
     }
-    out << "END\n";
+    out << END_TAG << "\n";
 
     write_string_to_fd( out.str() );
 }
@@ -98,19 +115,27 @@ void NetworkConnection::clear_si_stack( void )
     Workspace::clear_SI( COUT );
 }
 
-static std::vector<std::string> split(const std::string &s, char delim)
+void NetworkConnection::send_function( const std::vector<std::string> &content )
 {
-    std::stringstream ss(s);
-    std::string item;
-    std::vector<std::string> elems;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
+    UCS_string fun_text;
+    for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
+        fun_text.append( UCS_string( i->c_str() ) );
+        fun_text.append( UNI_ASCII_LF );
     }
-    return elems;
+    int line = 0;
+    UserFunction *ufun = UserFunction::fix( fun_text, line, false, LOC );
+    if( ufun == NULL ) {
+        write_string_to_fd( "error" );
+    }
+    else {
+        write_string_to_fd( "function_defined" );
+    }
+    write_string_to_fd( "\n" END_TAG "\n" );
 }
 
 int NetworkConnection::process_command( const std::string &command )
 {
+    LockWrapper lock;
     std::vector<std::string> elements = split( command, ':' );
     if( elements.size() > 0 ) {
         std::string operation = elements[0];
@@ -122,6 +147,10 @@ int NetworkConnection::process_command( const std::string &command )
         }
         else if( operation == "fn" ) {
             show_function( elements[1] );
+        }
+        else if( operation == "def" ) {
+            vector<string> content = load_block();
+            send_function( content );
         }
         else if( operation == "quit" ) {
             close( socket_fd );
@@ -143,7 +172,7 @@ void NetworkConnection::show_si( void )
     for( const StateIndicator *si = Workspace::SI_top() ; si ; si = si->get_parent() ) {
         out << si->function_name() << "\n";
     }
-    out << "END\n";
+    out << END_TAG << "\n";
 
     write_string_to_fd( out.str() );
 }
@@ -153,8 +182,6 @@ void NetworkConnection::run( void )
     int end = 0;
     while( !end ) {
         std::string command = read_line_from_fd();
-        set_active( true );
         end = process_command( command );
-        set_active( false );
     }
 }

@@ -42,7 +42,9 @@
           (gnu-apl--send-si-and-send-new-function (buffer-substring start end) nil))))))
 
 (defun gnu-apl--send-new-function (content)
-  (llog "will send function: %S" content))
+  (llog "will send function: %S" content)
+  (gnu-apl--send-network-command "def")
+  (gnu-apl--send-block content))
 
 (defun gnu-apl--send-si-and-send-new-function (content edit-when-fail)
   "Send an )SI request that should be checked against the current
@@ -63,11 +65,11 @@ function being sent."
               (ecase gnu-apl-redefine-function-when-in-use-action
                      (error (error "Function already on the )SI stack"))
                      (clear (gnu-apl--send-network-command "sic")
-                            (gnu-apl--send-new-function content))
+                            (gnu-apl--send-new-function parts))
                      (ask (when (y-or-n-p "Function already on )SI stack. Clear )SI stack? ")
                             (gnu-apl--send-network-command "sic")
-                            (gnu-apl--send-new-function content))))
-            (gnu-apl--send-new-function content)))))))
+                            (gnu-apl--send-new-function parts))))
+            (gnu-apl--send-new-function parts)))))))
 
 (defun gnu-apl-save-function ()
   "Save the currently edited function."

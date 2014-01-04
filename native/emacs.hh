@@ -2,6 +2,7 @@
 #define EMACS_HH
 
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wreturn-type"
@@ -13,5 +14,12 @@
 #pragma GCC diagnostic pop
 
 void set_active( bool v );
+
+class LockWrapper
+{
+public:
+    LockWrapper() { set_active( true ); };
+    virtual ~LockWrapper() { set_active( false ); };
+};
 
 #endif
