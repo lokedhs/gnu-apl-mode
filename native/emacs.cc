@@ -1,6 +1,11 @@
 #include "emacs.hh"
 #include "network.hh"
 
+#include <pthread.h>
+
+static pthread_mutex_t apl_main_lock = PTHREAD_MUTEX_INITIALIZER;
+static bool initialised = false;
+
 extern "C" {
     void *get_function_mux( const char *function_name );
 }
@@ -64,10 +69,27 @@ Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
 
 void *get_function_mux( const char *function_name )
 {
+    if( !initialised ) {
+        pthread_mutex_lock( &apl_main_lock );
+        initialised = true;
+    }
+
     if (!strcmp(function_name, "get_signature"))   return (void *)&get_signature;
     if (!strcmp(function_name, "eval_B"))          return (void *)&eval_B;
     if (!strcmp(function_name, "eval_AB"))         return (void *)&eval_AB;
     if (!strcmp(function_name, "eval_XB"))         return (void *)&eval_XB;
     if (!strcmp(function_name, "eval_AXB"))        return (void *)&eval_AXB;
     return 0;
+}
+
+void start_input( void )
+{
+    COUT << "start" << endl;
+    pthread_mutex_unlock( &apl_main_lock );
+}
+
+void end_input( void )
+{
+    COUT << "end" << endl;
+    pthread_mutex_lock( &apl_main_lock );
 }
