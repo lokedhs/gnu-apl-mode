@@ -4,11 +4,17 @@ CXXFLAGS = -Wall -fPIC -g -I$(APL_DIST)/src
 LIBS = -lpthread
 LIBNAME = libemacs.so
 OBJS = emacs.o network.o NetworkConnection.o
+UNAME = $(shell uname)
+ifeq ($(UNAME),Darwin)
+SHARED_FLAGS = -dynamiclib -Wl,-undefined,dynamic_lookup
+else
+SHARED_FLAGS = -shared
+endif
 
 all:		$(LIBNAME)
 
 $(LIBNAME):	$(OBJS)
-		$(CC) -shared $(CXXFLAGS) $(OBJS) -o $(LIBNAME) $(LIBS)
+		$(CC) $(SHARED_FLAGS) $(CXXFLAGS) $(OBJS) -o $(LIBNAME) $(LIBS)
 
 clean:
 		rm -f $(OBJS) $(LIBNAME)
