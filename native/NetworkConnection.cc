@@ -15,6 +15,14 @@
 #include <errno.h>
 #include <string.h>
 
+static UCS_string ucs_string_from_string( const std::string &string )
+{
+    size_t length = string.size();
+    const char *buf = string.c_str();
+    UTF8_string utf( (const UTF8 *)buf, length );
+    return UCS_string( utf );
+}
+
 std::string NetworkConnection::read_line_from_fd()
 {
     std::stringstream in;
@@ -88,6 +96,7 @@ std::vector<std::string> NetworkConnection::load_block( void )
 
 void NetworkConnection::show_function( const std::string &name )
 {
+    COUT << "showing function: '" << name << "'" << endl;
     std::stringstream out;
 
     UCS_string ucs_name( name.c_str() );
@@ -131,7 +140,7 @@ void NetworkConnection::send_function( const std::vector<std::string> &content )
     Shape shape( content.size() );
     Value_P function_list_value( new Value( shape, LOC ) );
     for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
-        UCS_string s( i->c_str() );
+        UCS_string s = ucs_string_from_string( *i );
         Shape row_shape( s.size() );
         Value_P row_cell( new Value( row_shape, LOC ) );
         for( int i2 = 0 ; i2 < s.size() ; i2++ ) {

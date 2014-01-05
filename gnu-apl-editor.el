@@ -44,7 +44,10 @@
 (defun gnu-apl--send-new-function (content)
   (llog "will send function: %S" content)
   (gnu-apl--send-network-command "def")
-  (gnu-apl--send-block content))
+  (gnu-apl--send-block content)
+  (let ((return-data (gnu-apl--read-network-reply-block)))
+    (unless (and return-data (null (cdr return-data)))
+      (error "foo"))))
 
 (defun gnu-apl--send-si-and-send-new-function (parts edit-when-fail)
   "Send an )SI request that should be checked against the current
@@ -70,7 +73,7 @@ function being sent."
   (interactive)
   (save-excursion
     (goto-char (point-min))
-    (let ((definition (gnu-apl--trim-spaces (thing-at-point 'line))))
+    (let ((definition (gnu-apl--trim-spaces (gnu-apl--trim-trailing-newline (thing-at-point 'line)))))
       (unless (string= (subseq definition 0 1) "∇")
         (user-error "Function header does not start with function definition symbol"))
       (unless (zerop (forward-line))
@@ -85,7 +88,7 @@ function being sent."
         (let* ((end-of-function (if (search-forward "∇" nil t)
                                     (1- (point))
                                   (point-max)))
-               (buffer-content (buffer-substring (point) end-of-function))
+               (buffer-content (gnu-apl--trim-trailing-newline (buffer-substring (point) end-of-function)))
                (content (list* function-header
                                (split-string buffer-content "\r?\n"))))
 

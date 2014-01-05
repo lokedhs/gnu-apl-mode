@@ -7,7 +7,7 @@
     (when (and (boundp 'gnu-apl--connection)
                (process-live-p gnu-apl--connection))
       (error "Connection is already established"))
-    (let ((proc (open-network-stream "*gnu-apl-connection*" nil "localhost" 7293
+    (let ((proc (open-network-stream "*gnu-apl-connection*" nil "localhost" port
                                        :type 'plain
                                        :return-list nil
                                        :end-of-command "\n")))
@@ -17,19 +17,15 @@
       (set (make-local-variable 'gnu-apl--results) nil))))
 
 (defun gnu-apl--filter-network (proc output)
+  (llog "Incoming data: %S" output)
   (with-current-buffer (gnu-apl--get-interactive-session)
     (setq gnu-apl--current-incoming (concat gnu-apl--current-incoming output))
-    (llog "Processing input: %S" output)
     (loop with start = 0
           for pos = (cl-position ?\n gnu-apl--current-incoming :start start)
-          do (llog "pos=%S" pos)
           while pos
           do (let ((s (subseq gnu-apl--current-incoming start pos)))
-               (llog "s=%S" s)
                (setq start (1+ pos))
-               (llog "new start: %S" start)
-               (setq gnu-apl--results (nconc gnu-apl--results (list s)))
-               (llog "new restults: %S" gnu-apl--results))
+               (setq gnu-apl--results (nconc gnu-apl--results (list s))))
           finally (when (plusp start)
                     (setq gnu-apl--current-incoming (subseq gnu-apl--current-incoming start))))))
 
