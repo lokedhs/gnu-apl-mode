@@ -2,6 +2,7 @@
 #include "util.hh"
 #include "NetworkConnection.hh"
 #include "UserFunction.hh"
+#include "Quad_FX.hh"
 
 #include <iostream>
 #include <sstream>
@@ -17,33 +18,38 @@
 std::string NetworkConnection::read_line_from_fd()
 {
     std::stringstream in;
-    int end = 0;
+
+    bool end = false;
     while( !end ) {
-        char buf[1024];
-
-        int res = read( socket_fd, (void *)buf, sizeof( buf ) - 1 );
-        if( res == -1 ) {
-            throw ConnectionError( "network error" );
-        }
-        if( res == 0 ) {
-            throw ConnectionError( "disconnected" );
-        }
-
-        if( buf[res - 1] == '\n' ) {
-            if( res >= 2 && buf[res - 2] == '\r' ) {
-                buf[res - 2] = 0;
+        while( buffer_pos < buffer_length ) {
+            char ch = buffer[buffer_pos++];
+            if( ch == '\n' ) {
+                end = true;
+                break;
             }
-            else {
-                buf[res - 1] = 0;
+            in << ch;
+        }
+
+        if( !end ) {
+            int res = read( socket_fd, (void *)buffer, sizeof( buffer ) );
+            if( res == -1 ) {
+                throw ConnectionError( "network error" );
             }
-            end = 1;
+            if( res == 0 ) {
+                throw ConnectionError( "disconnected" );
+            }
+            buffer_pos = 0;
+            buffer_length = res;
         }
-        else {
-            buf[res] = 0;
-        }
-        in << buf;
     }
-    return in.str();
+
+    std::string result = in.str();
+    if( result[result.size() - 1] == '\r' ) {
+        return result.substr( 0, result.size() -1 );
+    }
+    else {
+        return result;
+    }
 }
 
 void NetworkConnection::write_string_to_fd( const std::string &s )
@@ -64,12 +70,17 @@ std::vector<std::string> NetworkConnection::load_block( void )
 {
     std::vector<std::string> result;
     while( 1 ) {
-        COUT << "reading line" << endl;
         std::string v = read_line_from_fd();
-        COUT << "got line:'" << v << "', comp:" << v.compare(END_TAG) << endl;
         if( v == END_TAG ) {
             break;
         }
+/*
+        {
+            for(int i = 0 ; i < v.size() ; i++) {
+                COUT << "  v[" << i << "] = " << (int)(unsigned char)v[i] << endl;
+            }
+        }
+*/
         result.push_back( v );
     }
     return result;
@@ -117,6 +128,24 @@ void NetworkConnection::clear_si_stack( void )
 
 void NetworkConnection::send_function( const std::vector<std::string> &content )
 {
+    Shape shape( content.size() );
+    Value_P function_list_value( new Value( shape, LOC ) );
+    for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
+        UCS_string s( i->c_str() );
+        Shape row_shape( s.size() );
+        Value_P row_cell( new Value( row_shape, LOC ) );
+        for( int i2 = 0 ; i2 < s.size() ; i2++ ) {
+            new (row_cell->next_ravel()) CharCell( s[i2] );
+        }
+        new (function_list_value->next_ravel()) PointerCell( row_cell );
+    }
+    function_list_value->check_value( LOC );
+
+    Quad_FX quad_fx;
+    Token result = quad_fx.eval_B( function_list_value );
+    write_string_to_fd( result.canonical( PST_CS_NONE ).to_string() );
+    write_string_to_fd( "\n" END_TAG "\n" );
+/*
     UCS_string fun_text;
     for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
         fun_text.append( UCS_string( i->c_str() ) );
@@ -131,6 +160,7 @@ void NetworkConnection::send_function( const std::vector<std::string> &content )
         write_string_to_fd( "function_defined" );
     }
     write_string_to_fd( "\n" END_TAG "\n" );
+*/
 }
 
 int NetworkConnection::process_command( const std::string &command )

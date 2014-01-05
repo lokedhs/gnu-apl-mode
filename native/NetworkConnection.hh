@@ -8,11 +8,14 @@
 
 class NetworkConnection {
 public:
-    NetworkConnection( int socket_in ) : socket_fd(socket_in) {};
+    NetworkConnection( int socket_in ) : socket_fd(socket_in), buffer_pos(0), buffer_length(0) {};
     void run( void );
 
 private:
     int socket_fd;
+    char buffer[1024];
+    int buffer_pos;
+    int buffer_length;
 
     std::string read_line_from_fd( void );
     void write_string_to_fd( const std::string &s );

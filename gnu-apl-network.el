@@ -35,7 +35,7 @@
 
 (defun gnu-apl--send-network-command (command)
   (with-current-buffer (gnu-apl--get-interactive-session)
-    (llog "OUT:%S (+NL)" command)
+    (llog "OUT:%S" command)
     (process-send-string gnu-apl--connection (concat command "\n"))))
 
 (defun gnu-apl--send-block (lines)

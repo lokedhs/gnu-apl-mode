@@ -46,70 +46,57 @@
   (gnu-apl--send-network-command "def")
   (gnu-apl--send-block content))
 
-(defun gnu-apl--send-si-and-send-new-function (content edit-when-fail)
+(defun gnu-apl--send-si-and-send-new-function (parts edit-when-fail)
   "Send an )SI request that should be checked against the current
 function being sent."
-  (let ((parts (split-string content "\n")))
-    (unless parts
-      (error "Missing content"))
-    (let ((trimmed (gnu-apl--trim-spaces (car parts))))
-      (unless (string= (subseq trimmed 0 1) "∇")
-        (error "Illegal function header format"))
-      (let* ((function-header (subseq trimmed 1))
-             (function-name (gnu-apl--parse-function-header function-header)))
-        (unless function-name
-          (error "Unable to parse function header"))
-        (gnu-apl--send-network-command "si")
-        (let ((reply (gnu-apl--read-network-reply-block)))
-          (if (cl-find function-name reply :test #'string=)
-              (ecase gnu-apl-redefine-function-when-in-use-action
-                     (error (error "Function already on the )SI stack"))
-                     (clear (gnu-apl--send-network-command "sic")
-                            (gnu-apl--send-new-function parts))
-                     (ask (when (y-or-n-p "Function already on )SI stack. Clear )SI stack? ")
-                            (gnu-apl--send-network-command "sic")
-                            (gnu-apl--send-new-function parts))))
-            (gnu-apl--send-new-function parts)))))))
+  (let* ((function-header (gnu-apl--trim-spaces (car parts)))
+         (function-name (gnu-apl--parse-function-header function-header)))
+    (unless function-name
+      (error "Unable to parse function header"))
+    (gnu-apl--send-network-command "si")
+    (let ((reply (gnu-apl--read-network-reply-block)))
+      (if (cl-find function-name reply :test #'string=)
+          (ecase gnu-apl-redefine-function-when-in-use-action
+            (error (error "Function already on the )SI stack"))
+            (clear (gnu-apl--send-network-command "sic")
+                   (gnu-apl--send-new-function parts))
+            (ask (when (y-or-n-p "Function already on )SI stack. Clear )SI stack? ")
+                   (gnu-apl--send-network-command "sic")
+                   (gnu-apl--send-new-function parts))))
+        (gnu-apl--send-new-function parts)))))
 
 (defun gnu-apl-save-function ()
   "Save the currently edited function."
   (interactive)
-  (goto-char (point-min))
-  (let ((definition (gnu-apl--trim-spaces (thing-at-point 'line))))
-    (unless (string= (subseq definition 0 1) "∇")
-      (user-error "Function header does not start with function definition symbol"))
-    (unless (zerop (forward-line))
-      (user-error "Empty function definition"))
-    (let* ((function-header (subseq definition 1))
-           (function-name (gnu-apl--parse-function-header function-header)))
-      (unless function-name
-        (user-error "Illegal function header"))
+  (save-excursion
+    (goto-char (point-min))
+    (let ((definition (gnu-apl--trim-spaces (thing-at-point 'line))))
+      (unless (string= (subseq definition 0 1) "∇")
+        (user-error "Function header does not start with function definition symbol"))
+      (unless (zerop (forward-line))
+        (user-error "Empty function definition"))
+      (let* ((function-header (subseq definition 1))
+             (function-name (gnu-apl--parse-function-header function-header)))
+        (unless function-name
+          (user-error "Illegal function header"))
 
-      ;; Ensure that there are no function-end markers in the buffer
-      ;; (unless it's the last character in the buffer)
-      (let* ((end-of-function (if (search-forward "∇" nil t)
-                                  (1- (point))
-                                (point-max)))
-             (buffer-content (buffer-substring (point-min) end-of-function))
-             (content (if (eql (aref buffer-content (1- (length buffer-content))) ?\n)
-                          buffer-content
-                        (concat buffer-content "\n"))))
+        ;; Ensure that there are no function-end markers in the buffer
+        ;; (unless it's the last character in the buffer)
+        (let* ((end-of-function (if (search-forward "∇" nil t)
+                                    (1- (point))
+                                  (point-max)))
+               (buffer-content (buffer-substring (point) end-of-function))
+               (content (list* function-header
+                               (split-string buffer-content "\r?\n"))))
 
-        ;; At this point, we have the following needed information:
-        ;;   function-header: the first line of the definition (minus the function definition symbol)
-        ;;   content: the function definition itself as a single string
-        ;;
-        ;; Now, we need to first check the )SI stack to make sure there is no
-        ;; active definition already (and take appropriate action), and then send
-        ;; the function to the APL interpreter.
-        (gnu-apl--send-si-and-send-new-function content t))
+          (gnu-apl--send-si-and-send-new-function content t))
 
-      (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
-                                      gnu-apl-window-configuration
-                                    nil)))
-        (kill-buffer (current-buffer))
-        (when window-configuration
-          (set-window-configuration window-configuration))))))
+        (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
+                                        gnu-apl-window-configuration
+                                      nil)))
+          (kill-buffer (current-buffer))
+          (when window-configuration
+            (set-window-configuration window-configuration)))))))
 
 (define-minor-mode gnu-apl-interactive-edit-mode
   "Minor mode for editing functions in the GNU APL function editor"
