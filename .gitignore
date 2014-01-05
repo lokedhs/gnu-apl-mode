@@ -2,3 +2,7 @@
 .apl.history
 *.o
 *.so
+GPATH
+GRTAGS
+GSYMS
+GTAGS
