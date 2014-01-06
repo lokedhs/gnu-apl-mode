@@ -4,8 +4,17 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
 #include <errno.h>
+#include <netdb.h>
+
+class AddrWrapper {
+public:
+    AddrWrapper(struct addrinfo *addr_in) : addr(addr_in) {};
+    virtual ~AddrWrapper() { freeaddrinfo( addr ); };
+
+private:
+    struct addrinfo *addr;
+};
 
 struct ListenerLoopData {
     int server_socket;
@@ -54,22 +63,44 @@ Token start_listener( int port )
 {
     pthread_t thread_id;
     int server_socket;
+    struct addrinfo *addr;
+    int ret;
+
+    stringstream serv_name;
+    serv_name << port;
+
+    struct addrinfo hints;
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = 0;
+    hints.ai_flags = 0;
+    hints.ai_addrlen = 0;
+    hints.ai_addr = NULL;
+    hints.ai_canonname = NULL;
+    hints.ai_next = NULL;
+
+    ret = getaddrinfo( "127.0.0.1", serv_name.str().c_str(), &hints, &addr );
+    if( ret != 0 ) {
+        stringstream errmsg;
+        errmsg << "Error looking up listener host: " << gai_strerror( ret );
+        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
+        DOMAIN_ERROR;
+    }
+
+    AddrWrapper addrWrapper( addr );
 
     server_socket = socket( AF_INET, SOCK_STREAM, 0 );
     if( server_socket == -1 ) {
-        CERR << "Error creating socket: " << strerror( errno ) << endl;
+        stringstream errmsg;
+        errmsg << "Error creating socket: " << strerror( errno );
+        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
         DOMAIN_ERROR;
     }
 
     int v = 1;
     setsockopt( server_socket, SOL_SOCKET, SO_REUSEADDR, (void *)&v, sizeof( v ) );
 
-    struct sockaddr_in addr;
-    memset( &addr, 0, sizeof( addr ) );
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons( port );
-    if( bind( server_socket, (struct sockaddr *)&addr, sizeof( addr ) ) == -1 ) {
+    if( bind( server_socket, addr->ai_addr, addr->ai_addrlen ) == -1 ) {
         stringstream errmsg;
         errmsg << "Unable to bind to port " << port << ": " << strerror( errno );
         Workspace::more_error() = UCS_string( errmsg.str().c_str() );

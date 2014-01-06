@@ -148,7 +148,10 @@ the function and set it in the running APL interpreter."
                     (let ((mode (match-string 1 command))
                           (addr (match-string 2 command)))
                       (gnu-apl--connect mode addr)
-                      (message "Connected to APL interpreter")))))))))
+                      (message "Connected to APL interpreter")
+                      (add-to-result (gnu-apl--set-face-for-text type command))))
+                   (t
+                    (add-to-result (gnu-apl--set-face-for-text type command)))))))))
     result))
 
 (defvar gnu-apl-interactive-mode-map
