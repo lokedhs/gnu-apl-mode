@@ -152,13 +152,6 @@ the function and set it in the running APL interpreter."
   :group 'gnu-apl
   (use-local-map gnu-apl-interactive-mode-map)
   (gnu-apl--init-mode-common)
-  (setq comint-prompt-regexp "^\\(      \\)\\|\\(\\[[0-9]+\\] \\)")
-
-  ;; Holds the current state
-  (set (make-local-variable 'gnu-apl-preoutput-filter-state) 'normal)
-
-  (set (make-local-variable 'comint-input-sender) 'gnu-apl--send)
-  (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
   (setq font-lock-defaults '(nil t)))
 
 (defun gnu-apl-open-customise ()
@@ -180,7 +173,7 @@ the function and set it in the running APL interpreter."
                  'action #'(lambda (event) (customize-group 'gnu-apl t))
                  'follow-link t)
   (insert " options that can be set.\n"
-          "click the link or run M-x customize-group RET gnu-apl to set up.\n\n"
+          "Click the link or run M-x customize-group RET gnu-apl to set up.\n\n"
           "To disable this message, set gnu-apl-show-tips-on-start to nil.\n\n"))
 
 (defun gnu-apl (apl-executable)
@@ -197,8 +190,14 @@ the function and set it in the running APL interpreter."
       (apply #'make-comint-in-buffer
              "apl" buffer resolved-binary nil
              "--rawCIN" "--emacs" (append (if (not gnu-apl-show-apl-welcome) (list "--silent"))))
-      (gnu-apl-interactive-mode)
       (setq gnu-apl-current-session buffer)
+      (add-hook 'comint--hook)
+      (setq comint-prompt-regexp "^\\(      \\)\\|\\(\\[[0-9]+\\] \\)")
+      (set (make-local-variable 'gnu-apl-preoutput-filter-state) 'normal)
+      (set (make-local-variable 'comint-input-sender) 'gnu-apl--send)
+      (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
+
+      (gnu-apl-interactive-mode)
       (when t
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-start* "'"))
         (gnu-apl--send buffer (concat "'" (getenv "HOME") "/prog/gnu-apl-mode/native/libemacs.so' ⎕FX "
