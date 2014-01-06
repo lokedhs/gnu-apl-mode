@@ -20,11 +20,27 @@ or NIL if there is no active session.")
       (user-error "GNU APL session has exited"))
     gnu-apl-current-session))
 
-(defvar *gnu-apl-native-lib* "EE")
+(defvar *gnu-apl-native-lib* "EMACS_NATIVE")
 (defvar *gnu-apl-ignore-start* "IGNORE-START")
 (defvar *gnu-apl-ignore-end* "IGNORE-END")
 (defvar *gnu-apl-network-start* "NATIVE-STARTUP-START")
 (defvar *gnu-apl-network-end* "NATIVE-STARTUP-END")
+
+(defun gnu-apl--send (proc string)
+  "Filter for any commands that are sent to comint"
+  (let* ((trimmed (gnu-apl--trim-spaces string)))
+    (cond ((and gnu-apl-auto-function-editor-popup
+                 (plusp (length trimmed))
+                 (string= (subseq trimmed 0 1) "∇"))
+           ;; The command is a functiond definition command
+           (unless (gnu-apl--parse-function-header (subseq trimmed 1))
+             (user-error "Error when parsing function definition command"))
+           (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1)))
+           nil)
+
+          (t
+           ;; Default, simply pass the input to the process
+           (comint-simple-send proc string)))))
 
 (defun gnu-apl-edit-function (name)
   "Open the function with the given name in a separate buffer.
@@ -44,21 +60,6 @@ the function and set it in the running APL interpreter."
                           (list function-definition)
                         reply)))
         (gnu-apl--open-function-editor-with-timer content)))))
-
-(defun gnu-apl--send (proc string)
-  "Filter for any commands that are sent to comint"
-  (let* ((trimmed (gnu-apl--trim-spaces string)))
-    (cond ((and gnu-apl-auto-function-editor-popup
-                 (plusp (length trimmed))
-                 (string= (subseq trimmed 0 1) "∇"))
-           ;; The command is a functiond definition command
-           (unless (gnu-apl--parse-function-header (subseq trimmed 1))
-             (user-error "Error when parsing function definition command"))
-           (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1))))
-
-          (t
-           ;; Default, simply pass the input to the process
-           (comint-simple-send proc string)))))
 
 (defun gnu-apl--parse-text (string)
   (if (zerop (length string))
@@ -129,9 +130,14 @@ the function and set it in the running APL interpreter."
             (native
              (cond ((string-match (regexp-quote *gnu-apl-network-end*) command)
                     (setq gnu-apl-preoutput-filter-state 'normal))
-                   ((string-match "Network listener started" command)
-                    (gnu-apl--connect 7293)))
-             (add-to-result (gnu-apl--set-face-for-text type command)))))))
+                   ((string-match (concat "Network listener started.*"
+                                          "mode:\\([a-z]+\\) "
+                                          "addr:\\([a-zA-Z0-9/]+\\)")
+                                  command)
+                    (let ((mode (match-string 1 command))
+                          (addr (match-string 2 command)))
+                      (gnu-apl--connect mode addr)
+                      (message "Connected to APL interpreter")))))))))
     result))
 
 (defvar gnu-apl-interactive-mode-map

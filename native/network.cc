@@ -70,24 +70,28 @@ Token start_listener( int port )
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons( port );
     if( bind( server_socket, (struct sockaddr *)&addr, sizeof( addr ) ) == -1 ) {
-        CERR << "Unable to bind to port " << port << ": " << strerror( errno ) << endl;
+        stringstream errmsg;
+        errmsg << "Unable to bind to port " << port << ": " << strerror( errno );
+        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
         DOMAIN_ERROR;
     }
 
     if( listen( server_socket, 2 ) == -1 ) {
-        CERR << "Error calling accept: " << strerror( errno ) << endl;
         close( server_socket );
+        stringstream errmsg;
+        errmsg << "Error calling accept: " << strerror( errno ) << endl;
+        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
         DOMAIN_ERROR;
     }
 
     int res = pthread_create( &thread_id, NULL, listener_loop, new NetworkConnection( server_socket ) );
     if( res != 0 ) {
-        CERR << "Unable to start network connection thread" << endl;
         close( server_socket );
+        Workspace::more_error() = UCS_string( "Unable to start network connection thread" );
         DOMAIN_ERROR;
     }
 
-    COUT << "Network listener started on port " << port << endl;
+    COUT << "Network listener started. Connection information: mode:tcp addr:" << port << endl;
 
     return Token(TOK_APL_VALUE1, Value::Str0_P);
 }

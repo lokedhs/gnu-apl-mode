@@ -96,10 +96,9 @@ std::vector<std::string> NetworkConnection::load_block( void )
 
 void NetworkConnection::show_function( const std::string &name )
 {
-    COUT << "showing function: '" << name << "'" << endl;
     std::stringstream out;
 
-    UCS_string ucs_name( name.c_str() );
+    UCS_string ucs_name = ucs_string_from_string( name );
     NamedObject *obj = Workspace::lookup_existing_name( ucs_name );
     if( obj == NULL ) {
         out << "undefined\n";
@@ -154,22 +153,6 @@ void NetworkConnection::send_function( const std::vector<std::string> &content )
     Token result = quad_fx.eval_B( function_list_value );
     write_string_to_fd( result.canonical( PST_CS_NONE ).to_string() );
     write_string_to_fd( "\n" END_TAG "\n" );
-/*
-    UCS_string fun_text;
-    for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
-        fun_text.append( UCS_string( i->c_str() ) );
-        fun_text.append( UNI_ASCII_LF );
-    }
-    int line = 0;
-    UserFunction *ufun = UserFunction::fix( fun_text, line, false, LOC );
-    if( ufun == NULL ) {
-        write_string_to_fd( "error" );
-    }
-    else {
-        write_string_to_fd( "function_defined" );
-    }
-    write_string_to_fd( "\n" END_TAG "\n" );
-*/
 }
 
 int NetworkConnection::process_command( const std::string &command )

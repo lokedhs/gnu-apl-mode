@@ -2,15 +2,21 @@
 
 (defvar *gnu-apl-end-tag* "APL_NATIVE_END_TAG")
 
-(defun gnu-apl--connect (port)
+(defun gnu-apl--connect-to-remote (connect-mode addr)
+  (cond ((string= connect-mode "tcp")
+         (open-network-stream "*gnu-apl-connection*" nil "localhost" (parse-integer addr)
+                              :type 'plain
+                              :return-list nil
+                              :end-of-command "\n"))
+        (t
+         (error "Unexpected connect mode: %s" connect-mode))))
+
+(defun gnu-apl--connect (connect-mode addr)
   (with-current-buffer (gnu-apl--get-interactive-session)
     (when (and (boundp 'gnu-apl--connection)
                (process-live-p gnu-apl--connection))
       (error "Connection is already established"))
-    (let ((proc (open-network-stream "*gnu-apl-connection*" nil "localhost" port
-                                       :type 'plain
-                                       :return-list nil
-                                       :end-of-command "\n")))
+    (let ((proc (gnu-apl--connect-to-remote connect-mode addr)))
       (set-process-filter proc 'gnu-apl--filter-network)
       (set (make-local-variable 'gnu-apl--connection) proc)
       (set (make-local-variable 'gnu-apl--current-incoming) "")
