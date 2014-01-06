@@ -150,7 +150,28 @@ Axis operator: Reduce
      "Find" "Return a boolean array indicating the positions of the array A in B")
     ("≡"
      "Depth" "Return the levels of nesting in B"
-     "Match" "Returns true if A has the same structure as well as data as B"))
+     "Match" "Returns true if A has the same structure as well as data as B")
+    ("⊥"
+     nil nil
+     "Decode" "Yields the values of array R evaluated in a number system with radices L"
+     "Z←L⊥R Yields the values of array R evaluated in a number system with
+radices L.
+
+L, R, and Z: Simple numeric array
+
+⍴Z ←→ (1↓L),1↓⍴R
+⍴⍴Z ←→ (0 1+⍴⍴L)+(0⌈¯1+⍴⍴R)")
+    ("⊤"
+     nil nil
+     "Encode" "Yields the representation of R in the number system whose radices are L"
+     "Z←L⊤R
+Yields the representation of R in the number system whose radices
+are L.
+
+L, R, and Z: Simple numeric array
+
+⍴Z ←→ (⍴L),⍴R
+⍴⍴Z ←→ (⍴⍴L)+⍴⍴R"))
   "Documentation for APL symbols. Each element is a list of six
 elements: The APL symbol, name of monadic operator, description
 of the monadic operator, name of the dyadic operator, description
