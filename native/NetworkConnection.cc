@@ -3,6 +3,10 @@
 #include "NetworkConnection.hh"
 #include "UserFunction.hh"
 #include "Quad_FX.hh"
+#include "SiCommand.hh"
+#include "SicCommand.hh"
+#include "FnCommand.hh"
+#include "DefCommand.hh"
 
 #include <iostream>
 #include <sstream>
@@ -15,12 +19,26 @@
 #include <errno.h>
 #include <string.h>
 
-static UCS_string ucs_string_from_string( const std::string &string )
+
+static void add_command( std::map<std::string, Command *> commands, Command *command )
 {
-    size_t length = string.size();
-    const char *buf = string.c_str();
-    UTF8_string utf( (const UTF8 *)buf, length );
-    return UCS_string( utf );
+    commands.insert( std::pair<std::string, Command *>( command->get_name(), command ) );
+}
+
+NetworkConnection::NetworkConnection( int socket_in )
+    : socket_fd(socket_in), buffer_pos(0), buffer_length(0)
+{
+    add_command( commands, new SiCommand( "si" ) );
+    add_command( commands, new SicCommand( "sic" ) );
+    add_command( commands, new FnCommand( "fn" ) );
+    add_command( commands, new DefCommand( "def" ) );
+}
+
+NetworkConnection::~NetworkConnection()
+{
+    for( std::map<std::string, Command *>::iterator i = commands.begin() ; i != commands.end() ; i++ ) {
+        delete i->second;
+    }
 }
 
 std::string NetworkConnection::read_line_from_fd()
@@ -94,89 +112,21 @@ std::vector<std::string> NetworkConnection::load_block( void )
     return result;
 }
 
-void NetworkConnection::show_function( const std::string &name )
-{
-    std::stringstream out;
-
-    UCS_string ucs_name = ucs_string_from_string( name );
-    NamedObject *obj = Workspace::lookup_existing_name( ucs_name );
-    if( obj == NULL ) {
-        out << "undefined\n";
-    }
-    else if( !obj->is_user_defined() ) {
-        out << "system function\n";
-    }
-    else {
-        const Function *function = obj->get_function();
-        if( function == NULL ) {
-            out << "symbol is not a function";
-        }
-        else if( function->get_exec_properties()[0] != 0 ) {
-            out << "function is not executable\n";
-        }
-        else {
-            const UCS_string ucs = function->canonical( false );
-            vector<UCS_string> tlines;
-            ucs.to_vector( tlines );
-
-            for( vector<UCS_string>::iterator i = tlines.begin() ; i != tlines.end() ; i++ ) {
-                out << i->to_string() << "\n";
-            }
-        }
-    }
-    out << END_TAG << "\n";
-
-    write_string_to_fd( out.str() );
-}
-
-void NetworkConnection::clear_si_stack( void )
-{
-    Workspace::clear_SI( COUT );
-}
-
-void NetworkConnection::send_function( const std::vector<std::string> &content )
-{
-    Shape shape( content.size() );
-    Value_P function_list_value( new Value( shape, LOC ) );
-    for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
-        UCS_string s = ucs_string_from_string( *i );
-        Shape row_shape( s.size() );
-        Value_P row_cell( new Value( row_shape, LOC ) );
-        for( int i2 = 0 ; i2 < s.size() ; i2++ ) {
-            new (row_cell->next_ravel()) CharCell( s[i2] );
-        }
-        new (function_list_value->next_ravel()) PointerCell( row_cell );
-    }
-    function_list_value->check_value( LOC );
-
-    Quad_FX quad_fx;
-    Token result = quad_fx.eval_B( function_list_value );
-    write_string_to_fd( result.canonical( PST_CS_NONE ).to_string() );
-    write_string_to_fd( "\n" END_TAG "\n" );
-}
-
 int NetworkConnection::process_command( const std::string &command )
 {
     LockWrapper lock;
     std::vector<std::string> elements = split( command, ':' );
     if( elements.size() > 0 ) {
         std::string operation = elements[0];
-        if( operation == "si" ) {
-            show_si();
-        }
-        else if( operation == "sic" ) {
-            clear_si_stack();
-        }
-        else if( operation == "fn" ) {
-            show_function( elements[1] );
-        }
-        else if( operation == "def" ) {
-            vector<string> content = load_block();
-            send_function( content );
-        }
-        else if( operation == "quit" ) {
+
+        if( operation == "quit" ) {
             close( socket_fd );
             throw ConnectionError( "quit received" );
+        }
+
+        std::map<std::string, Command *>::iterator command_iterator = commands.find( operation );
+        if( command_iterator != commands.end() ) {
+            command_iterator->second->run_command( *this, elements );
         }
         else {
             CERR << "unknown command: '" << operation << "'" << endl;

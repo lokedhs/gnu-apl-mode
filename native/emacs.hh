@@ -15,11 +15,15 @@
 
 void set_active( bool v );
 
+#define END_TAG "APL_NATIVE_END_TAG"
+
 class LockWrapper
 {
 public:
     LockWrapper() { set_active( true ); };
     virtual ~LockWrapper() { set_active( false ); };
 };
+
+UCS_string ucs_string_from_string( const std::string &string );
 
 #endif

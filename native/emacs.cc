@@ -111,3 +111,11 @@ void *get_function_mux( const char *function_name )
     if (!strcmp(function_name, "eval_AXB"))        return (void *)&eval_AXB;
     return 0;
 }
+
+UCS_string ucs_string_from_string( const std::string &string )
+{
+    size_t length = string.size();
+    const char *buf = string.c_str();
+    UTF8_string utf( (const UTF8 *)buf, length );
+    return UCS_string( utf );
+}

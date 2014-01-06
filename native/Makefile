@@ -3,7 +3,7 @@ CC = c++
 CXXFLAGS = -Wall -fPIC -g -I$(APL_DIST)/src
 LIBS = -lpthread
 LIBNAME = libemacs.so
-OBJS = emacs.o network.o util.o NetworkConnection.o
+OBJS = emacs.o network.o util.o NetworkConnection.o SiCommand.o SicCommand.o FnCommand.o DefCommand.o
 UNAME = $(shell uname)
 ifeq ($(UNAME),Darwin)
 SHARED_FLAGS = -dynamiclib -Wl,-undefined,dynamic_lookup

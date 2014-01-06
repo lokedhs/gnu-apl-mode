@@ -3,23 +3,26 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
-#define END_TAG "APL_NATIVE_END_TAG"
+#include "Command.hh"
 
 class NetworkConnection {
 public:
-    NetworkConnection( int socket_in ) : socket_fd(socket_in), buffer_pos(0), buffer_length(0) {};
+    NetworkConnection( int socket_in );
+    virtual ~NetworkConnection();
     void run( void );
+    std::string read_line_from_fd( void );
+    void write_string_to_fd( const std::string &s );
+    std::vector<std::string> load_block( void );
 
 private:
     int socket_fd;
     char buffer[1024];
     int buffer_pos;
     int buffer_length;
+    std::map<std::string, Command *> commands;
 
-    std::string read_line_from_fd( void );
-    void write_string_to_fd( const std::string &s );
-    std::vector<std::string> load_block( void );
     int process_command( const std::string &command );
     void show_si( void );
     void clear_si_stack( void );
