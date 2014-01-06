@@ -28,6 +28,7 @@ or NIL if there is no active session.")
 
 (defun gnu-apl--send (proc string)
   "Filter for any commands that are sent to comint"
+  (llog "incoming command:%S" string)
   (let* ((trimmed (gnu-apl--trim-spaces string)))
     (cond ((and gnu-apl-auto-function-editor-popup
                  (plusp (length trimmed))
@@ -36,6 +37,7 @@ or NIL if there is no active session.")
            (unless (gnu-apl--parse-function-header (subseq trimmed 1))
              (user-error "Error when parsing function definition command"))
            (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1)))
+           (insert (buffer-substring (car comint-last-prompt) (cdr comint-last-prompt)))
            nil)
 
           (t
@@ -152,6 +154,12 @@ the function and set it in the running APL interpreter."
   :group 'gnu-apl
   (use-local-map gnu-apl-interactive-mode-map)
   (gnu-apl--init-mode-common)
+
+  (setq comint-prompt-regexp "^\\(      \\)\\|\\(\\[[0-9]+\\] \\)")
+  (set (make-local-variable 'gnu-apl-preoutput-filter-state) 'normal)
+  (set (make-local-variable 'comint-input-sender) 'gnu-apl--send)
+  (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
+
   (setq font-lock-defaults '(nil t)))
 
 (defun gnu-apl-open-customise ()
@@ -191,11 +199,6 @@ the function and set it in the running APL interpreter."
              "apl" buffer resolved-binary nil
              "--rawCIN" "--emacs" (append (if (not gnu-apl-show-apl-welcome) (list "--silent"))))
       (setq gnu-apl-current-session buffer)
-      (add-hook 'comint--hook)
-      (setq comint-prompt-regexp "^\\(      \\)\\|\\(\\[[0-9]+\\] \\)")
-      (set (make-local-variable 'gnu-apl-preoutput-filter-state) 'normal)
-      (set (make-local-variable 'comint-input-sender) 'gnu-apl--send)
-      (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
 
       (gnu-apl-interactive-mode)
       (when t
