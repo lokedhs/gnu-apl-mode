@@ -29,15 +29,25 @@ or NIL if there is no active session.")
 (defun gnu-apl--send (proc string)
   "Filter for any commands that are sent to comint"
   (llog "incoming command:%S" string)
+
   (let* ((trimmed (gnu-apl--trim-spaces string)))
     (cond ((and gnu-apl-auto-function-editor-popup
-                 (plusp (length trimmed))
-                 (string= (subseq trimmed 0 1) "∇"))
+                (plusp (length trimmed))
+                (string= (subseq trimmed 0 1) "∇"))
            ;; The command is a functiond definition command
            (unless (gnu-apl--parse-function-header (subseq trimmed 1))
              (user-error "Error when parsing function definition command"))
            (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1)))
-           (insert (buffer-substring (car comint-last-prompt) (cdr comint-last-prompt)))
+           (let ((buffer (process-buffer proc)))
+             (llog "inserting into %S. prompt=%S" buffer comint-last-prompt)
+             (with-current-buffer buffer
+               (let ((inhibit-read-only t))
+                 (save-excursion
+                   (save-restriction
+                     (widen)
+                     (goto-char (process-mark proc))
+                     (insert "      ")
+                     (set-marker (process-mark proc) (point)))))))
            nil)
 
           (t
