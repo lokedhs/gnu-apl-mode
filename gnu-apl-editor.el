@@ -51,7 +51,8 @@
 
 (defun gnu-apl--send-si-and-send-new-function (parts edit-when-fail)
   "Send an )SI request that should be checked against the current
-function being sent."
+function being sent. Returns non-nil if the function was send
+successfully."
   (let* ((function-header (gnu-apl--trim-spaces (car parts)))
          (function-name (gnu-apl--parse-function-header function-header)))
     (unless function-name
@@ -65,8 +66,10 @@ function being sent."
                    (gnu-apl--send-new-function parts))
             (ask (when (y-or-n-p "Function already on )SI stack. Clear )SI stack? ")
                    (gnu-apl--send-network-command "sic")
-                   (gnu-apl--send-new-function parts))))
-        (gnu-apl--send-new-function parts)))))
+                   (gnu-apl--send-new-function parts)
+                   t)))
+        (gnu-apl--send-new-function parts)
+        t))))
 
 (defun gnu-apl-save-function ()
   "Save the currently edited function."
@@ -92,14 +95,13 @@ function being sent."
                (content (list* function-header
                                (split-string buffer-content "\r?\n"))))
 
-          (gnu-apl--send-si-and-send-new-function content t))
-
-        (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
-                                        gnu-apl-window-configuration
-                                      nil)))
-          (kill-buffer (current-buffer))
-          (when window-configuration
-            (set-window-configuration window-configuration)))))))
+          (when (gnu-apl--send-si-and-send-new-function content t)
+            (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
+                                            gnu-apl-window-configuration
+                                          nil)))
+              (kill-buffer (current-buffer))
+              (when window-configuration
+                (set-window-configuration window-configuration)))))))))
 
 (define-minor-mode gnu-apl-interactive-edit-mode
   "Minor mode for editing functions in the GNU APL function editor"
