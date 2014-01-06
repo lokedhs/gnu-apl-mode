@@ -39,7 +39,6 @@ or NIL if there is no active session.")
              (user-error "Error when parsing function definition command"))
            (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1)))
            (let ((buffer (process-buffer proc)))
-             (llog "inserting into %S. prompt=%S" buffer comint-last-prompt)
              (with-current-buffer buffer
                (let ((inhibit-read-only t))
                  (save-excursion
