@@ -36,8 +36,13 @@ public:
     virtual ~ConnectionError() {};
     std::string get_message( void ) { return message; };
 
-private:
+protected:
     const std::string message;
+};
+
+class DisconnectedError : public ConnectionError {
+public:
+    DisconnectedError( const std::string &message ) : ConnectionError( message ) {};
 };
 
 #endif

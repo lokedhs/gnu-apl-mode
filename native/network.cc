@@ -28,6 +28,9 @@ static void *connection_loop( void *arg )
     try {
         connection->run();
     }
+    catch( DisconnectedError &disconnected_error ) {
+        // Do nothing here
+    }
     catch( ConnectionError &connection_error ) {
         CERR << "Disconnected: " << connection_error.get_message() << endl;
     }

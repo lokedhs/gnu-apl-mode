@@ -66,7 +66,7 @@ std::string NetworkConnection::read_line_from_fd()
                 throw ConnectionError( "network error" );
             }
             if( res == 0 ) {
-                throw ConnectionError( "disconnected" );
+                throw DisconnectedError( "Remote disconnected" );
             }
             buffer_pos = 0;
             buffer_length = res;
@@ -118,7 +118,7 @@ int NetworkConnection::process_command( const std::string &command )
 
         if( operation == "quit" ) {
             close( socket_fd );
-            throw ConnectionError( "quit received" );
+            throw DisconnectedError( "quit received" );
         }
 
         std::map<std::string, Command *>::iterator command_iterator = commands.find( operation );

@@ -17,7 +17,7 @@ private:
 static void send_reply( NetworkConnection &conn, std::string message )
 {
     conn.write_string_to_fd( message );
-    conn.write_string_to_fd( END_TAG );
+    conn.write_string_to_fd( "\n" END_TAG "\n" );
 }
 
 static void escape_char( stringstream &out, Unicode unicode )
@@ -132,8 +132,12 @@ void GetVarCommand::run_command( NetworkConnection &conn, const std::vector<std:
 
     SymbolTable symbol_table = Workspace::get_symbol_table();
     Symbol *symbol = symbol_table.lookup_existing_symbol( ucs_string_from_string( args[1] ) );
-    if( symbol->get_nc() != NC_VARIABLE ) {
+    if( symbol == NULL ) {
         send_reply( conn, "undefined" );
+        return;
+    }
+    if( symbol->get_nc() != NC_VARIABLE ) {
+        send_reply( conn, "wrong type" );
         return;
     }
 
