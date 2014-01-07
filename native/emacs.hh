@@ -24,6 +24,6 @@ public:
     virtual ~LockWrapper() { set_active( false ); };
 };
 
-UCS_string ucs_string_from_string( const std::string &string );
+const UCS_string ucs_string_from_string( const std::string &string );
 
 #endif

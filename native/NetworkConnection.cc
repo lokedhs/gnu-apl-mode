@@ -7,6 +7,7 @@
 #include "SicCommand.hh"
 #include "FnCommand.hh"
 #include "DefCommand.hh"
+#include "GetVarCommand.hh"
 
 #include <iostream>
 #include <sstream>
@@ -32,6 +33,7 @@ NetworkConnection::NetworkConnection( int socket_in )
     add_command( commands, new SicCommand( "sic" ) );
     add_command( commands, new FnCommand( "fn" ) );
     add_command( commands, new DefCommand( "def" ) );
+    add_command( commands, new GetVarCommand( "getvar" ) );
 }
 
 NetworkConnection::~NetworkConnection()
@@ -127,21 +129,7 @@ int NetworkConnection::process_command( const std::string &command )
             command_iterator->second->run_command( *this, elements );
         }
     }
-    else {
-        CERR << "empty command" << endl;
-    }
     return 0;
-}
-
-void NetworkConnection::show_si( void )
-{
-    std::stringstream out;
-    for( const StateIndicator *si = Workspace::SI_top() ; si ; si = si->get_parent() ) {
-        out << si->function_name() << "\n";
-    }
-    out << END_TAG << "\n";
-
-    write_string_to_fd( out.str() );
 }
 
 void NetworkConnection::run( void )

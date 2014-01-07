@@ -112,7 +112,7 @@ void *get_function_mux( const char *function_name )
     return 0;
 }
 
-UCS_string ucs_string_from_string( const std::string &string )
+const UCS_string ucs_string_from_string( const std::string &string )
 {
     size_t length = string.size();
     const char *buf = string.c_str();
