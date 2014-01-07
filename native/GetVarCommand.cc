@@ -4,6 +4,16 @@
 
 #include <sstream>
 
+class InvalidSymbolContent {
+public:
+    InvalidSymbolContent( const std::string &message_in ) : message( message_in ) {}
+    virtual ~InvalidSymbolContent() {}
+    const std::string get_message( void ) { return message; }
+
+private:
+    const std::string message;
+};
+
 static void send_reply( NetworkConnection &conn, std::string message )
 {
     conn.write_string_to_fd( message );
@@ -24,56 +34,94 @@ static void escape_char( stringstream &out, Unicode unicode )
     }
 }
 
-static void get_printable_value_scalar( stringstream &out, const Cell &cell )
+void skalar_value_to_el( stringstream &out, Value_P value )
 {
+    Cell &cell = value->get_ravel( 0 );
     if( cell.is_integer_cell() ) {
         out << cell.get_int_value();
     }
     else if( cell.is_real_cell() ) {
         out << cell.get_real_value();
     }
+    else if( cell.is_complex_cell() ) {
+        out << "(:complex " << cell.get_real_value() << " " << cell.get_imag_value() << ")";
+    }
     else if( cell.is_character_cell() ) {
-        out << "\"";
-        escape_char( out, cell.get_char_value() );
-        out << "\"";
+        out << "(:unicode " << cell.get_char_value() << ")";
     }
     else {
-        CERR << "Illegal cell type" << endl;
-        throw "Foo";
+        out << "(:unknown)";
     }
 }
 
-static const string make_printable_value( Value_P value )
-{
-    stringstream out;
+void apl_value_to_el( stringstream &out, Value_P value );
 
-    Shape shape = value->get_shape();
-    int rank = shape.get_rank();
-    if( rank == 0 ) {
-        get_printable_value_scalar( out, value->get_ravel( 0 ) );
-    }
-    else if( rank == 1 ) {
-        // This can be either a string or a one-dimensional array.
-        // They are differentiated by the type of the first element.
-        int cols = shape.get_cols();
-        if( cols > 0 && value->get_ravel( 0 ).is_character_cell() ) {
-            // This is a string
-            out << "\"";
-            for( int i = 0 ; i < cols ; i++ ) {
-                Cell cell = value->get_ravel( i );
-                if( !cell.is_character_cell() ) {
-                    throw "Unsupported array form";
-                }
-                escape_char( out, cell.get_char_value() );
-            }
-            out << "\"";
+void output_onelevel( stringstream &out, Value_P value, int level, int start, int end )
+{
+    const Shape &shape = value->get_shape();
+    int size = shape.get_shape_item( level );
+    out << "(";
+    if( level < shape.get_rank() - 1 ) {
+        int step = (end - start) / size;
+        for( int i = start ; i < end ; i += step ) {
+            if( i > start ) out << " ";
+            output_onelevel( out, value, level + 1, i, i + step );
         }
     }
     else {
-        throw "TODO";
+        for( int i = start ; i < end ; i++ ) {
+            if( i > start ) out << " ";
+            apl_value_to_el( out, value->get_ravel( i ).to_value( LOC ) );
+        }
     }
+    out << ")\n";
+}
 
-    return out.str();
+void apl_value_to_el( stringstream &out, Value_P value )
+{
+    const Shape &shape = value->get_shape();
+    if( value->is_empty() ) {
+        out << "(:blank (";
+        int rank = shape.get_rank();
+        for( int i = 0 ; i < rank ; i++ ) {
+            out << " " << shape.get_shape_item( i );
+        }
+        out << "))";
+    }
+    else if( value->is_skalar() ) {
+        skalar_value_to_el( out, value );
+    }
+    else if( value->is_char_vector() ) {
+        out << "\"";
+        int size = shape.get_cols();
+        for( int i = 0 ; i < size ; i++ ) {
+            escape_char( out, value->get_ravel( i ).get_char_value() );
+        }
+        out << "\"";
+    }
+    else if( shape.get_rank() == 1 ) {
+        out << "(";
+        int size = shape.get_cols();
+        for( int i = 0 ; i < size ; i++ ) {
+            if( i > 0 ) out << " ";
+            apl_value_to_el( out, value->get_ravel( i ).to_value( LOC ) );
+        }
+        out << ")\n";
+    }
+    else if( shape.get_rank() > 1 ) {
+        out << "(:vector (";
+        int rank = shape.get_rank();
+        for( int i = 0 ; i < rank ; i++ ) {
+            if( i > 0 ) out << " ";
+            out << shape.get_shape_item( i );
+        }
+        out << ")\n";
+        output_onelevel( out, value, 0, 0, shape.get_volume() );
+        out << ")";
+    }
+    else {
+        throw InvalidSymbolContent( "unknown value" );
+    }
 }
 
 void GetVarCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
@@ -90,6 +138,14 @@ void GetVarCommand::run_command( NetworkConnection &conn, const std::vector<std:
     }
 
     Value_P value = symbol->get_value();
-    conn.write_string_to_fd( make_printable_value( value ) );
+    try {
+        stringstream out;
+        out << "content\n";
+        apl_value_to_el( out, value );
+        conn.write_string_to_fd( out.str() );
+    }
+    catch( InvalidSymbolContent &exception ) {
+        conn.write_string_to_fd( exception.get_message() );
+    }
     conn.write_string_to_fd( "\n" END_TAG "\n" );
 }
