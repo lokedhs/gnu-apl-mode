@@ -20,7 +20,7 @@
 #include <string.h>
 
 
-static void add_command( std::map<std::string, Command *> commands, Command *command )
+static void add_command( std::map<std::string, Command *> &commands, Command *command )
 {
     commands.insert( std::pair<std::string, Command *>( command->get_name(), command ) );
 }
@@ -36,6 +36,8 @@ NetworkConnection::NetworkConnection( int socket_in )
 
 NetworkConnection::~NetworkConnection()
 {
+    close( socket_fd );
+
     for( std::map<std::string, Command *>::iterator i = commands.begin() ; i != commands.end() ; i++ ) {
         delete i->second;
     }
@@ -100,13 +102,6 @@ std::vector<std::string> NetworkConnection::load_block( void )
         if( v == END_TAG ) {
             break;
         }
-/*
-        {
-            for(int i = 0 ; i < v.size() ; i++) {
-                COUT << "  v[" << i << "] = " << (int)(unsigned char)v[i] << endl;
-            }
-        }
-*/
         result.push_back( v );
     }
     return result;
@@ -125,11 +120,11 @@ int NetworkConnection::process_command( const std::string &command )
         }
 
         std::map<std::string, Command *>::iterator command_iterator = commands.find( operation );
-        if( command_iterator != commands.end() ) {
-            command_iterator->second->run_command( *this, elements );
+        if( command_iterator == commands.end() ) {
+            CERR << "unknown command: '" << operation << "'" << endl;
         }
         else {
-            CERR << "unknown command: '" << operation << "'" << endl;
+            command_iterator->second->run_command( *this, elements );
         }
     }
     else {

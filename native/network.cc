@@ -1,6 +1,7 @@
 #include "emacs.hh"
 #include "NetworkConnection.hh"
 
+#include <memory>
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -9,20 +10,21 @@
 
 class AddrWrapper {
 public:
-    AddrWrapper(struct addrinfo *addr_in) : addr(addr_in) {};
-    virtual ~AddrWrapper() { freeaddrinfo( addr ); };
+    AddrWrapper(struct addrinfo *addr_in) : addr(addr_in) {}
+    virtual ~AddrWrapper() { freeaddrinfo( addr ); }
 
 private:
     struct addrinfo *addr;
 };
 
 struct ListenerLoopData {
+    ListenerLoopData( int server_socket_in ) : server_socket( server_socket_in ) {}
     int server_socket;
 };
 
 static void *connection_loop( void *arg )
 {
-    NetworkConnection *connection = (NetworkConnection *)arg;
+    std::auto_ptr<NetworkConnection> connection( (NetworkConnection *)arg );
     try {
         connection->run();
     }
@@ -44,6 +46,7 @@ static void *listener_loop( void *arg )
         int socket = accept( server_socket, &addr, &length );
         if( socket == -1 ) {
             CERR << "Error accepting network connection: " << strerror( errno ) << endl;
+            break;
         }
         else {
             NetworkConnection *conn = new NetworkConnection( socket );
@@ -115,8 +118,10 @@ Token start_listener( int port )
         DOMAIN_ERROR;
     }
 
-    int res = pthread_create( &thread_id, NULL, listener_loop, new NetworkConnection( server_socket ) );
+    ListenerLoopData *listener_loop_data = new ListenerLoopData( server_socket );
+    int res = pthread_create( &thread_id, NULL, listener_loop, listener_loop_data );
     if( res != 0 ) {
+        delete listener_loop_data;
         close( server_socket );
         Workspace::more_error() = UCS_string( "Unable to start network connection thread" );
         DOMAIN_ERROR;
