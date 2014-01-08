@@ -28,8 +28,6 @@ or NIL if there is no active session.")
 
 (defun gnu-apl--send (proc string)
   "Filter for any commands that are sent to comint"
-  (llog "incoming command:%S" string)
-
   (let* ((trimmed (gnu-apl--trim-spaces string)))
     (cond ((and gnu-apl-auto-function-editor-popup
                 (plusp (length trimmed))
@@ -65,24 +63,45 @@ or NIL if there is no active session.")
                         reply)))
         (gnu-apl--open-function-editor-with-timer content)))))
 
-(defun gnu-apl--parse-text (string)
-  (if (zerop (length string))
-      (list 'normal string)
-    (let ((char (aref string 0))
-          (command (subseq string 1)))
-      (case char
-        (#xf00c0 (list 'cin command))
-        (#xf00c1 (list 'cout command))
-        (#xf00c2 (list 'cerr command))
-        (#xf00c3 (list 'uerr command))
-        (t (list 'normal string))))))
+(defun gnu-apl--set-face-for-parsed-text (start end mode string)
+  (case mode
+    (cerr (add-text-properties start end '(font-lock-face gnu-apl-error-face) string))
+    (uerr (add-text-properties start end '(font-lock-face gnu-apl-user-status-text-face) string))))
 
-(defun gnu-apl--set-face-for-text (type text)
-  (let ((s (copy-seq text)))
-    (case type
-      (cerr (add-text-properties 0 (length s) '(font-lock-face gnu-apl-error-face) s))
-      (uerr (add-text-properties 0 (length s) '(font-lock-face gnu-apl-user-status-text-face) s)))
-    s))
+(defun gnu-apl--parse-text (string)  
+  (let ((tags nil))
+    (let ((result (with-output-to-string
+                    (loop with current-mode = gnu-apl-input-display-type
+                          with pos = 0
+                          for i from 0 below (length string)
+                          for char = (aref string i)
+                          for newmode = (case char
+                                          (#xf00c0 'cin)
+                                          (#xf00c1 'cout)
+                                          (#xf00c2 'cerr)
+                                          (#xf00c3 'uerr)
+                                          (t nil))
+                          if (and newmode (not (eq current-mode newmode)))
+                          do (progn
+                               (push (list pos newmode) tags)
+                               (setq current-mode newmode))
+                          unless newmode
+                          do (progn
+                               (princ (char-to-string char))
+                               (incf pos))))))
+      (let ((prevmode gnu-apl-input-display-type)
+            (prevpos 0))
+        (loop for v in (reverse tags)
+              for newpos = (car v)
+              unless (= prevpos newpos)
+              do (gnu-apl--set-face-for-parsed-text prevpos newpos prevmode result)
+              do (progn
+                   (setq prevpos newpos)
+                   (setq prevmode (cadr v))))
+        (unless (= prevpos (length result))
+          (gnu-apl--set-face-for-parsed-text prevpos (length result) prevmode result))
+        (setq gnu-apl-input-display-type prevmode)
+        result))))
 
 (defun gnu-apl--process-si-line (line)
   (when (string-match (concat "^\\(?:\r      .\\)?\\([a-zA-Z0-9_∆]+\\)\\[[0-9]+\\]") line)
@@ -119,7 +138,9 @@ function editor.
                               (setq result (concat result s))))
 
       (dolist (plain (split-string line "\n"))
-        (destructuring-bind (type command) (gnu-apl--parse-text plain)
+        (let ((command (gnu-apl--parse-text plain)))
+          (llog "Incoming. state=%s: cmd=%S" gnu-apl-preoutput-filter-state plain)
+          (llog "  After conversion: %S" command)
           (ecase gnu-apl-preoutput-filter-state
             ;; Default parse state
             (normal
@@ -128,7 +149,7 @@ function editor.
                    ((string-match (regexp-quote *gnu-apl-network-start*) command)
                     (setq gnu-apl-preoutput-filter-state 'native))
                    (t
-                    (add-to-result (gnu-apl--set-face-for-text type command)))))
+                    (add-to-result command))))
 
             ;; Ignoring output
             (ignore
@@ -139,7 +160,6 @@ function editor.
 
             ;; Initialising native code
             (native
-             (llog "Incoming:type=%S, cmd=%S" type command)
              (cond ((string-match (regexp-quote *gnu-apl-network-end*) command)
                     (unless (and (boundp 'gnu-apl--connection)
                                  gnu-apl--connection
@@ -154,9 +174,9 @@ function editor.
                           (addr (match-string 2 command)))
                       (gnu-apl--connect mode addr)
                       (message "Connected to APL interpreter")
-                      (add-to-result (gnu-apl--set-face-for-text type command))))
+                      (add-to-result command)))
                    (t
-                    (add-to-result (gnu-apl--set-face-for-text type command)))))))))
+                    (add-to-result command))))))))
     result))
 
 (defvar gnu-apl-interactive-mode-map
@@ -176,6 +196,7 @@ function editor.
 
   (setq comint-prompt-regexp "^\\(      \\)\\|\\(\\[[0-9]+\\] \\)")
   (set (make-local-variable 'gnu-apl-preoutput-filter-state) 'normal)
+  (set (make-local-variable 'gnu-apl-input-display-type) 'cout)
   (set (make-local-variable 'comint-input-sender) 'gnu-apl--send)
   (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
 
