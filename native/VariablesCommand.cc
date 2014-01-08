@@ -7,6 +7,23 @@ void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<s
     SymbolTable &symbol_table = const_cast<SymbolTable &>( Workspace::get_symbol_table() );
     stringstream out;
 
+#if 0
+    bool all_types;
+    NameClass cls;
+    if( args.size() < 2 ) {
+        all_types = true;
+    }
+    else {
+        string typespec = args[1];
+        if( typespec == "variable" ) {
+            cls = NC_VARIABLE;
+        }
+        else if( typespec == "function" ) {
+            cls = NC_FUNCTION;
+        }
+    }
+#endif
+
     int num_symbols = symbol_table.symbols_allocated();
     Symbol *symbols[num_symbols];
     symbol_table.get_all_symbols( symbols, num_symbols );

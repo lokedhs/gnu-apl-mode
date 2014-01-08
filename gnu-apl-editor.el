@@ -1,5 +1,12 @@
 ;;; -*- lexical-binding: t -*-
 
+(defun gnu-apl-edit-function (name)
+  "Open the function with the given name in a separate buffer.
+After editing the function, use `gnu-apl-save-function' to save
+the function and set it in the running APL interpreter."
+  (interactive (list (gnu-apl--choose-variable "Function name: ")))
+  (gnu-apl--get-function name))
+
 (defun gnu-apl-interactive-send-region (start end)
   (interactive "r")
   (gnu-apl-interactive-send-string (buffer-substring start end))

@@ -53,13 +53,6 @@ or NIL if there is no active session.")
            ;; Default, simply pass the input to the process
            (comint-simple-send proc string)))))
 
-(defun gnu-apl-edit-function (name)
-  "Open the function with the given name in a separate buffer.
-After editing the function, use `gnu-apl-save-function' to save
-the function and set it in the running APL interpreter."
-  (interactive "MFunction name: ")
-  (gnu-apl--get-function name))
-
 (defun gnu-apl--get-function (function-definition)
   (let ((function-name (gnu-apl--parse-function-header function-definition)))
     (unless function-name
