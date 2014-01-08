@@ -157,7 +157,9 @@ the function and set it in the running APL interpreter."
 (defvar gnu-apl-interactive-mode-map
   (let ((map (gnu-apl--make-mode-map "s-")))
     (define-key map (kbd "C-c f") 'gnu-apl-edit-function)
+    (define-key map (kbd "C-c v") 'gnu-apl-edit-variable)
     (define-key map [menu-bar gnu-apl edit-function] '("Edit function" . gnu-apl-edit-function))
+    (define-key map [menu-bar gnu-apl edit-matrix] '("Edit variable" . gnu-apl-edit-variable))
     map))
 
 (define-derived-mode gnu-apl-interactive-mode comint-mode "GNU APL/Comint"
