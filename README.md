@@ -42,7 +42,7 @@ The current plan is to include this native module in GNU APL version
 you are using a newer version of this Emacs mode, it may cause
 compatibility problems between the native module and the Emacs Lisp
 code. If this happens, you need to compile the module yourself (from
-the `native` directory and install it in the `lib/apl` directory.
+the `native` directory) and install it in the `lib/apl` directory.
 
 Configuring APL font
 --------------------
