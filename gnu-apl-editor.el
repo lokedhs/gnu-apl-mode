@@ -5,6 +5,14 @@
   (gnu-apl-interactive-send-string (buffer-substring start end))
   (message "Region sent to APL"))
 
+(defun gnu-apl--function-definition-to-list (content)
+  (let ((rows (split-string content "\r?\n")))
+    (let ((definition (gnu-apl--trim-spaces (car rows)))
+          (body (cdr rows)))
+      (unless (string= (subseq definition 0 1) "∇")
+        (error "When splitting function, header does not start with function definition"))
+      (cons (subseq definition 1) body))))
+
 (defun gnu-apl-interactive-send-current-function ()
   (interactive)
 
@@ -39,7 +47,8 @@
           (let ((overlay (make-overlay start end)))
             (overlay-put overlay 'face '(background-color . "green"))
             (run-at-time "0.5 sec" nil #'(lambda () (delete-overlay overlay))))
-          (gnu-apl--send-si-and-send-new-function (buffer-substring start end) nil))))))
+          (gnu-apl--send-si-and-send-new-function (gnu-apl--function-definition-to-list
+                                                   (buffer-substring start end)) nil))))))
 
 (defun gnu-apl--send-new-function (content)
   (llog "will send function: %S" content)
