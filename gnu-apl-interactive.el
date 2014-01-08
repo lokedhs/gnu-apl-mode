@@ -101,6 +101,13 @@ or NIL if there is no active session.")
   (setq gnu-apl-function-content-lines (split-string content "\n"))
   (gnu-apl-interactive-send-string (concat "'" *gnu-apl-send-content-start* "'")))
 
+(defun gnu-apl--output-disconnected-message (output-fn)
+  (funcall output-fn "The GNU APL environment has been started, but the Emacs mode was
+unable to connect to the backend. Because of this, some
+functionality will not be available, such as the external
+function editor.
+      "))
+
 (defun gnu-apl--preoutput-filter (line)
   (let ((result "")
         (first t))
@@ -132,7 +139,12 @@ or NIL if there is no active session.")
 
             ;; Initialising native code
             (native
+             (llog "Incoming:type=%S, cmd=%S" type command)
              (cond ((string-match (regexp-quote *gnu-apl-network-end*) command)
+                    (unless (and (boundp 'gnu-apl--connection)
+                                 gnu-apl--connection
+                                 (process-live-p gnu-apl--connection))
+                      (gnu-apl--output-disconnected-message #'add-to-result))
                     (setq gnu-apl-preoutput-filter-state 'normal))
                    ((string-match (concat "Network listener started.*"
                                           "mode:\\([a-z]+\\) "

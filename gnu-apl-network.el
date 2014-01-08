@@ -16,11 +16,13 @@
     (when (and (boundp 'gnu-apl--connection)
                (process-live-p gnu-apl--connection))
       (error "Connection is already established"))
-    (let ((proc (gnu-apl--connect-to-remote connect-mode addr)))
-      (set-process-filter proc 'gnu-apl--filter-network)
-      (set (make-local-variable 'gnu-apl--connection) proc)
-      (set (make-local-variable 'gnu-apl--current-incoming) "")
-      (set (make-local-variable 'gnu-apl--results) nil))))
+    (condition-case err
+        (let ((proc (gnu-apl--connect-to-remote connect-mode addr)))
+          (set-process-filter proc 'gnu-apl--filter-network)
+          (set (make-local-variable 'gnu-apl--connection) proc)
+          (set (make-local-variable 'gnu-apl--current-incoming) "")
+          (set (make-local-variable 'gnu-apl--results) nil))
+        ('file-error (llog "err:%S type:%S" err (type-of err))))))
 
 (defun gnu-apl--filter-network (proc output)
   (llog "Incoming data: %S" output)
