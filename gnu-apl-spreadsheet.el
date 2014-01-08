@@ -45,5 +45,8 @@
                                    (integer col-content)
                                    (float col-content)
                                    (string col-content)
+                                   (list (etypecase (car (col-content))
+                                           (symbol (format "!%s" (car col-content)))
+                                           (list "!list")))
                                    (t (error "Illegal cell content: %S" col-content)))))
                           (ses-edit-cell row-index col-index v)))))))
