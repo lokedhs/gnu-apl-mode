@@ -47,7 +47,7 @@ void skalar_value_to_el( stringstream &out, Value_P value )
         out << "(:complex " << cell.get_real_value() << " " << cell.get_imag_value() << ")";
     }
     else if( cell.is_character_cell() ) {
-        out << "(:unicode " << cell.get_char_value() << ")";
+        out << "(:unicode " << (int)cell.get_char_value() << ")";
     }
     else {
         out << "(:unknown)";
