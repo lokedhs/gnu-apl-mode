@@ -13,7 +13,7 @@
   (gnu-apl--send-network-command (concat "getvar:" name))
   (let ((result (gnu-apl--read-network-reply-block)))
     (unless (string= (car result) "content")
-      (error "Unable to read variable. Response: %s") (car result))
+      (error "Unable to read variable. Response: %s" (car result)))
     (let ((value (car (read-from-string (apply #'concat (cdr result))))))
       (cond ((and (eq (car value) :vector)
                   (= (length (cadr value)) 2))
