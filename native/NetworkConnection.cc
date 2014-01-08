@@ -8,6 +8,7 @@
 #include "FnCommand.hh"
 #include "DefCommand.hh"
 #include "GetVarCommand.hh"
+#include "VariablesCommand.hh"
 
 #include <iostream>
 #include <sstream>
@@ -34,6 +35,7 @@ NetworkConnection::NetworkConnection( int socket_in )
     add_command( commands, new FnCommand( "fn" ) );
     add_command( commands, new DefCommand( "def" ) );
     add_command( commands, new GetVarCommand( "getvar" ) );
+    add_command( commands, new VariablesCommand( "variables" ) );
 }
 
 NetworkConnection::~NetworkConnection()
