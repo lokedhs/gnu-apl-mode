@@ -137,3 +137,13 @@ successfully."
     (gnu-apl-interactive-edit-mode 1)
     (set (make-local-variable 'gnu-apl-window-configuration) window-configuration)
     (message "To save the buffer, use M-x gnu-apl-save-function (C-c C-c)")))
+
+(defun gnu-apl--choose-variable (prompt)
+  (gnu-apl--send-network-command "variables")
+  (let ((results (gnu-apl--read-network-reply-block)))
+    (completing-read prompt results
+                     nil ; require-match
+                     nil ; initial-input
+                     nil ; hist
+                     nil ; def
+                     )))

@@ -4,7 +4,7 @@
 
 void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
-    SymbolTable symbol_table = Workspace::get_symbol_table();
+    SymbolTable &symbol_table = const_cast<SymbolTable &>( Workspace::get_symbol_table() );
     stringstream out;
 
     int num_symbols = symbol_table.symbols_allocated();

@@ -130,7 +130,7 @@ void GetVarCommand::run_command( NetworkConnection &conn, const std::vector<std:
         throw ConnectionError( "Wrong number of arguments to getvar" );
     }
 
-    SymbolTable symbol_table = Workspace::get_symbol_table();
+    SymbolTable &symbol_table = const_cast<SymbolTable &>( Workspace::get_symbol_table() );
     Symbol *symbol = symbol_table.lookup_existing_symbol( ucs_string_from_string( args[1] ) );
     if( symbol == NULL ) {
         send_reply( conn, "undefined" );
