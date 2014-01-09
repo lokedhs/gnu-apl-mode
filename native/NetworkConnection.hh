@@ -25,7 +25,7 @@
 #include <vector>
 #include <map>
 
-#include "Command.hh"
+#include "NetworkCommand.hh"
 
 class NetworkConnection {
 public:
@@ -41,7 +41,7 @@ private:
     char buffer[1024];
     int buffer_pos;
     int buffer_length;
-    std::map<std::string, Command *> commands;
+    std::map<std::string, NetworkCommand *> commands;
 
     int process_command( const std::string &command );
     void show_si( void );

@@ -21,11 +21,11 @@
 #ifndef DEF_COMMAND_HH
 #define DEF_COMMAND_HH
 
-#include "Command.hh"
+#include "NetworkCommand.hh"
 
-class DefCommand : public Command {
+class DefCommand : public NetworkCommand {
 public:
-    DefCommand( std::string name_in ) : Command( name_in ) {};
+    DefCommand( std::string name_in ) : NetworkCommand( name_in ) {};
     virtual void run_command( NetworkConnection &conn, const std::vector<std::string> &args );
 };
 

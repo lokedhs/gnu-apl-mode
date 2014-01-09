@@ -43,9 +43,9 @@
 #include <string.h>
 
 
-static void add_command( std::map<std::string, Command *> &commands, Command *command )
+static void add_command( std::map<std::string, NetworkCommand *> &commands, NetworkCommand *command )
 {
-    commands.insert( std::pair<std::string, Command *>( command->get_name(), command ) );
+    commands.insert( std::pair<std::string, NetworkCommand *>( command->get_name(), command ) );
 }
 
 NetworkConnection::NetworkConnection( int socket_in )
@@ -63,7 +63,7 @@ NetworkConnection::~NetworkConnection()
 {
     close( socket_fd );
 
-    for( std::map<std::string, Command *>::iterator i = commands.begin() ; i != commands.end() ; i++ ) {
+    for( std::map<std::string, NetworkCommand *>::iterator i = commands.begin() ; i != commands.end() ; i++ ) {
         delete i->second;
     }
 }
@@ -144,7 +144,7 @@ int NetworkConnection::process_command( const std::string &command )
             throw DisconnectedError( "quit received" );
         }
 
-        std::map<std::string, Command *>::iterator command_iterator = commands.find( operation );
+        std::map<std::string, NetworkCommand *>::iterator command_iterator = commands.find( operation );
         if( command_iterator == commands.end() ) {
             stringstream out;
             out << "unknown command: '" << operation << "'";

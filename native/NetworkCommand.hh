@@ -18,21 +18,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COMMAND_HANDLER_HH
-#define COMMAND_HANDLER_HH
+#ifndef NETWORK_COMMAND_HH
+#define NETWORK_COMMAND_HH
 
+#include <string>
 #include <vector>
 
-#include "NetworkConnection.hh"
+class NetworkConnection;
 
-class Command {
+class NetworkCommand {
 public:
-    virtual ~Command(std::strig name_in) : name(name_in) {};
-    virtual void run_command( NetworkConnection &conn, const std::vector<std::string> &args );
+    NetworkCommand( std::string name_in ) : name( name_in ) {};
+    virtual ~NetworkCommand() {};
+    virtual void run_command( NetworkConnection &conn, const std::vector<std::string> &args ) = 0;
+    virtual std::string get_name( void ) { return name; };
 
 private:
     std::string name;
-
 };
 
 #endif

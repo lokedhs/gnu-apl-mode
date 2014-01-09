@@ -21,11 +21,11 @@
 #ifndef FN_COMMAND_HH
 #define FN_COMMAND_HH
 
-#include "Command.hh"
+#include "NetworkCommand.hh"
 
-class FnCommand : public Command {
+class FnCommand : public NetworkCommand {
 public:
-    FnCommand( std::string name_in ) : Command( name_in ) {};
+    FnCommand( std::string name_in ) : NetworkCommand( name_in ) {};
     virtual void run_command( NetworkConnection &conn, const std::vector<std::string> &args );
 };
 

@@ -21,11 +21,11 @@
 #ifndef VARIABLES_COMMAND_HH
 #define VARIABLES_COMMAND_HH
 
-#include "Command.hh"
+#include "NetworkCommand.hh"
 
-class VariablesCommand : public Command {
+class VariablesCommand : public NetworkCommand {
 public:
-    VariablesCommand( std::string name_in ) : Command( name_in ) {};
+    VariablesCommand( std::string name_in ) : NetworkCommand( name_in ) {};
     virtual void run_command( NetworkConnection &conn, const std::vector<std::string> &args );
 };
 

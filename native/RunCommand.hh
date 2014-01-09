@@ -23,9 +23,9 @@
 
 #include "Command.hh"
 
-class RunCommand : public Command {
+class RunCommand : public NetworkCommand {
 public:
-    RunCommand( std::string name_in ) : Command( name_in ) {};
+    RunCommand( std::string name_in ) : NetworkCommand( name_in ) {};
     virtual void run_command( NetworkConnection &conn, const std::vector<std::string> &args );
 };
 

@@ -21,11 +21,11 @@
 #ifndef SI_COMMAND_HH
 #define SI_COMMAND_HH
 
-#include "Command.hh"
+#include "NetworkCommand.hh"
 
-class SiCommand : public Command {
+class SiCommand : public NetworkCommand {
 public:
-    SiCommand( std::string name_in ) : Command( name_in ) {};
+    SiCommand( std::string name_in ) : NetworkCommand( name_in ) {};
     virtual void run_command( NetworkConnection &conn, const std::vector<std::string> &args );
 };
 
