@@ -1,13 +1,5 @@
 ;;; -*- lexical-binding: t -*-
 
-(defun ses-test ()
-  (let ((v '(:vector (4 5)
-                     ((38 9 33 82 12)
-                      (40 68 54 7 84)
-                      (16 98 65 86 87)
-                      (60 43 74 47 18)))))
-    (gnu-apl--edit-value-in-spreadsheet "foo" v)))
-
 (defun gnu-apl-edit-variable (name)
   (interactive (list (gnu-apl--choose-variable "Variable: " :variable)))
   (gnu-apl--send-network-command (concat "getvar:" name))
