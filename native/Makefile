@@ -17,7 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 APL_DIST = $(HOME)/src/apl
-CC = c++
+CXX = c++
 CXXFLAGS = -Wall -fPIC -g -I$(APL_DIST)/src
 LIBS = -lpthread
 LIBNAME = libemacs.so
