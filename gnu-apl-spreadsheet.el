@@ -15,7 +15,19 @@
 
 (defun gnu-apl-spreadsheet-send-this-document ()
   (interactive)
-  (error "Not implemented"))
+  (let* ((variable-name gnu-apl-var-name)
+         (buffer (gnu-apl--get-interactive-session))
+         (s (gnu-apl-make-array-loading-instructions variable-name))
+         (lines (split-string s "\n")))
+    (dolist (line lines)
+      (gnu-apl--send buffer line))
+    (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
+                                    gnu-apl-window-configuration
+                                  nil)))
+      (bury-buffer)
+      (when window-configuration
+        (set-window-configuration window-configuration)))
+    (message "Variable %s updated" variable-name)))
 
 (define-minor-mode gnu-apl-spreadsheet-mode
   "A variation of `ses-mode' to be used for editing APL matrices."
@@ -28,36 +40,39 @@
   :group 'gnu-apl)
 
 (defun gnu-apl--edit-value-in-spreadsheet (backend-variable-name value)
-  ;; First, ensure that the array is editable
-  (unless (and (eq (car value) :vector)
-               (= (length (cadr value)) 2))
-    (error "Only two-dimensional arrays can be edited"))
-  (let* ((buffer-name (format "*gnu-apl array %s*" backend-variable-name))
-         (buffer (get-buffer buffer-name)))
-    (when buffer
-      (kill-buffer buffer))
-    (setq buffer (get-buffer-create buffer-name))
-    (switch-to-buffer buffer)
-    (ses-mode)
-    (gnu-apl-spreadsheet-mode)
-    (let* ((dimensions (cadr value))
-           (rows (car dimensions))
-           (cols (cadr dimensions)))
-      (ses-insert-row (1- rows))
-      (ses-insert-column (1- cols))
-      (loop for row-index from 0 below rows
-            for row-values in (caddr value)
-            do (loop for col-index from 0 below cols
-                     for col-content in row-values
-                     do (let ((v (etypecase col-content
-                                   (integer col-content)
-                                   (float col-content)
-                                   (string col-content)
-                                   (list (etypecase (car (col-content))
-                                           (symbol (format "!%s" (car col-content)))
-                                           (list "!list")))
-                                   (t (error "Illegal cell content: %S" col-content)))))
-                          (ses-edit-cell row-index col-index v)))))))
+  (let ((window-configuration (current-window-configuration)))
+    (unless (and (eq (car value) :vector)
+                 (= (length (cadr value)) 2))
+      (error "Only two-dimensional arrays can be edited"))
+    (let* ((buffer-name (format "*gnu-apl array %s*" backend-variable-name))
+           (buffer (get-buffer buffer-name)))
+      (when buffer
+        (kill-buffer buffer))
+      (setq buffer (get-buffer-create buffer-name))
+      (pop-to-buffer buffer)
+      (ses-mode)
+      (gnu-apl-spreadsheet-mode)
+      (let* ((dimensions (cadr value))
+             (rows (car dimensions))
+             (cols (cadr dimensions)))
+        (ses-insert-row (1- rows))
+        (ses-insert-column (1- cols))
+        (loop for row-index from 0 below rows
+              for row-values in (caddr value)
+              do (loop for col-index from 0 below cols
+                       for col-content in row-values
+                       do (let ((v (etypecase col-content
+                                     (integer col-content)
+                                     (float col-content)
+                                     (string col-content)
+                                     (list (etypecase (car (col-content))
+                                             (symbol (format "!%s" (car col-content)))
+                                             (list "!list")))
+                                     (t (error "Illegal cell content: %S" col-content)))))
+                            (ses-edit-cell row-index col-index v)))))
+      (set (make-local-variable 'gnu-apl-var-name) backend-variable-name)
+      (set (make-local-variable 'gnu-apl-window-configuration) window-configuration)
+      (message "To save the buffer, use M-x gnu-apl-spreadsheet-send-this-document (C-c C-c)"))))
 
 (defun gnu-apl-copy-spreadsheet-to-kill-ring (function-name)
   "Copy a function definition representing the data in the active
@@ -73,6 +88,8 @@ buffer."
   (concat "Z←" function-name "\n" (gnu-apl-make-array-loading-instructions "Z")))
 
 (defun gnu-apl-make-array-loading-instructions (var-name)
+  "Return APL instructions that sets variable VAR-NAME to the
+content of the spreadsheet in this buffer."
   (with-output-to-string
     (let ((rows ses--numrows)
           (cols ses--numcols))
