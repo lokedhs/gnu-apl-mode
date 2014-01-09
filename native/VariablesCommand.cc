@@ -51,7 +51,6 @@ void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<s
     Workspace::get_all_symbols( symbols, num_symbols );
     for( int i = 0 ; i < num_symbols ; i++ ) {
         Symbol *symbol = symbols[i];
-//        if( !symbol->is_erased() && symbol->value_stack.back().name_class == NC_VARIABLE ) {
         if( !symbol->is_erased() && (all_types || symbol->top_of_stack()->name_class == cls) ) {
             out << symbol->get_name() << "\n";
         }
