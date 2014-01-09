@@ -29,6 +29,7 @@
 #include "DefCommand.hh"
 #include "GetVarCommand.hh"
 #include "VariablesCommand.hh"
+#include "RunCommand.hh"
 
 #include <iostream>
 #include <sstream>

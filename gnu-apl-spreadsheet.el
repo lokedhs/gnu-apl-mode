@@ -21,7 +21,10 @@
   "A variation of `ses-mode' to be used for editing APL matrices."
   nil
   " ≡"
-  (list (cons (kbd "C-c C-c") 'gnu-apl-spreadsheet-send-this-document))
+  (list (cons (kbd "C-c C-c") 'gnu-apl-spreadsheet-send-this-document)
+        (cons [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
+        (cons [menu-bar gnu-apl send-this-document] '("Send document" . gnu-apl-spreadsheet-send-this-document))
+        (cons [menu-bar gnu-apl copy-spreadsheet-as-apl-function] '("Copy document as function". gnu-apl-copy-spreadsheet-to-kill-ring)))
   :group 'gnu-apl)
 
 (defun gnu-apl--edit-value-in-spreadsheet (backend-variable-name value)
