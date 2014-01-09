@@ -63,3 +63,36 @@
                                            (list "!list")))
                                    (t (error "Illegal cell content: %S" col-content)))))
                           (ses-edit-cell row-index col-index v)))))))
+
+(defun gnu-apl-copy-spreadsheet-to-kill-ring (function-name)
+  "Copy a function definition representing the data in the active
+SES spreadhsheet into the kill ring. When executed, this function
+returns the content of the spreadsheet."
+  (interactive "sFunction name: ")
+  (kill-new (concat "∇" (gnu-apl-make-function-from-spreadsheet-data function-name) "\n∇")))
+
+(defun gnu-apl-make-function-from-spreadsheet-data (function-name)
+  "Return an APL function with name NAME that that returns an APL
+array with the same values as the spreadsheet in the current
+buffer."
+  (with-output-to-string
+    (princ (format "Z←%s;TMP\n" function-name))
+    (let ((height 0)
+          (width 0))
+      (let ((rows ses--numrows)
+            (cols ses--numcols))
+        (loop for row from 0 below rows
+              do (loop for col from 0 below cols
+                       do (let ((item (ses-cell-value row col)))
+                            (when (zerop col)
+                              (princ "TMP←")
+                              (when (plusp row)
+                                (princ "TMP,")))
+                            (typecase item
+                              (number (princ item))
+                              (string (princ (format "'%s'" (replace-regexp-in-string "'" "''" item))))
+                              (t (ses-goto-print row col) (error "Invalid content in cell %d,%d" row col)))
+                            (if (< col (1- cols))
+                                (princ " ")
+                              (princ "\n")))))
+        (princ (format "Z←%d %d⍴TMP" rows cols))))))
