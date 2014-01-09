@@ -125,7 +125,9 @@ int NetworkConnection::process_command( const std::string &command )
 
         std::map<std::string, Command *>::iterator command_iterator = commands.find( operation );
         if( command_iterator == commands.end() ) {
-            CERR << "unknown command: '" << operation << "'" << endl;
+            stringstream out;
+            out << "unknown command: '" << operation << "'";
+            throw ProtocolError( out.str() );
         }
         else {
             command_iterator->second->run_command( *this, elements );

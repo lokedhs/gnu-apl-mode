@@ -31,6 +31,9 @@ static void *connection_loop( void *arg )
     catch( DisconnectedError &disconnected_error ) {
         // Do nothing here
     }
+    catch( ProtocolError &protocol_error ) {
+        CERR << "Communication error: " << protocol_error.get_message() << endl;
+    }
     catch( ConnectionError &connection_error ) {
         CERR << "Disconnected: " << connection_error.get_message() << endl;
     }

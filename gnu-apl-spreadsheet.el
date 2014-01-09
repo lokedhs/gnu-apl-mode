@@ -9,7 +9,7 @@
     (gnu-apl--edit-value-in-spreadsheet "foo" v)))
 
 (defun gnu-apl-edit-variable (name)
-  (interactive (list (gnu-apl--choose-variable "Variable: ")))
+  (interactive (list (gnu-apl--choose-variable "Variable: " :variable)))
   (gnu-apl--send-network-command (concat "getvar:" name))
   (let ((result (gnu-apl--read-network-reply-block)))
     (unless (string= (car result) "content")

@@ -45,4 +45,9 @@ public:
     DisconnectedError( const std::string &message ) : ConnectionError( message ) {};
 };
 
+class ProtocolError : public ConnectionError {
+public:
+    ProtocolError( const std::string &message ) : ConnectionError( message ) {};
+};
+
 #endif
