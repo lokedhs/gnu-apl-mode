@@ -22,10 +22,10 @@
           (set (make-local-variable 'gnu-apl--connection) proc)
           (set (make-local-variable 'gnu-apl--current-incoming) "")
           (set (make-local-variable 'gnu-apl--results) nil))
-        ('file-error (llog "err:%S type:%S" err (type-of err))))))
+      ;; TODO: Error handling is pretty poor right now
+        ('file-error (error "err:%S type:%S" err (type-of err))))))
 
 (defun gnu-apl--filter-network (proc output)
-  (llog "Incoming data: %S" output)
   (with-current-buffer (gnu-apl--get-interactive-session)
     (setq gnu-apl--current-incoming (concat gnu-apl--current-incoming output))
     (loop with start = 0
@@ -39,26 +39,21 @@
 
 (defun gnu-apl--send-network-command (command)
   (with-current-buffer (gnu-apl--get-interactive-session)
-    (llog "OUT:%S" command)
     (process-send-string gnu-apl--connection (concat command "\n"))))
 
 (defun gnu-apl--send-block (lines)
   (dolist (line lines)
     (gnu-apl--send-network-command line))
-  (gnu-apl--send-network-command *gnu-apl-end-tag*)
-  (llog "OUT:BLOCK SENT"))
+  (gnu-apl--send-network-command *gnu-apl-end-tag*))
 
 (defun gnu-apl--read-network-reply ()
   (with-current-buffer (gnu-apl--get-interactive-session)
     (loop while (null gnu-apl--results)
           do (accept-process-output gnu-apl--connection 3))
     (let ((value (pop gnu-apl--results)))
-      (llog "IN:%S" value)
       value)))
 
 (defun gnu-apl--read-network-reply-block ()
-  (prog1
-      (loop for line = (gnu-apl--read-network-reply)
-            while (not (string= line *gnu-apl-end-tag*))
-            collect line)
-    (llog "IN:BLOCK READY")))
+  (loop for line = (gnu-apl--read-network-reply)
+        while (not (string= line *gnu-apl-end-tag*))
+        collect line))

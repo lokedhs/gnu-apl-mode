@@ -139,8 +139,6 @@ function editor.
 
       (dolist (plain (split-string line "\n"))
         (let ((command (gnu-apl--parse-text plain)))
-          (llog "Incoming. state=%s: cmd=%S" gnu-apl-preoutput-filter-state plain)
-          (llog "  After conversion: %S" command)
           (ecase gnu-apl-preoutput-filter-state
             ;; Default parse state
             (normal

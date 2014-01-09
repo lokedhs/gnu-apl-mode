@@ -58,7 +58,6 @@ the function and set it in the running APL interpreter."
                                                    (buffer-substring start end)) nil))))))
 
 (defun gnu-apl--send-new-function (content)
-  (llog "will send function: %S" content)
   (gnu-apl--send-network-command "def")
   (gnu-apl--send-block content)
   (let ((return-data (gnu-apl--read-network-reply-block)))
