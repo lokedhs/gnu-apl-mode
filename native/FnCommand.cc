@@ -39,12 +39,13 @@ void FnCommand::run_command( NetworkConnection &conn, const std::vector<std::str
     else {
         const Function *function = obj->get_function();
         if( function == NULL ) {
-            out << "symbol is not a function";
+            out << "symbol is not a function\n";
         }
         else if( function->get_exec_properties()[0] != 0 ) {
             out << "function is not executable\n";
         }
         else {
+            out << "function-content\n";
             const UCS_string ucs = function->canonical( false );
             vector<UCS_string> tlines;
             ucs.to_vector( tlines );

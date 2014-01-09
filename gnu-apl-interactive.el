@@ -35,33 +35,22 @@ or NIL if there is no active session.")
            ;; The command is a functiond definition command
            (unless (gnu-apl--parse-function-header (subseq trimmed 1))
              (user-error "Error when parsing function definition command"))
-           (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1)))
-           (let ((buffer (process-buffer proc)))
-             (with-current-buffer buffer
-               (let ((inhibit-read-only t))
-                 (save-excursion
-                   (save-restriction
-                     (widen)
-                     (goto-char (process-mark proc))
-                     (insert "      ")
-                     (set-marker (process-mark proc) (point)))))))
+           (unwind-protect
+               (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1)))
+             (let ((buffer (process-buffer proc)))
+               (with-current-buffer buffer
+                 (let ((inhibit-read-only t))
+                   (save-excursion
+                     (save-restriction
+                       (widen)
+                       (goto-char (process-mark proc))
+                       (insert "      ")
+                       (set-marker (process-mark proc) (point))))))))
            nil)
 
           (t
            ;; Default, simply pass the input to the process
            (comint-simple-send proc string)))))
-
-(defun gnu-apl--get-function (function-definition)
-  (let ((function-name (gnu-apl--parse-function-header function-definition)))
-    (unless function-name
-      (error "Unable to parse function definition: %s" function-definition))
-    (with-current-buffer (gnu-apl--get-interactive-session)
-      (gnu-apl--send-network-command (concat "fn:" function-name))
-      (let* ((reply (gnu-apl--read-network-reply-block))
-             (content (if (and reply (null (cdr reply)) (string= (car reply) "undefined"))
-                          (list function-definition)
-                        reply)))
-        (gnu-apl--open-function-editor-with-timer content)))))
 
 (defun gnu-apl--set-face-for-parsed-text (start end mode string)
   (case mode

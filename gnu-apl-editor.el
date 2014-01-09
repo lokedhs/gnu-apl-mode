@@ -7,6 +7,21 @@ the function and set it in the running APL interpreter."
   (interactive (list (gnu-apl--choose-variable "Function name: " :function)))
   (gnu-apl--get-function name))
 
+(defun gnu-apl--get-function (function-definition)
+  (let ((function-name (gnu-apl--parse-function-header function-definition)))
+    (unless function-name
+      (error "Unable to parse function definition: %s" function-definition))
+    (with-current-buffer (gnu-apl--get-interactive-session)
+      (gnu-apl--send-network-command (concat "fn:" function-name))
+      (let* ((reply (gnu-apl--read-network-reply-block))
+             (content (cond ((string= (car reply) "function-content")
+                             (cdr reply))
+                            ((string= (car reply) "undefined")
+                             (list function-definition))
+                            (t
+                             (error "Not an editable function: %s" function-name)))))
+        (gnu-apl--open-function-editor-with-timer content)))))
+
 (defun gnu-apl-interactive-send-region (start end)
   (interactive "r")
   (gnu-apl-interactive-send-string (buffer-substring start end))

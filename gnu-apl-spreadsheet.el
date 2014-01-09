@@ -67,24 +67,23 @@ returns the content of the spreadsheet."
   "Return an APL function with name NAME that that returns an APL
 array with the same values as the spreadsheet in the current
 buffer."
+  (concat "Z←" function-name "\n" (gnu-apl-make-array-loading-instructions "Z")))
+
+(defun gnu-apl-make-array-loading-instructions (var-name)
   (with-output-to-string
-    (princ (format "Z←%s;TMP\n" function-name))
-    (let ((height 0)
-          (width 0))
-      (let ((rows ses--numrows)
-            (cols ses--numcols))
-        (loop for row from 0 below rows
-              do (loop for col from 0 below cols
+    (let ((rows ses--numrows)
+          (cols ses--numcols))
+      (princ (format "%s←%d⍴0\n" var-name (* rows cols)))
+      (loop for row from 0 below rows
+            do (progn
+                 (princ (format "%s[%d+⍳%d]←" var-name (* row cols) cols))
+                 (loop for col from 0 below cols
                        do (let ((item (ses-cell-value row col)))
-                            (when (zerop col)
-                              (princ "TMP←")
-                              (when (plusp row)
-                                (princ "TMP,")))
                             (typecase item
                               (number (princ item))
                               (string (princ (format "'%s'" (replace-regexp-in-string "'" "''" item))))
                               (t (ses-goto-print row col) (error "Invalid content in cell %d,%d" row col)))
                             (if (< col (1- cols))
                                 (princ " ")
-                              (princ "\n")))))
-        (princ (format "Z←%d %d⍴TMP" rows cols))))))
+                              (princ "\n"))))))
+      (princ (format "%s←(%d %d)⍴%s" var-name rows cols var-name)))))
