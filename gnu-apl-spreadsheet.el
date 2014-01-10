@@ -100,6 +100,7 @@ content of the spreadsheet in this buffer."
                  (loop for col from 0 below cols
                        do (let ((item (ses-cell-value row col)))
                             (typecase item
+                              (null (princ "(0⍴0)"))
                               (number (princ item))
                               (string (princ (format "'%s'" (replace-regexp-in-string "'" "''" item))))
                               (t (ses-goto-print row col) (error "Invalid content in cell %d,%d" row col)))
