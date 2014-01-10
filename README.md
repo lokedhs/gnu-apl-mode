@@ -71,9 +71,9 @@ keymap, when the "super" key is active.
 
 If your keyboard does not have a super key (I highly recommend that
 you map one, for example the otherwise useless windows key), you can
-also use the `APL-Z` mode. Simply press `C-\` and choose `APL-Z`. This will
-provide the same keymap, but prefixed by ".". Pressing dot twice will
-output a dot on its own.
+also use the `APL-Z` mode. Simply press `C-\` and choose `APL-Z`. This
+will provide the same keymap, but prefixed by ".". Pressing dot twice
+will output a dot on its own.
 
 Keyboard help
 -------------
