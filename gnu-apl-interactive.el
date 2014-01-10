@@ -230,7 +230,7 @@ function editor.
       (gnu-apl-interactive-mode)
       (when t
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-start* "'"))
-        (gnu-apl--send buffer (concat "'" (getenv "HOME") "/prog/gnu-apl-mode/native/libemacs.so' ⎕FX "
+        (gnu-apl--send buffer (concat "'libemacs.so' ⎕FX "
                                       "'" *gnu-apl-native-lib* "'"))
         (gnu-apl--send buffer (format "%s[1] %d" *gnu-apl-native-lib* 7293))
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-end* "'"))))
