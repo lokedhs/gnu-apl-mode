@@ -55,8 +55,10 @@
       (let* ((dimensions (cadr value))
              (rows (car dimensions))
              (cols (cadr dimensions)))
-        (ses-insert-row (1- rows))
-        (ses-insert-column (1- cols))
+        (when (> rows 1)
+          (ses-insert-row (1- rows)))
+        (when (> cols 1)
+          (ses-insert-column (1- cols)))
         (loop for row-index from 0 below rows
               for row-values in (caddr value)
               do (loop for col-index from 0 below cols
@@ -69,8 +71,8 @@
                                              (symbol (format "!%s" (car col-content)))
                                              (list "!list")))
                                      (t (error "Illegal cell content: %S" col-content)))))
-                            (ses-edit-cell row-index col-index v)))))
-      (set (make-local-variable 'gnu-apl-var-name) backend-variable-name)
+                            (ses-edit-cell row-index col-index v))))
+        (set (make-local-variable 'gnu-apl-var-name) backend-variable-name))
       (set (make-local-variable 'gnu-apl-window-configuration) window-configuration)
       (message "To save the buffer, use M-x gnu-apl-spreadsheet-send-this-document (C-c C-c)"))))
 
