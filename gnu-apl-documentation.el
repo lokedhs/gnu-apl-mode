@@ -56,10 +56,12 @@ dervived from the APL2 documentation.")
 
 (defun gnu-apl-show-help-for-symbol (symbol)
   "Open the help window for SYMBOL."
-  (interactive "cSymbol: ")
-  (let ((string (gnu-apl--get-full-docstring-for-symbol (char-to-string symbol))))
+  (interactive "MSymbol: ")
+  (unless (= (length symbol) 1)
+    (error "Symbol must be a single character"))
+  (let ((string (gnu-apl--get-full-docstring-for-symbol symbol)))
     (unless string
-      (user-error "No documentation available for %c" symbol))
+      (user-error "No documentation available for %s" symbol))
     (let ((old-buffer (get-buffer *gnu-apl-documentation-buffer-name*)))
       (when old-buffer
         (kill-buffer old-buffer)))
