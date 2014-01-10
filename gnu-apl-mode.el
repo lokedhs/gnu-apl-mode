@@ -76,6 +76,10 @@ is nil, the apl binary is called with the --silent flag."
   "Face used for user diagnostic messages in the interactive APL buffer"
   :group 'gnu-apl)
 
+(defvar gnu-apl-use-free-documentation nil
+  "If this value is set to true prior to loading, the non-free
+documentation will not be loaded.")
+
 ;;; ' ( ) + , - . /  :  ; < = >  ? [ ]
 ;;; \ _ ¨ ¯ × ÷ ← ↑ → ↓ ∆ ∇ ∘ ∣ ∧ ∨
 ;;; ∩ ∪ ∼ ≠ ≤ ≥ ≬ ⊂ ⊃ ⌈ ⌊ ⊤ ⊥ ⋆ ⌶ ⌷
@@ -242,6 +246,9 @@ is nil, the apl binary is called with the --silent flag."
 (load "gnu-apl-network")
 (load "gnu-apl-spreadsheet")
 (load "gnu-apl-documentation")
+(if gnu-apl-use-free-documentation
+    (load "gnu-apl-refdocs-bsd-license")
+  (load "gnu-apl-refdocs-apl2"))
 (load "gnu-apl-osx-workaround")
 
 (add-to-list 'auto-mode-alist '("\\.apl\\'" . gnu-apl-mode))
