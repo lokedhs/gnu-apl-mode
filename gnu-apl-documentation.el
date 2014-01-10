@@ -45,7 +45,7 @@ dervived from the APL2 documentation.")
   (interactive)
   (let ((char (char-after (point))))
     (when char
-      (gnu-apl-show-help-for-symbol char))))
+      (gnu-apl-show-help-for-symbol (char-to-string char)))))
 
 (defvar *gnu-apl-documentation-buffer-name* "*gnu-apl documentation*")
 
