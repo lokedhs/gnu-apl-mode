@@ -3,3 +3,7 @@
 \.orig$
 \.o$
 \.so$
+^GPATH$
+^GRTAGS$
+^GSYMS$
+^GTAGS$

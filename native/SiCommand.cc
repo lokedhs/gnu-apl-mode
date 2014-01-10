@@ -18,33 +18,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef EMACS_HH
-#define EMACS_HH
+#include "NetworkConnection.hh"
+#include "SiCommand.hh"
+#include "emacs.hh"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas"
-#pragma GCC diagnostic ignored "-Wpragmas"
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#pragma GCC diagnostic ignored "-Wsign-compare"
-#pragma GCC diagnostic ignored "-Wreturn-type"
-#pragma GCC diagnostic ignored "-Wparentheses"
-#pragma GCC diagnostic ignored "-Wreorder"
-#pragma GCC diagnostic ignored "-Wmismatched-tags"
-#pragma GCC diagnostic ignored "-Woverloaded-virtual"
-#include "Native_interface.hh"
-#pragma GCC diagnostic pop
-
-void set_active( bool v );
-
-#define END_TAG "APL_NATIVE_END_TAG"
-
-class LockWrapper
+void SiCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
-public:
-    LockWrapper() { set_active( true ); };
-    virtual ~LockWrapper() { set_active( false ); };
-};
+    std::stringstream out;
+    for( const StateIndicator *si = Workspace::SI_top() ; si ; si = si->get_parent() ) {
+        out << si->function_name() << "\n";
+    }
+    out << END_TAG << "\n";
 
-const UCS_string ucs_string_from_string( const std::string &string );
-
-#endif
+    conn.write_string_to_fd( out.str() );
+}

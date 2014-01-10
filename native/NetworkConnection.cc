@@ -1,5 +1,35 @@
+/*
+    This file is part of GNU APL, a free implementation of the
+    ISO/IEC Standard 13751, "Programming Language APL, Extended"
+
+    Copyright (C) 2014  Elias Mårtenson
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "emacs.hh"
+#include "util.hh"
 #include "NetworkConnection.hh"
+#include "UserFunction.hh"
+#include "Quad_FX.hh"
+#include "SiCommand.hh"
+#include "SicCommand.hh"
+#include "FnCommand.hh"
+#include "DefCommand.hh"
+#include "GetVarCommand.hh"
+#include "VariablesCommand.hh"
+#include "RunCommand.hh"
 
 #include <iostream>
 #include <sstream>
@@ -12,36 +42,67 @@
 #include <errno.h>
 #include <string.h>
 
+
+static void add_command( std::map<std::string, NetworkCommand *> &commands, NetworkCommand *command )
+{
+    commands.insert( std::pair<std::string, NetworkCommand *>( command->get_name(), command ) );
+}
+
+NetworkConnection::NetworkConnection( int socket_in )
+    : socket_fd(socket_in), buffer_pos(0), buffer_length(0)
+{
+    add_command( commands, new SiCommand( "si" ) );
+    add_command( commands, new SicCommand( "sic" ) );
+    add_command( commands, new FnCommand( "fn" ) );
+    add_command( commands, new DefCommand( "def" ) );
+    add_command( commands, new GetVarCommand( "getvar" ) );
+    add_command( commands, new VariablesCommand( "variables" ) );
+}
+
+NetworkConnection::~NetworkConnection()
+{
+    close( socket_fd );
+
+    for( std::map<std::string, NetworkCommand *>::iterator i = commands.begin() ; i != commands.end() ; i++ ) {
+        delete i->second;
+    }
+}
+
 std::string NetworkConnection::read_line_from_fd()
 {
     std::stringstream in;
-    int end = 0;
+
+    bool end = false;
     while( !end ) {
-        char buf[1024];
-
-        int res = read( socket_fd, (void *)buf, sizeof( buf ) - 1 );
-        if( res == -1 ) {
-            throw ConnectionError( "network error" );
-        }
-        if( res == 0 ) {
-            throw ConnectionError( "disconnected" );
-        }
-
-        if( buf[res - 1] == '\n' ) {
-            if( res >= 2 && buf[res - 2] == '\r' ) {
-                buf[res - 2] = 0;
+        while( buffer_pos < buffer_length ) {
+            char ch = buffer[buffer_pos++];
+            if( ch == '\n' ) {
+                end = true;
+                break;
             }
-            else {
-                buf[res - 1] = 0;
+            in << ch;
+        }
+
+        if( !end ) {
+            int res = read( socket_fd, (void *)buffer, sizeof( buffer ) );
+            if( res == -1 ) {
+                throw ConnectionError( "network error" );
             }
-            end = 1;
+            if( res == 0 ) {
+                throw DisconnectedError( "Remote disconnected" );
+            }
+            buffer_pos = 0;
+            buffer_length = res;
         }
-        else {
-            buf[res] = 0;
-        }
-        in << buf;
     }
-    return in.str();
+
+    std::string result = in.str();
+    if( result[result.size() - 1] == '\r' ) {
+        return result.substr( 0, result.size() -1 );
+    }
+    else {
+        return result;
+    }
 }
 
 void NetworkConnection::write_string_to_fd( const std::string &s )
@@ -58,94 +119,42 @@ void NetworkConnection::write_string_to_fd( const std::string &s )
     }
 }
 
-void NetworkConnection::show_function( const std::string &name )
+std::vector<std::string> NetworkConnection::load_block( void )
 {
-    std::stringstream out;
-
-    UCS_string ucs_name( name.c_str() );
-    NamedObject *obj = Workspace::lookup_existing_name( ucs_name );
-    if( obj == NULL ) {
-        out << "undefined\n";
-    }
-    else if( !obj->is_user_defined() ) {
-        out << "system function\n";
-    }
-    else {
-        const Function *function = obj->get_function();
-        if( function == NULL ) {
-            out << "symbol is not a function";
+    std::vector<std::string> result;
+    while( 1 ) {
+        std::string v = read_line_from_fd();
+        if( v == END_TAG ) {
+            break;
         }
-        else if( function->get_exec_properties()[0] != 0 ) {
-            out << "function is not executable\n";
-        }
-        else {
-            const UCS_string ucs = function->canonical( false );
-            vector<UCS_string> tlines;
-            ucs.to_vector( tlines );
-
-            for( vector<UCS_string>::iterator i = tlines.begin() ; i != tlines.end() ; i++ ) {
-                out << i->to_string() << "\n";
-            }
-        }
+        result.push_back( v );
     }
-    out << "END\n";
-
-    write_string_to_fd( out.str() );
-}
-
-void NetworkConnection::clear_si_stack( void )
-{
-    Workspace::clear_SI( COUT );
-}
-
-static std::vector<std::string> split(const std::string &s, char delim)
-{
-    std::stringstream ss(s);
-    std::string item;
-    std::vector<std::string> elems;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-    return elems;
+    return result;
 }
 
 int NetworkConnection::process_command( const std::string &command )
 {
+    LockWrapper lock;
     std::vector<std::string> elements = split( command, ':' );
     if( elements.size() > 0 ) {
         std::string operation = elements[0];
-        if( operation == "si" ) {
-            show_si();
-        }
-        else if( operation == "sic" ) {
-            clear_si_stack();
-        }
-        else if( operation == "fn" ) {
-            show_function( elements[1] );
-        }
-        else if( operation == "quit" ) {
+
+        if( operation == "quit" ) {
             close( socket_fd );
-            throw ConnectionError( "quit received" );
+            throw DisconnectedError( "quit received" );
+        }
+
+        std::map<std::string, NetworkCommand *>::iterator command_iterator = commands.find( operation );
+        if( command_iterator == commands.end() ) {
+            stringstream out;
+            out << "unknown command: '" << operation << "'";
+            throw ProtocolError( out.str() );
         }
         else {
-            CERR << "unknown command: '" << operation << "'" << endl;
+            command_iterator->second->run_command( *this, elements );
         }
     }
-    else {
-        CERR << "empty command" << endl;
-    }
     return 0;
-}
-
-void NetworkConnection::show_si( void )
-{
-    std::stringstream out;
-    for( const StateIndicator *si = Workspace::SI_top() ; si ; si = si->get_parent() ) {
-        out << si->function_name() << "\n";
-    }
-    out << "END\n";
-
-    write_string_to_fd( out.str() );
 }
 
 void NetworkConnection::run( void )

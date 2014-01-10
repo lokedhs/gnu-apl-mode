@@ -28,11 +28,9 @@ Permitted values are:
 
     error - Signal an error message
     clear - Clear the )SI stack before editing
-    allow - Allow the edit to continue
     ask - Ask the user what action to take"
   :type '(choice (const :tag "error" error)
                  (const :tag "clear" clear)
-                 (const :tag "allow" allow)
                  (const :tag "ask" ask))
   :group 'gnu-apl)
 
@@ -241,6 +239,8 @@ is nil, the apl binary is called with the --silent flag."
 (load "gnu-apl-input")
 (load "gnu-apl-interactive")
 (load "gnu-apl-editor")
+(load "gnu-apl-network")
+(load "gnu-apl-spreadsheet")
 (load "gnu-apl-documentation")
 (load "gnu-apl-osx-workaround")
 

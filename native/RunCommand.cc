@@ -18,33 +18,33 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef EMACS_HH
-#define EMACS_HH
+#include "RunCommand.hh"
+#include "emacs.hh"
+#include "NetworkConnection.hh"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas"
-#pragma GCC diagnostic ignored "-Wpragmas"
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#pragma GCC diagnostic ignored "-Wsign-compare"
-#pragma GCC diagnostic ignored "-Wreturn-type"
-#pragma GCC diagnostic ignored "-Wparentheses"
-#pragma GCC diagnostic ignored "-Wreorder"
-#pragma GCC diagnostic ignored "-Wmismatched-tags"
-#pragma GCC diagnostic ignored "-Woverloaded-virtual"
-#include "Native_interface.hh"
-#pragma GCC diagnostic pop
-
-void set_active( bool v );
-
-#define END_TAG "APL_NATIVE_END_TAG"
-
-class LockWrapper
+void RunCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
-public:
-    LockWrapper() { set_active( true ); };
-    virtual ~LockWrapper() { set_active( false ); };
-};
+    stringstream out;
+    while( 1 ) {
+        std::string line = conn.read_line_from_fd();
+        if( line == END_TAG ) {
+            break;
+        }
+        out << line << "\n";
+    }
 
-const UCS_string ucs_string_from_string( const std::string &string );
+    Token result = Bif_F1_EXECUTE::execute_statement( ucs_string_from_string( out.str() ) );
+    TokenTag tag = result.get_tag();
 
-#endif
+    stringstream result_stream;
+    if( tag == TOK_ERROR ) {
+        result_stream << "error:" << result.get_int_val();
+    }
+    else {
+        result_stream << "result:NOT-IMPL";
+    }
+
+    result_stream << "\n" << END_TAG << "\n";
+
+    conn.write_string_to_fd( result_stream.str() );
+}
