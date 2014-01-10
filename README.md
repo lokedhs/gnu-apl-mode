@@ -37,12 +37,12 @@ the backend GNU APL instance. Instead of sending commands to the
 command line, it now loads native code which allows the Emacs mode to
 communicate using a network connection.
 
-The current plan is to include this native module in GNU APL version
-1.2, but as of this writing it's not been integrated yet. Also, if
-you are using a newer version of this Emacs mode, it may cause
-compatibility problems between the native module and the Emacs Lisp
-code. If this happens, you need to compile the module yourself (from
-the `native` directory) and install it in the `lib/apl` directory.
+GNU APL ships with the native component of this mode and is installed
+as `libemacs.so`. If you are using a newer version of this Emacs mode,
+it may cause compatibility problems between the native module and the
+Emacs Lisp code. If this happens, you need to compile the module
+yourself (from the `native` directory) and install it in the `lib/apl`
+directory where GNU APL is installed.
 
 Configuring APL font
 --------------------
