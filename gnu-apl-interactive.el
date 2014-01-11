@@ -228,9 +228,9 @@ function editor.
       (setq gnu-apl-current-session buffer)
 
       (gnu-apl-interactive-mode)
-      (when t
+      (let ((lib-ext (if (eq system-type 'darwin) "dylib" "so")))
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-start* "'"))
-        (gnu-apl--send buffer (concat "'libemacs.so' ⎕FX "
+        (gnu-apl--send buffer (concat "'libemacs." lib-ext  "' ⎕FX "
                                       "'" *gnu-apl-native-lib* "'"))
         (gnu-apl--send buffer (format "%s[1] %d" *gnu-apl-native-lib* 7293))
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-end* "'"))))
