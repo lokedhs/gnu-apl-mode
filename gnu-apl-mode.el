@@ -56,6 +56,17 @@ is nil, the apl binary is called with the --silent flag."
   :type 'boolean
   :group 'gnu-apl)
 
+;;; This parameter is not customisable since there are very few cases
+;;; where it would beed to be changed.
+(defvar gnu-apl-native-communication t
+  "Enable the use of the Emacs native library that is part of GNU
+APL. This library provides a communications channel that
+gnu-apl-mode can use to communicate with the APL interpreter.
+Normally, this value should be set to t, as without it many
+functions will not work. If this option is set to t, and the
+library fails to load for some reason, the features will be
+automatically disabled anyway.")
+
 ;;;###autoload
 (defface gnu-apl-default
   ()
