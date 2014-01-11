@@ -168,8 +168,8 @@ function editor.
 
 (defvar gnu-apl-interactive-mode-map
   (let ((map (gnu-apl--make-mode-map "s-")))
-    (define-key map (kbd "C-c f") 'gnu-apl-edit-function)
-    (define-key map (kbd "C-c v") 'gnu-apl-edit-variable)
+    (define-key map (kbd "C-c C-f") 'gnu-apl-edit-function)
+    (define-key map (kbd "C-c C-v") 'gnu-apl-edit-variable)
     (define-key map [menu-bar gnu-apl edit-function] '("Edit function" . gnu-apl-edit-function))
     (define-key map [menu-bar gnu-apl edit-matrix] '("Edit variable" . gnu-apl-edit-variable))
     map))
