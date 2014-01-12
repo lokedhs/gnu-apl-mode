@@ -13,9 +13,9 @@
             (t
              (error "Unable to edit values of this type"))))))
 
-(defun gnu-apl-spreadsheet-send-this-document ()
-  (interactive)
-  (let* ((variable-name gnu-apl-var-name)
+(defun gnu-apl-spreadsheet-send-to-variable (varname)
+  (interactive (list (or gnu-apl-var-name (read-from-minibuffer "Variable name: "))))
+  (let* ((variable-name varname)
          (buffer (gnu-apl--get-interactive-session))
          (s (gnu-apl-make-array-loading-instructions variable-name))
          (lines (split-string s "\n")))
@@ -33,7 +33,7 @@
   "A variation of `ses-mode' to be used for editing APL matrices."
   nil
   " ≡"
-  (list (cons (kbd "C-c C-c") 'gnu-apl-spreadsheet-send-this-document)
+  (list (cons (kbd "C-c C-c") 'gnu-apl-spreadsheet-send-to-variable)
         (cons [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
         (cons [menu-bar gnu-apl send-this-document] '("Send document" . gnu-apl-spreadsheet-send-this-document))
         (cons [menu-bar gnu-apl copy-spreadsheet-as-apl-function] '("Copy document as function". gnu-apl-copy-spreadsheet-to-kill-ring)))
@@ -67,8 +67,10 @@
                                      (integer col-content)
                                      (float col-content)
                                      (string col-content)
-                                     (list (etypecase (car (col-content))
-                                             (symbol (format "!%s" (car col-content)))
+                                     (list (etypecase (car col-content)
+                                             (symbol (case (car col-content)
+                                                       (:unicode (char-to-string (cadr col-content)))
+                                                       (t (format "!%s" (car col-content)))))
                                              (list "!list")))
                                      (t (error "Illegal cell content: %S" col-content)))))
                             (ses-edit-cell row-index col-index v))))
