@@ -14,7 +14,8 @@
              (error "Unable to edit values of this type"))))))
 
 (defun gnu-apl-spreadsheet-send-to-variable (varname)
-  (interactive (list (or gnu-apl-var-name (read-from-minibuffer "Variable name: "))))
+  (interactive (list (or (and (boundp 'gnu-apl-var-name) gnu-apl-var-name)
+                         (read-from-minibuffer "Variable name: "))))
   (let* ((variable-name varname)
          (buffer (gnu-apl--get-interactive-session))
          (s (gnu-apl-make-array-loading-instructions variable-name))
