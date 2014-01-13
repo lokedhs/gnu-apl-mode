@@ -195,7 +195,7 @@ function editor.
 
 (defun gnu-apl--insert-tips ()
   (insert "This is the gnu-apl-mode interactive buffer.\n\n"
-          "To toggle keyboard help, call M-x gnu-apl-show-keyboard (C-c k by default).\n"
+          "To toggle keyboard help, call M-x gnu-apl-show-keyboard (C-c C-ck by default).\n"
           "APL symbols are bound to the standard keys with the Super key. You can also\n"
           "activate the APL-Z ")
   (insert-button "input method"
