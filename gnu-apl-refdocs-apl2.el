@@ -2,8 +2,21 @@
 
 (defvar gnu-apl--symbol-doc
   '(("+"
-     "Identity" "No change to B"
-     "Addition" "Sum of A and B")
+     "Conjugate" "Z is R with its imaginary part negated"
+     "Add" "Adds R to L"
+     "Monadic: Conjugate
+Z←+R
+Z is R with its imaginary part negated
+
+R and Z: Numeric
+
+===================================
+
+Dyadic: Add
+Z←L+R
+Adds R to L
+
+L, R and Z: Numeric" t)
     ("−"
      "Negation" "Changes sign of B"
      "Subtraction" "A minus B")
@@ -14,8 +27,18 @@
      "Reciprocal" "1 divided by B"
      "Division (mathematics)" "A divided by B")
     ("⋆"
-     "Exponential" "e to the B power"
-     "Exponentiation]]" "A raised to the B power")
+     "Exponential" "e to the R power"
+     "Power" "L raised to the R power"
+     "Monadic: Exponential
+Z←⋆R
+Determines the Rth power of the base of the natural logarithms e,
+where e is approximately 2.7182818284590452.
+R and Z: Numeric
+
+Dyadic: Power
+Z←L⋆R
+Raises base L to the Rth power.
+Z, R and Z: Numeric" t)
     ("○"
      "Pi times" "Multiply by π"
      "Circle" "Trigonometric functions of B selected by A. A=1: sin(B) A=2: cos(B) A=3: tan(B)")
@@ -50,29 +73,98 @@
      "Absolute value" "Magnitude of B"
      "Modulo" "B modulo A")
     (","
-     "Ravel" "Reshapes B into a vector"
-     "Catenation" "Elements of B appended to the elements of A")
+     "Ravel" "Creates a vector from the items in R, taken in row-major order"
+     "Catenate" "Elements of R appended to the elements of L"
+     "Monadic: Ravel
+Z←,R
+Creates a vector from the items in R, taken in row-major order.
+
+Z: Vector
+
+ ⍴Z ←→ , /⍴R
+⍴⍴Z ←→ ,1
+
+===================================
+
+,[] Ravel with axis
+Z←,[X]R
+Creates an array that contains the items of R reshaped according
+to axes X: If X is a fraction, a new axis of length 1 is formed;
+if X is an integer, the X axes of R are combined.
+
+X: Simple scalar fraction or simple scalar or vector of
+   nonnegative integers or empty
+
+Implicit argument: ⎕IO
+
+ ⍴Z ←→ Depends on the value of X
+⍴⍴Z ←→ Depends on the value of X
+
+===================================
+
+Dyadic: Catenate
+Z←L,R
+Joins L and R. If L and R are nonscalar arrays, L and R are
+joined along the last axis. If L and R are scalars, Z is a
+two-item vector.
+
+¯1↑⍴Z  ←→ Case dependent
+   ⍴⍴Z ←→ ,/(⍴⍴L),(⍴⍴R),1
+
+===================================
+
+,[] Catenate with axis
+Z←L,[X]R
+Joins L and R along the axis indicated by X.
+
+Z: Nonscalar
+X: Simple scalar or one item vector, integer: X∊⍳(⍴⍴L) ⍴⍴R
+
+Implicit argument: ⎕IO
+
+ ⍴Z ←→ Case dependent; see below.
+⍴⍴Z ←→ (⍴⍴L) ⍴⍴R
+
+=========================
+
+,[] Laminate
+Z←L,[X]R
+Joins L and R by forming a new axis of length 2, which is
+filled with L and R.
+
+Z: Nonscalar
+X: Simple scalar fraction between ¯1+⎕IO and ⎕IO+(⍴⍴L) ⍴⍴R
+
+Implicit argument: ⎕IO
+ ⍴Z ←→ Case dependent
+⍴⍴Z ←→ 1+(⍴⍴L)⌈⍴⍴R" t)
     ("\\"
      nil nil
      "Expansion" "Insert zeros (or blanks) in B corresponding to zeros in A")
     ("/"
      nil nil
-     "Compress" "Select elements in B corresponding to ones in A"
-     "  Z←LO/R Selects subarrays along the last axis under the control of the vector LO.
+     "Replicate" "Repeats each subarray along the last axis under the control of the vector LO"
+     "Dyadic: Replicate
+Z←LO/R
+Repeats each subarray along the last axis under the control of
+the vector LO.
 
-  LO: Simple scalar or vector, Boolean
-  Z: Nonscalar array
+LO: Simple scalar or vector, integer
+ Z: Nonscalar array
 
-  ¯1↓ρZ ←→ 1↓⍴R
+¯1↓⍴Z ←→ ¯1↓⍴R
   ⍴⍴Z ←→ ⍴⍴R
 
-Axis operator: Reduce
-  Z←LO/ R Has the effect of placing the function LO between adjacent pairs of items along
-          the last axis of R and evaluating the resulting expression for each subarray.
+===================================
 
-  LO: Dyadic function
-  ⍴Z ←→ 1↓⍴R
-  ⍴⍴Z ←→ 0⌈¯1+⍴⍴R" t)
+Axis operator: Reduce
+Z←LO/R
+Has the effect of placing the function LO between adjacent pairs of items along
+the last axis of R and evaluating the resulting expression for each subarray.
+
+LO: Dyadic function
+ ⍴Z ←→ 1↓⍴R
+⍴⍴Z ←→ 0⌈¯1+⍴⍴R" t)
     ("⍳"
      "Index generator" "Vector of the first B integers"
      "Index of" "The location (index) of B in A; 1+⌈/⍳⍴A if not found")

@@ -33,12 +33,15 @@ dervived from the APL2 documentation.")
 (defun gnu-apl--get-full-docstring-for-symbol (string)
   (let ((doc (cl-find string gnu-apl--symbol-doc :key #'car :test #'string=)))
     (when doc
-      (apply #'concat
-             (concat "Documentation for " string "\n\n")
-             (append (when (second doc) (list (concat "Monadic: " (second doc) ": " (third doc) "\n")))
-                     (when (fourth doc) (list (concat "Dyadic: " (fourth doc) ": " (fifth doc) "\n")))
-                     (when (sixth doc) (list (concat (sixth doc) "\n")))
-                     (when (seventh doc) (list "\n" gnu-apl--ibm-copyright-notice)))))))
+      (let ((apl2refp (seventh doc)))
+        (apply #'concat
+               (concat "Documentation for " string "\n\n")
+               (append (when (and (not apl2refp) (second doc))
+                         (list (concat "Monadic: " (second doc) ": " (third doc) "\n")))
+                       (when (and (not apl2refp) (fourth doc))
+                         (list (concat "Dyadic: " (fourth doc) ": " (fifth doc) "\n")))
+                       (when (sixth doc) (list (concat (sixth doc) "\n")))
+                       (when (seventh doc) (list "\n" gnu-apl--ibm-copyright-notice))))))))
 
 (defun gnu-apl-show-help-for-symbol-point ()
   "Open the help window for the symbol at point."
