@@ -163,6 +163,7 @@ Has the effect of placing the function LO between adjacent pairs of items along
 the last axis of R and evaluating the resulting expression for each subarray.
 
 LO: Dyadic function
+
  ⍴Z ←→ 1↓⍴R
 ⍴⍴Z ←→ 0⌈¯1+⍴⍴R" t)
     ("⍳"
