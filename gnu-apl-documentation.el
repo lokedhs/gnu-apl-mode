@@ -231,11 +231,9 @@ it is open."
       (kill-buffer buffer))))
 
 (defun gnu-apl--open-apropos-results (result)
-  (llog "res:%S" result)
   (let ((buffer (gnu-apl--open-new-buffer *gnu-apl-apropos-symbol-buffer-name*)))
     (with-current-buffer buffer
       (dolist (s result)
-        (llog "x")
         (insert-button (cadr s)
                        'action #'(lambda (event) (gnu-apl-show-help-for-symbol (caar s)))
                        'follow-link t)
