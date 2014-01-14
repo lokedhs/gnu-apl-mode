@@ -2,146 +2,132 @@
 
 (defvar gnu-apl--symbol-doc
   '(("+"
-     "Identity" "No change to B"
-     "Addition" "Sum of A and B")
+     (("Monadic" "Identity" "No change to B")
+      ("Dyadic" "Addition" "Sum of A and B")))
     ("−"
-     "Negation" "Changes sign of B"
-     "Subtraction" "A minus B")
+     (("Monadic" "Negation" "Changes sign of B")
+      ("Dyadic" "Subtraction" "A minus B")))
     ("×"
-     "Signum" "¯1 if B<0; 0 if B=0; 1 if B>0"
-     "Multiply" "A multiplied by B")
+     (("Monadic" "Signum" "¯1 if B<0; 0 if B=0; 1 if B>0")
+      ("Dyadic" "Multiply" "A multiplied by B")))
     ("÷"
-     "Reciprocal" "1 divided by B"
-     "Division (mathematics)" "A divided by B")
+     (("Monadic" "Reciprocal" "1 divided by B")
+      ("Dyadic" "Division (mathematics)" "A divided by B")))
     ("⋆"
-     "Exponential" "e to the B power"
-     "Exponentiation]]" "A raised to the B power")
+     (("Monadic" "Exponential" "e to the B power")
+      ("Dyadic" "Exponentiation]]" "A raised to the B power")))
     ("○"
-     "Pi times" "Multiply by π"
-     "Circle" "Trigonometric functions of B selected by A. A=1: sin(B) A=2: cos(B) A=3: tan(B)")
+     (("Monadic" "Pi times" "Multiply by π")
+      ("Dyadic" "Circle" "Trigonometric functions of B selected by A. A=1: sin(B) A=2: cos(B) A=3: tan(B)")))
     ("?"
-     "Roll" "One integer selected randomly from the first B integers"
-     "Deal" "A distinct integers selected randomly from the first B integers")
+     (("Monadic" "Roll" "One integer selected randomly from the first B integers")
+      ("Dyadic" "Deal" "A distinct integers selected randomly from the first B integers")))
     ("∊"
-     "Enlist" "Create a vector containing all scalars in B"
-     "Membership" "1 for elements of A present in B; 0 where not.")
+     (("Monadic" "Enlist" "Create a vector containing all scalars in B")
+      ("Dyadic" "Membership" "1 for elements of A present in B; 0 where not.")))
     ("⌈"
-     "Ceiling" "Least integer greater than or equal to B"
-     "Sample maximum and minimum" "The greater value of A or B")
+     (("Monadic" "Ceiling" "Least integer greater than or equal to B")
+      ("Dyadic" "Sample maximum and minimum" "The greater value of A or B")))
     ("⌊"
-     "Floor" "Greatest integer less than or equal to B"
-     "Sample maximum and minimum" "The smaller value of A or B")
+     (("Monadic" "Floor" "Greatest integer less than or equal to B")
+      ("Dyadic" "Sample maximum and minimum" "The smaller value of A or B")))
     ("⍴"
-     "Shape" "Number of components in each dimension of B"
-     "Reshape" "Array of shape A with data B")
+     (("Monadic" "Shape" "Number of components in each dimension of B")
+      ("Dyadic" "Reshape" "Array of shape A with data B")))
     ("↑"
-     "Take" "Select the first element of B"
-     "Take" "Select the first (or last) A elements of B according to ×A")
+     (("Monadic" "Take" "Select the first element of B")
+      ("Dyadic" "Take" "Select the first (or last) A elements of B according to ×A")))
     ("↓"
-     nil nil
-     "Drop " "Remove the first (or last) A elements of B according to ×A")
+     (("Dyadic" "Drop " "Remove the first (or last) A elements of B according to ×A")))
     ("⊥"
-     nil nil
-     "Decode" "Value of a polynomial whose coefficients are B at A")
+     (("Dyadic" "Decode" "Value of a polynomial whose coefficients are B at A")))
     ("⊤"
-     nil nil
-     "Encode" "Base-A representation of the value of B")
+     (("Dyadic" "Encode" "Base-A representation of the value of B")))
     ("∣"
-     "Absolute value" "Magnitude of B"
-     "Modulo" "B modulo A")
+     (("Monadic" "Absolute value" "Magnitude of B")
+      ("Dyadic" "Modulo" "B modulo A")))
     (","
-     "Ravel" "Reshapes B into a vector"
-     "Catenation" "Elements of B appended to the elements of A")
+     (("Monadic" "Ravel" "Reshapes B into a vector")
+      ("Dyadic" "Catenation" "Elements of B appended to the elements of A")))
     ("\\"
-     nil nil
-     "Expansion" "Insert zeros (or blanks) in B corresponding to zeros in A")
+     (("Dyadic" "Expansion" "Insert zeros (or blanks) in B corresponding to zeros in A")))
     ("/"
-     nil nil
-     "Compress" "Select elements in B corresponding to ones in A")
+     (("Dyadic" "Compress" "Select elements in B corresponding to ones in A")))
     ("⍳"
-     "Index generator" "Vector of the first B integers"
-     "Index of" "The location (index) of B in A; 1+⌈/⍳⍴A if not found")
+     (("Monadic" "Index generator" "Vector of the first B integers")
+      ("Dyadic" "Index of" "The location (index) of B in A; 1+⌈/⍳⍴A if not found")))
     ("⌹"
-     "Matrix inverse" "Inverse of matrix B"
-     "Matrix divide" "Solution to system of linear equations Ax = B")
+     (("Monadic" "Matrix inverse" "Inverse of matrix B")
+      ("Dyadic" "Matrix divide" "Solution to system of linear equations Ax = B")))
     ("⌽"
-     "Reversal" "Reverse elements of B along last axis"
-     "Rotation" "The elements of B are rotated A positions")
+     (("Monadic" "Reversal" "Reverse elements of B along last axis")
+      ("Dyadic" "Rotation" "The elements of B are rotated A positions")))
     ("⊖"
-     "Reversal" "Reverse elements of B along first axis"
-     "Rotation" "The elements of B are rotated A positions along the first axis")
+     (("Monadic" "Reversal" "Reverse elements of B along first axis")
+      ("Dyadic" "Rotation" "The elements of B are rotated A positions along the first axis")))
     ("⍟"
-     "Logarithm" "Natural logarithm of B"
-     "Logarithm" "Logarithm of B to base A")
+     (("Monadic" "Logarithm" "Natural logarithm of B")
+      ("Dyadic" "Logarithm" "Logarithm of B to base A")))
     ("⍕"
-     "Format" "A character representation of B"
-     "Format" "Format B into a character matrix according to A")
+     (("Monadic" "Format" "A character representation of B")
+      ("Dyadic" "Format" "Format B into a character matrix according to A")))
     ("⍉"
-     "Transpose" "Reverse the axes of B"
-     "Transpose" "The axes of B are ordered by A")
+     (("Monadic" "Transpose" "Reverse the axes of B")
+      ("Dyadic" "Transpose" "The axes of B are ordered by A")))
     ("!"
-     "Factorial" "Product of integers 1 to B"
-     "Combinations" "Number of combinations of B taken A at a time")
-    ("<" nil nil
-     "Less than" "Comparison: 1 if true, 0 if false")
-    ("≤" nil nil
-     "Less than or equal" "Comparison: 1 if true, 0 if false")
-    ("=" nil nil
-     "Equality" "Comparison: 1 if true, 0 if false")
-    ("≥" nil nil
-     "Greater than or equal" "Comparison: 1 if true, 0 if false")
-    (">" nil nil
-     "Greater than" "Comparison: 1 if true, 0 if false")
-    ("≠" nil nil
-     "Not equal" "Comparison: 1 if true, 0 if false")
-    ("∨" nil nil
-     "Logical disjunction" "Logic: 0 if A and B are 0; 1 otherwise")
-    ("∧" nil nil
-     "Logical conjunction" "Logic: 1 if A and B are 1; 0 otherwise")
-    ("⍱" nil nil
-     "Logical Nor" "Logic: 1 if both A and B are 0; otherwise 0")
-    ("⍲" nil nil
-     "Logical Nand" "Logic: 0 if both A and B are 1; otherwise 1")
-    ("∼" nil nil
-     "Not" "Logical: ∼1 is 0, ∼0 is 1" nil)
+     (("Monadic" "Factorial" "Product of integers 1 to B")
+      ("Dyadic" "Combinations" "Number of combinations of B taken A at a time")))
+    ("<"
+     (("Dyadic" "Less than" "Comparison: 1 if true, 0 if false")))
+    ("≤"
+     (("Dyadic" "Less than or equal" "Comparison: 1 if true, 0 if false")))
+    ("="
+     (("Dyadic" "Equality" "Comparison: 1 if true, 0 if false")))
+    ("≥"
+     (("Dyadic" "Greater than or equal" "Comparison: 1 if true, 0 if false")))
+    (">"
+     (("Dyadic" "Greater than" "Comparison: 1 if true, 0 if false")))
+    ("≠"
+     (("Dyadic" "Not equal" "Comparison: 1 if true, 0 if false")))
+    ("∨"
+     (("Dyadic" "Logical disjunction" "Logic: 0 if A and B are 0; 1 otherwise")))
+    ("∧"
+     (("Dyadic" "Logical conjunction" "Logic: 1 if A and B are 1; 0 otherwise")))
+    ("⍱"
+     (("Dyadic" "Logical Nor" "Logic: 1 if both A and B are 0; otherwise 0")))
+    ("⍲"
+     (("Dyadic" "Logical Nand" "Logic: 0 if both A and B are 1; otherwise 1")))
+    ("∼"
+     (("Dyadic" "Not" "Logical: ∼1 is 0, ∼0 is 1")) nil)
     ("⍋"
-     "Grade up" "Indices of B which will arrange B in ascending order"
-     nil nil)
+     (("Monadic" "Grade up" "Indices of B which will arrange B in ascending order")))
     ("⍒"
-     "Grade down" "Indices of B which will arrange B in descending order"
-     nil nil)
+     (("Monadic" "Grade down" "Indices of B which will arrange B in descending order")))
     ("⍎"
-     "Execute" "Execute an APL expression"
-     nil nil)
-    ("←" nil nil
-     "Assignment" "Assign the value of B to A")
+     (("Monadic" "Execute" "Execute an APL expression")))
+    ("←"
+     (("Dyadic" "Assignment" "Assign the value of B to A")))
     ("→"
-     "Goto" "Go to line B"
-     nil nil)
+     (("Monadic" "Goto" "Go to line B")))
     ("∇"
-     "Function definition" "Define or modify a function"
-     nil nil)
+     (("Monadic" "Function definition" "Define or modify a function")))
     ("⊂"
-     "Enclose" "Produce a scalar from B"
-     "Partition" "Divide B into vectors based on A")
+     (("Monadic" "Enclose" "Produce a scalar from B")
+      ("Dyadic" "Partition" "Divide B into vectors based on A")))
     ("⊃"
-     "Disclose" "Produce an array from B"
-     "Pick" "Select a value from B based on A")
+     (("Monadic" "Disclose" "Produce an array from B")
+      ("Dyadic" "Pick" "Select a value from B based on A")))
     ("∪"
-     "Unique" "Return an array of all unique elements in B"
-     nil nil)
+     (("Monadic" "Unique" "Return an array of all unique elements in B")))
     ("⍷"
-     nil nil
-     "Find" "Return a boolean array indicating the positions of the array A in B")
+     (("Dyadic" "Find" "Return a boolean array indicating the positions of the array A in B")))
     ("≡"
-     "Depth" "Return the levels of nesting in B"
-     "Match" "Returns true if A has the same structure as well as data as B")
+     (("Monadic" "Depth" "Return the levels of nesting in B")
+      ("Dyadic" "Match" "Returns true if A has the same structure as well as data as B")))
     ("⊥"
-     nil nil
-     "Decode" "Yields the values of array A evaluated in a number system with radices B")
+     (("Dyadic" "Decode" "Yields the values of array A evaluated in a number system with radices B")))
     ("⊤"
-     nil nil
-     "Encode" "Yields the representation of A in the number system whose radices are B"))
+     (("Dyadic" "Encode" "Yields the representation of A in the number system whose radices are B"))))
   "Documentation for APL symbols. Each element is a list of six
 elements: The APL symbol, name of monadic operator, description
 of the monadic operator, name of the dyadic operator, description

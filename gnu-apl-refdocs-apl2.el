@@ -1,93 +1,96 @@
 ;;; -*- lexical-binding: t -*-
 
+;;;
+;;; Each element has the following structure:
+;;;
+;;;  (SYMBOL
+;;;      ((TYPE NAME SUMMARY &optional DESCRIPTION)
+;;;       ...)
+;;;       IBM-COPYRIGHT-P)
+;;;
+;;;  SYMBOL - A one-character string, the actual symbol
+;;;  TYPE - The use-type, i.e. "Monadic", "Dyadic"...
+;;;  SUMMARY - Short one-line summary
+;;;  DESCRIPTION - Long description of the symbol
+;;;  IBM-COPYRIGHT-P - T if the text is an APL2 reprint
+;;;
+
 (defvar gnu-apl--symbol-doc
   '(("+"
-     "Conjugate" "Z is R with its imaginary part negated"
-     "Add" "Adds R to L"
-     "Monadic: Conjugate
-Z←+R
-Z is R with its imaginary part negated
+     (("Monadic" "Conjugate" "Z is R with its imaginary part negated"
+       "Z←+R
 
-R and Z: Numeric
+R and Z: Numeric")
+      ("Dyadic" "Add" "Adds R to L"
+       "Z←L+R
 
-===================================
-
-Dyadic: Add
-Z←L+R
-Adds R to L
-
-L, R and Z: Numeric" t)
+L, R and Z: Numeric"))
+     t)
     ("−"
-     "Negation" "Changes sign of B"
-     "Subtraction" "A minus B")
+     (("Monadic" "Negation" "Changes sign of B")
+      ("Dyadic" "Subtraction" "A minus B")))
     ("×"
-     "Signum" "¯1 if B<0; 0 if B=0; 1 if B>0"
-     "Multiply" "A multiplied by B")
+     (("Monadic" "Signum" "¯1 if B<0; 0 if B=0; 1 if B>0")
+      ("Dyadic" "Multiply" "A multiplied by B")))
     ("÷"
-     "Reciprocal" "1 divided by B"
-     "Division (mathematics)" "A divided by B")
+     (("Monadic" "Reciprocal" "1 divided by B")
+      ("Dyadic" "Division (mathematics)" "A divided by B")))
     ("⋆"
-     "Exponential" "e to the R power"
-     "Power" "L raised to the R power"
-     "Monadic: Exponential
-Z←⋆R
+     (("Monadic" "Exponential" "e to the R power"
+       "Z←⋆R
 Determines the Rth power of the base of the natural logarithms e,
 where e is approximately 2.7182818284590452.
-R and Z: Numeric
-
-Dyadic: Power
-Z←L⋆R
+R and Z: Numeric")
+      ("Dyadic" "Power" "L raised to the R power"
+       "Z←L⋆R
 Raises base L to the Rth power.
-Z, R and Z: Numeric" t)
+
+Z, R and Z: Numeric"))
+     t)
     ("○"
-     "Pi times" "Multiply by π"
-     "Circle" "Trigonometric functions of B selected by A. A=1: sin(B) A=2: cos(B) A=3: tan(B)")
+     (("Monadic" "Pi times" "Multiply by π")
+      ("Dyadic" "Circle" "Trigonometric functions of B selected by A. A=1: sin(B) A=2: cos(B) A=3: tan(B)")))
     ("?"
-     "Roll" "One integer selected randomly from the first B integers"
-     "Deal" "A distinct integers selected randomly from the first B integers")
+     (("Monadic" "Roll" "One integer selected randomly from the first B integers")
+      ("Dyadic" "Deal" "A distinct integers selected randomly from the first B integers")))
     ("∊"
-     "Enlist" "Create a vector containing all scalars in B"
-     "Membership" "1 for elements of A present in B; 0 where not.")
+     (("Monadic" "Enlist" "Create a vector containing all scalars in B")
+      ("Dyadic" "Membership" "1 for elements of A present in B; 0 where not.")))
     ("⌈"
-     "Ceiling" "Least integer greater than or equal to B"
-     "Sample maximum and minimum" "The greater value of A or B")
+     (("Monadic" "Ceiling" "Least integer greater than or equal to B")
+      ("Dyadic" "Sample maximum and minimum" "The greater value of A or B")))
     ("⌊"
-     "Floor" "Greatest integer less than or equal to B"
-     "Sample maximum and minimum" "The smaller value of A or B")
+     (("Monadic" "Floor" "Greatest integer less than or equal to B")
+      ("Dyadic" "Sample maximum and minimum" "The smaller value of A or B")))
     ("⍴"
-     "Shape" "Number of components in each dimension of B"
-     "Reshape" "Array of shape A with data B")
+     (("Monadic" "Shape" "Number of components in each dimension of B")
+      ("Dyadic" "Reshape" "Array of shape A with data B")))
     ("↑"
-     "Take" "Select the first element of B"
-     "Take" "Select the first (or last) A elements of B according to ×A")
+     (("Monadic" "Take" "Select the first element of B")
+      ("Dyadic" "Take" "Select the first (or last) A elements of B according to ×A")))
     ("↓"
-     nil nil
-     "Drop " "Remove the first (or last) A elements of B according to ×A")
-    ("⊥"
-     nil nil
-     "Decode" "Value of a polynomial whose coefficients are B at A")
-    ("⊤"
-     nil nil
-     "Encode" "Base-A representation of the value of B")
+     (("Dyadic" "Drop " "Remove the first (or last) A elements of B according to ×A")))
     ("∣"
-     "Absolute value" "Magnitude of B"
-     "Modulo" "B modulo A")
+     (("Monadic" "Absolute value" "Magnitude of B")
+      ("Dyadic" "Modulo" "B modulo A")))
     (","
-     "Ravel" "Creates a vector from the items in R, taken in row-major order"
-     "Catenate" "Elements of R appended to the elements of L"
-     "Monadic: Ravel
-Z←,R
-Creates a vector from the items in R, taken in row-major order.
+     (("Monadic" "Ravel" "Creates a vector from the items in R, taken in row-major order"
+       "Z←,R
 
 Z: Vector
 
  ⍴Z ←→ , /⍴R
-⍴⍴Z ←→ ,1
+⍴⍴Z ←→ ,1")
+      ("Dyadic" "Catenate" "Elements of R appended to the elements of L"
+       "Z←L,R
+Joins L and R. If L and R are nonscalar arrays, L and R are
+joined along the last axis. If L and R are scalars, Z is a
+two-item vector.
 
-===================================
-
-,[] Ravel with axis
-Z←,[X]R
+¯1↑⍴Z  ←→ Case dependent
+   ⍴⍴Z ←→ ,/(⍴⍴L),(⍴⍴R),1")
+      ("Monadic with axis" "Ravel with axis" "Create an array of R reshaped according to X"
+       "Z←,[X]R
 Creates an array that contains the items of R reshaped according
 to axes X: If X is a fraction, a new axis of length 1 is formed;
 if X is an integer, the X axes of R are combined.
@@ -98,23 +101,9 @@ X: Simple scalar fraction or simple scalar or vector of
 Implicit argument: ⎕IO
 
  ⍴Z ←→ Depends on the value of X
-⍴⍴Z ←→ Depends on the value of X
-
-===================================
-
-Dyadic: Catenate
-Z←L,R
-Joins L and R. If L and R are nonscalar arrays, L and R are
-joined along the last axis. If L and R are scalars, Z is a
-two-item vector.
-
-¯1↑⍴Z  ←→ Case dependent
-   ⍴⍴Z ←→ ,/(⍴⍴L),(⍴⍴R),1
-
-===================================
-
-,[] Catenate with axis
-Z←L,[X]R
+⍴⍴Z ←→ Depends on the value of X")
+      ("Dyadic with axis" "Catenate with axis" "Join L and R along the axis indicated by X"
+       "Z←L,[X]R
 Joins L and R along the axis indicated by X.
 
 Z: Nonscalar
@@ -122,13 +111,10 @@ X: Simple scalar or one item vector, integer: X∊⍳(⍴⍴L) ⍴⍴R
 
 Implicit argument: ⎕IO
 
- ⍴Z ←→ Case dependent; see below.
-⍴⍴Z ←→ (⍴⍴L) ⍴⍴R
-
-=========================
-
-,[] Laminate
-Z←L,[X]R
+ ⍴Z ←→ Case dependent
+⍴⍴Z ←→ (⍴⍴L) ⍴⍴R")
+      ("Dyadic with axis (fraction)" "Laminate" "Join L and R by forming a new axis of length 2"
+       "Z←L,[X]R
 Joins L and R by forming a new axis of length 2, which is
 filled with L and R.
 
@@ -137,15 +123,13 @@ X: Simple scalar fraction between ¯1+⎕IO and ⎕IO+(⍴⍴L) ⍴⍴R
 
 Implicit argument: ⎕IO
  ⍴Z ←→ Case dependent
-⍴⍴Z ←→ 1+(⍴⍴L)⌈⍴⍴R" t)
+⍴⍴Z ←→ 1+(⍴⍴L)⌈⍴⍴R"))
+     t)
     ("\\"
-     nil nil
-     "Expansion" "Insert zeros (or blanks) in B corresponding to zeros in A")
+     (("Dyadic" "Expansion" "Insert zeros (or blanks) in B corresponding to zeros in A")))
     ("/"
-     nil nil
-     "Replicate" "Repeats each subarray along the last axis under the control of the vector LO"
-     "Dyadic: Replicate
-Z←LO/R
+     (("Dyadic" "Replicate" "Repeats each subarray along the last axis under the control of the vector LO"
+       "Z←LO/R
 Repeats each subarray along the last axis under the control of
 the vector LO.
 
@@ -153,118 +137,108 @@ LO: Simple scalar or vector, integer
  Z: Nonscalar array
 
 ¯1↓⍴Z ←→ ¯1↓⍴R
-  ⍴⍴Z ←→ ⍴⍴R
-
-===================================
-
-Axis operator: Reduce
-Z←LO/R
+  ⍴⍴Z ←→ ⍴⍴R")
+      ("Axis operator" "Reduce" "Evaluate R as if LO is placed between each element"
+       "Z←LO/R
 Has the effect of placing the function LO between adjacent pairs of items along
 the last axis of R and evaluating the resulting expression for each subarray.
 
 LO: Dyadic function
 
  ⍴Z ←→ 1↓⍴R
-⍴⍴Z ←→ 0⌈¯1+⍴⍴R" t)
+⍴⍴Z ←→ 0⌈¯1+⍴⍴R"))
+     t)
     ("⍳"
-     "Index generator" "Vector of the first B integers"
-     "Index of" "The location (index) of B in A; 1+⌈/⍳⍴A if not found")
+     (("Monadic" "Index generator" "Vector of the first B integers")
+      ("Dyadic" "Index of" "The location (index) of B in A; 1+⌈/⍳⍴A if not found")))
     ("⌹"
-     "Matrix inverse" "Inverse of matrix B"
-     "Matrix divide" "Solution to system of linear equations Ax = B")
+     (("Monadic" "Matrix inverse" "Inverse of matrix B")
+      ("Dyadic" "Matrix divide" "Solution to system of linear equations Ax = B")))
     ("⌽"
-     "Reversal" "Reverse elements of B along last axis"
-     "Rotation" "The elements of B are rotated A positions")
+     (("Monadic" "Reversal" "Reverse elements of B along last axis")
+      ("Dyadic" "Rotation" "The elements of B are rotated A positions")))
     ("⊖"
-     "Reversal" "Reverse elements of B along first axis"
-     "Rotation" "The elements of B are rotated A positions along the first axis")
+     (("Monadic" "Reversal" "Reverse elements of B along first axis")
+      ("Dyadic" "Rotation" "The elements of B are rotated A positions along the first axis")))
     ("⍟"
-     "Logarithm" "Natural logarithm of B"
-     "Logarithm" "Logarithm of B to base A")
+     (("Monadic" "Logarithm" "Natural logarithm of B")
+      ("Dyadic" "Logarithm" "Logarithm of B to base A")))
     ("⍕"
-     "Format" "A character representation of B"
-     "Format" "Format B into a character matrix according to A")
+     (("Monadic" "Format" "A character representation of B")
+      ("Dyadic" "Format" "Format B into a character matrix according to A")))
     ("⍉"
-     "Transpose" "Reverse the axes of B"
-     "Transpose" "The axes of B are ordered by A")
+     (("Monadic" "Transpose" "Reverse the axes of B")
+      ("Dyadic" "Transpose" "The axes of B are ordered by A")))
     ("!"
-     "Factorial" "Product of integers 1 to B"
-     "Combinations" "Number of combinations of B taken A at a time")
-    ("<" nil nil
-     "Less than" "Comparison: 1 if true, 0 if false")
+     (("Monadic" "Factorial" "Product of integers 1 to B")
+      ("Dyadic" "Combinations" "Number of combinations of B taken A at a time")))
+    ("<"
+     (("Dyadic" "Less than" "Comparison: 1 if true, 0 if false")))
     ("≤" nil nil
      "Less than or equal" "Comparison: 1 if true, 0 if false")
-    ("=" nil nil
-     "Equality" "Comparison: 1 if true, 0 if false")
-    ("≥" nil nil
-     "Greater than or equal" "Comparison: 1 if true, 0 if false")
-    (">" nil nil
-     "Greater than" "Comparison: 1 if true, 0 if false")
-    ("≠" nil nil
-     "Not equal" "Comparison: 1 if true, 0 if false")
-    ("∨" nil nil
-     "Logical disjunction" "Logic: 0 if A and B are 0; 1 otherwise")
-    ("∧" nil nil
-     "Logical conjunction" "Logic: 1 if A and B are 1; 0 otherwise")
-    ("⍱" nil nil
-     "Logical Nor" "Logic: 1 if both A and B are 0; otherwise 0")
-    ("⍲" nil nil
-     "Logical Nand" "Logic: 0 if both A and B are 1; otherwise 1")
-    ("∼" nil nil
-     "Not" "Logical: ∼1 is 0, ∼0 is 1" nil)
+    ("="
+     (("Dyadic" "Equality" "Comparison: 1 if true, 0 if false")))
+    ("≥"
+     (("Dyadic" "Greater than or equal" "Comparison: 1 if true, 0 if false")))
+    (">"
+     (("Dyadic" "Greater than" "Comparison: 1 if true, 0 if false")))
+    ("≠"
+     (("Dyadic" "Not equal" "Comparison: 1 if true, 0 if false")))
+    ("∨"
+     (("Dyadic" "Logical disjunction" "Logic: 0 if A and B are 0; 1 otherwise")))
+    ("∧"
+     (("Dyadic" "Logical conjunction" "Logic: 1 if A and B are 1; 0 otherwise")))
+    ("⍱"
+     (("Dyadic" "Logical Nor" "Logic: 1 if both A and B are 0; otherwise 0")))
+    ("⍲"
+     (("Dyadic" "Logical Nand" "Logic: 0 if both A and B are 1; otherwise 1")))
+    ("∼"
+     (("Dyadic" "Not" "Logical: ∼1 is 0, ∼0 is 1")) nil)
     ("⍋"
-     "Grade up" "Indices of B which will arrange B in ascending order"
-     nil nil)
+     (("Monadic" "Grade up" "Indices of B which will arrange B in ascending order")))
     ("⍒"
-     "Grade down" "Indices of B which will arrange B in descending order"
-     nil nil)
+     (("Monadic" "Grade down" "Indices of B which will arrange B in descending order")))
     ("⍎"
-     "Execute" "Execute an APL expression"
-     nil nil)
-    ("←" nil nil
-     "Assignment" "Assign the value of B to A")
+     (("Monadic" "Execute" "Execute an APL expression")))
+    ("←"
+     (("Dyadic" "Assignment" "Assign the value of B to A")))
     ("→"
-     "Goto" "Go to line B"
-     nil nil)
+     (("Monadic" "Goto" "Go to line B")))
     ("∇"
-     "Function definition" "Define or modify a function"
-     nil nil)
+     (("Monadic" "Function definition" "Define or modify a function")))
     ("⊂"
-     "Enclose" "Produce a scalar from B"
-     "Partition" "Divide B into vectors based on A")
+     (("Monadic" "Enclose" "Produce a scalar from B")
+      ("Dyadic" "Partition" "Divide B into vectors based on A")))
     ("⊃"
-     "Disclose" "Produce an array from B"
-     "Pick" "Select a value from B based on A")
+     (("Monadic" "Disclose" "Produce an array from B")
+      ("Dyadic" "Pick" "Select a value from B based on A")))
     ("∪"
-     "Unique" "Return an array of all unique elements in B"
-     nil nil)
+     (("Monadic" "Unique" "Return an array of all unique elements in B")))
     ("⍷"
-     nil nil
-     "Find" "Return a boolean array indicating the positions of the array A in B")
+     (("Dyadic" "Find" "Return a boolean array indicating the positions of the array A in B")))
     ("≡"
-     "Depth" "Return the levels of nesting in B"
-     "Match" "Returns true if A has the same structure as well as data as B")
+     (("Monadic" "Depth" "Return the levels of nesting in B")
+      ("Dyadic" "Match" "Returns true if A has the same structure as well as data as B")))
     ("⊥"
-     nil nil
-     "Decode" "Yields the values of array R evaluated in a number system with radices L"
-     "Z←L⊥R Yields the values of array R evaluated in a number system with
+     (("Dyadic" "Decode" "Yields the values of array R evaluated in a number system with radices L"
+       "Z←L⊥R
+Yields the values of array R evaluated in a number system with
 radices L.
 
 L, R, and Z: Simple numeric array
 
 ⍴Z ←→ (1↓L),1↓⍴R
-⍴⍴Z ←→ (0 1+⍴⍴L)+(0⌈¯1+⍴⍴R)" t)
+⍴⍴Z ←→ (0 1+⍴⍴L)+(0⌈¯1+⍴⍴R)")) t)
     ("⊤"
-     nil nil
-     "Encode" "Yields the representation of R in the number system whose radices are L"
-     "Z←L⊤R
+     (("Dyadic" "Encode" "Yields the representation of R in the number system whose radices are L"
+       "Z←L⊤R
 Yields the representation of R in the number system whose radices
 are L.
 
 L, R, and Z: Simple numeric array
 
 ⍴Z ←→ (⍴L),⍴R
-⍴⍴Z ←→ (⍴⍴L)+⍴⍴R" t))
+⍴⍴Z ←→ (⍴⍴L)+⍴⍴R")) t))
   "Documentation for APL symbols. Each element is a list of six
 elements: The APL symbol, name of monadic operator, description
 of the monadic operator, name of the dyadic operator, description

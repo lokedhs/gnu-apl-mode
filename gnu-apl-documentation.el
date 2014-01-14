@@ -33,15 +33,19 @@ dervived from the APL2 documentation.")
 (defun gnu-apl--get-full-docstring-for-symbol (string)
   (let ((doc (cl-find string gnu-apl--symbol-doc :key #'car :test #'string=)))
     (when doc
-      (let ((apl2refp (seventh doc)))
-        (apply #'concat
-               (concat "Documentation for " string "\n\n")
-               (append (when (and (not apl2refp) (second doc))
-                         (list (concat "Monadic: " (second doc) ": " (third doc) "\n")))
-                       (when (and (not apl2refp) (fourth doc))
-                         (list (concat "Dyadic: " (fourth doc) ": " (fifth doc) "\n")))
-                       (when (sixth doc) (list (concat (sixth doc) "\n")))
-                       (when (seventh doc) (list "\n" gnu-apl--ibm-copyright-notice))))))))
+      (with-output-to-string
+        (loop for e in (second doc)
+              for first = t then nil
+              unless first
+              do (princ "\n")
+              do (progn
+                   (princ (format "%s: %s\n%s\n\n" (first e) (second e) (third e)))
+                   (let ((long (fourth e)))
+                     (when long
+                       (princ (format "%s\n" long)))))
+              do (princ "\n===================================\n"))
+        (when (third doc)
+          (princ (format "\n%s" gnu-apl--ibm-copyright-notice)))))))
 
 (defun gnu-apl-show-help-for-symbol-point ()
   "Open the help window for the symbol at point."
@@ -189,26 +193,35 @@ it is open."
       nil)))
 
 (defun gnu-apl--eldoc-data ()
-  (labels ((make-doc-message (name short long)
-             (when (and short long)
-               (format "%s: %s: %s" name short long))))
-    (when (looking-at (concat "\\(" gnu-apl--function-regexp "\\)"))
-      (let* ((symbol (match-string 1))
-             (doc (cl-find symbol gnu-apl--symbol-doc :test #'equal :key #'car)))
-        (unless doc
-          (error "doc should not be null"))
-        ;; We have a documentation entry. Now we need to figure out if the call
-        ;; is monadic or dyadic. It can be done by searching backwards until we hit
-        ;; a non-space character or the beginning of the line.
-        (if (gnu-apl--is-point-on-argument-value)
-            (make-doc-message "Dyadic" (fourth doc) (fifth doc))
-          (make-doc-message "Monadic" (second doc) (third doc)))))))
+  (when (looking-at (concat "\\(" gnu-apl--function-regexp "\\)"))
+    (let* ((symbol (match-string 1))
+           (doc (cl-find symbol gnu-apl--symbol-doc :test #'equal :key #'car)))
+      (unless doc
+        (error "doc should not be null"))
+      ;; We have a documentation entry. Now we need to figure out if the call
+      ;; is monadic or dyadic. It can be done by searching backwards until we hit
+      ;; a non-space character or the beginning of the line.
+      (let ((p (cl-find (if (gnu-apl--is-point-on-argument-value) "Dyadic" "Monadic") (second doc)
+                        :key #'car :test #'string=)))
+        (when p
+          (format "%s: %s: %s" (first p) (second p) (third p)))))))
 
 ;;;
 ;;;  Help search
 ;;;
 
 (defvar *gnu-apl-apropos-symbol-buffer-name* "*gnu-apl apropos symbol*")
+
+(defvar gnu-apl-documentation-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "q") 'gnu-apl-apropos-kill-buffer)
+    map)
+  "Keymap for keymap mode buffers")
+
+(define-derived-mode gnu-apl-documentation-mode fundamental-mode "GNU APL Documentation"
+  "Major mode for displaying GNU APL documentation"
+  (use-local-map gnu-apl-documentation-mode-map)
+  (read-only-mode))
 
 (defun gnu-apl-apropos-kill-buffer ()
   (interactive)
@@ -218,26 +231,28 @@ it is open."
       (kill-buffer buffer))))
 
 (defun gnu-apl--open-apropos-results (result)
+  (llog "res:%S" result)
   (let ((buffer (gnu-apl--open-new-buffer *gnu-apl-apropos-symbol-buffer-name*)))
     (with-current-buffer buffer
       (dolist (s result)
-        (insert s "\n"))
-      (local-set-key "q" 'gnu-apl-apropos-kill-buffer)
+        (llog "x")
+        (insert-button (cadr s)
+                       'action #'(lambda (event) (gnu-apl-show-help-for-symbol (caar s)))
+                       'follow-link t)
+        (insert "\n"))
+      (gnu-apl-documentation-mode)
       (read-only-mode 1))
     (pop-to-buffer buffer)))
 
 (defun gnu-apl-apropos-symbol (regexp)
   (interactive "MApropos symbol: ")
-  (let ((result (loop for v in gnu-apl--symbol-doc
-                      when (and (second v)
-                                (or (string-match regexp (second v))
-                                    (string-match regexp (third v))))
-                      collect (concat (first v) ": Monadic: " (second v) ": " (third v))
-                      when (and (fourth v)
-                                (or (string-match regexp (fourth v))
-                                    (string-match regexp (fifth v))))
-                      collect (concat (first v) ": Dyadic: " (fourth v) ": " (fifth v)))))
+  (let ((result (loop for doc-entry in gnu-apl--symbol-doc
+                      append (loop for e in (second doc-entry)
+                                   when (or (string-match regexp (second e))
+                                            (string-match regexp (third e)))
+                                   collect (list doc-entry
+                                                 (format "%s: %s: %s: %s"
+                                                         (first doc-entry) (first e) (second e) (third e)))))))
     (if result
-        (progn
-          (gnu-apl--open-apropos-results result))
+        (gnu-apl--open-apropos-results result)
       (message "No match"))))
