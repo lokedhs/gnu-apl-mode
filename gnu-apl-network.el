@@ -4,7 +4,7 @@
 
 (defun gnu-apl--connect-to-remote (connect-mode addr)
   (cond ((string= connect-mode "tcp")
-         (open-network-stream "*gnu-apl-connection*" nil "localhost" (parse-integer addr)
+         (open-network-stream "*gnu-apl-connection*" nil "localhost" (string-to-number addr)
                               :type 'plain
                               :return-list nil
                               :end-of-command "\n"))
