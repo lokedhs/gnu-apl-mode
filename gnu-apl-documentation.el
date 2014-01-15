@@ -61,6 +61,16 @@ dervived from the APL2 documentation.")
   (interactive)
   (quit-window))
 
+(defvar gnu-apl-documentation-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "q") 'gnu-apl-close-documentation-buffer)
+    map)
+  "Keymap for keymap mode buffers")
+
+(define-derived-mode gnu-apl-documentation-mode fundamental-mode "GNU APL Documentation"
+  "Major mode for displaying GNU APL documentation"
+  (use-local-map gnu-apl-documentation-mode-map))
+
 (defun gnu-apl-show-help-for-symbol (symbol)
   "Open the help window for SYMBOL."
   (interactive "MSymbol: ")
@@ -77,8 +87,8 @@ dervived from the APL2 documentation.")
         (delete-region (point-min) (point-max))
         (insert string)
         (goto-char (point-min))
-        (read-only-mode 1)
-        (local-set-key (kbd "q") 'gnu-apl-close-documentation-buffer))
+        (gnu-apl-documentation-mode)
+        (read-only-mode 1))
       (pop-to-buffer buffer))))
 
 (defun gnu-apl--make-clickable (string keymap)
@@ -218,12 +228,11 @@ it is open."
     map)
   "Keymap for keymap mode buffers")
 
-(define-derived-mode gnu-apl-documentation-mode fundamental-mode "GNU APL Documentation"
-  "Major mode for displaying GNU APL documentation"
-  (use-local-map gnu-apl-documentation-mode-map)
-  (read-only-mode))
+(define-derived-mode gnu-apl-documentation-search-mode fundamental-mode "GNU APL Documentation"
+  "Major mode for displaying GNU APL documentation search results"
+  (use-local-map gnu-apl-documentation-mode-map))
 
-(defun gnu-apl-apropos-kill-buffer ()
+(defun gnu-apl-documentation-search-kill-buffer ()
   (interactive)
   (let ((buffer (get-buffer *gnu-apl-apropos-symbol-buffer-name*)))
     (when buffer
@@ -238,7 +247,7 @@ it is open."
                        'action #'(lambda (event) (gnu-apl-show-help-for-symbol (caar s)))
                        'follow-link t)
         (insert "\n"))
-      (gnu-apl-documentation-mode)
+      (gnu-apl-documentation-search-mode)
       (read-only-mode 1))
     (pop-to-buffer buffer)))
 

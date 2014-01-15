@@ -124,9 +124,60 @@ X: Simple scalar fraction between ¯1+⎕IO and ⎕IO+(⍴⍴L) ⍴⍴R
 Implicit argument: ⎕IO
  ⍴Z ←→ Case dependent
 ⍴⍴Z ←→ 1+(⍴⍴L)⌈⍴⍴R"))
-     t)
+     )
     ("\\"
-     (("Dyadic" "Expansion" "Insert zeros (or blanks) in B corresponding to zeros in A")))
+     (("Dyadic" "Expand" "Expands the last axis of R under the control of the Boolean vector LO"
+       "Z←LO\\R
+Positions in Z that correspond to ones in LO are filled with
+items of R. Positions in Z that correspond to 0's in LO are
+filled with the fill item (↑0ρ ↑R).
+
+LO: Simple Boolean scalar or vector
+Z: Nonscalar array
+
+¯1↓⍴Z ←→ 1↓⍴R
+¯1↑⍴Z ←→ ⍴,LO
+  ⍴⍴Z ←→ ⍴⍴R")
+      ("Dyadic with axis" "Expand with axis" "Expands the Xth axis of R under the control of the Boolean
+vector LO"
+       "Z←LO\\[X]R
+
+Expand with axis is similar to expand, except that expansion
+occurs along the Xth axis.
+
+LO: Simple Boolean scalar or vector
+R and Z: Nonscalar array
+X: Simple scalar or one-item vector, integer: X∊⍳⍴⍴R
+
+Implicit Argument: ⎕IO
+
+ (⍴Z)[,X] ←→ ⍴,LO
+ ⍴⍴Z      ←→ ⍴⍴R")
+      ("Axis operator" "Scan" "The Ith item along the last axis is determined by the LO-reduction of I↑[⍴⍴R]R"
+       "Z←LO\\R
+
+The Ith item along the last axis is determined by the
+LO-reduction of I↑[⍴⍴R]R.
+
+LO: Dyadic function
+
+⍴Z ←→ ⍴R
+⍴⍴Z ←→ ⍴⍴R"))
+     t)
+    ("⍀"
+     (("Axis with index" "Expand with axis" "Expands the Xth axis of R under the control of the Boolean
+vector LO"
+       "Z←LO [X]R
+
+LO: Simple Boolean scalar or vector
+R and Z: Nonscalar array
+X: Simple scalar or one-item vector, integer: X∊⍳⍴⍴R
+
+Implicit Argument: ⎕IO
+
+ (⍴Z)[,X] ←→ ⍴,LO
+ ⍴⍴Z      ←→ ⍴⍴R"))
+     t)
     ("/"
      (("Dyadic" "Replicate" "Repeats each subarray along the last axis under the control of the vector LO"
        "Z←LO/R
