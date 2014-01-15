@@ -30,8 +30,18 @@ dervived from the APL2 documentation.")
   (use-local-map gnu-apl-keymap-mode-map)
   (read-only-mode))
 
+(defun gnu-apl--get-doc-for-symbol (string)
+  (loop for e in gnu-apl--symbol-doc
+        for name = (car e)
+        when (or (and (stringp name)
+                      (string= string name))
+                 (and (listp name)
+                      (cl-find string name :test #'string=)))
+        return e
+        finally (return nil)))
+
 (defun gnu-apl--get-full-docstring-for-symbol (string)
-  (let ((doc (cl-find string gnu-apl--symbol-doc :key #'car :test #'string=)))
+  (let ((doc (gnu-apl--get-doc-for-symbol string)))
     (when doc
       (with-output-to-string
         (loop for e in (second doc)
@@ -205,7 +215,7 @@ it is open."
 (defun gnu-apl--eldoc-data ()
   (when (looking-at (concat "\\(" gnu-apl--function-regexp "\\)"))
     (let* ((symbol (match-string 1))
-           (doc (cl-find symbol gnu-apl--symbol-doc :test #'equal :key #'car)))
+           (doc (gnu-apl--get-doc-for-symbol symbol)))
       (unless doc
         (error "doc should not be null"))
       ;; We have a documentation entry. Now we need to figure out if the call

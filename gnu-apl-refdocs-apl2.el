@@ -70,9 +70,21 @@ Z, R and Z: Numeric"))
       ("Dyadic" "Take" "Select the first (or last) A elements of B according to ×A")))
     ("↓"
      (("Dyadic" "Drop " "Remove the first (or last) A elements of B according to ×A")))
-    ("∣"
-     (("Monadic" "Absolute value" "Magnitude of B")
-      ("Dyadic" "Modulo" "B modulo A")))
+    (("∣" "|")
+     (("Monadic" "Magnitude" "Yields the distance between 0 and R"
+       "Z←|R
+
+R: Numeric
+Z: Numeric, real")
+      ("Dyadic" "Modulo" "The remainder from dividing R by L"
+       "Z←L|R
+For real positive L and R, the remainder from dividing R by L.
+For all numbers, Z is R-L×⌊R÷L+L=0.
+
+Note: ⌊ is computed with a comparison tolerance of zero.
+
+L, R, and Z: Numeric
+Implicit Argument: ⎕CT")))
     (","
      (("Monadic" "Ravel" "Creates a vector from the items in R, taken in row-major order"
        "Z←,R
