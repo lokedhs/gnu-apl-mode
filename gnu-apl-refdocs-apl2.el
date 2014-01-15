@@ -87,8 +87,8 @@ Joins L and R. If L and R are nonscalar arrays, L and R are
 joined along the last axis. If L and R are scalars, Z is a
 two-item vector.
 
-¯1↑⍴Z  ←→ Case dependent
-   ⍴⍴Z ←→ ,/(⍴⍴L),(⍴⍴R),1")
+¯1↑⍴Z ←→ Case dependent
+  ⍴⍴Z ←→ ,/(⍴⍴L),(⍴⍴R),1")
       ("Monadic with axis" "Ravel with axis" "Create an array of R reshaped according to X"
        "Z←,[X]R
 Creates an array that contains the items of R reshaped according
