@@ -191,7 +191,12 @@ it is open."
           (set-window-buffer window buffer))))))
 
 (defvar gnu-apl--function-regexp
-  (regexp-opt (mapcar #'car gnu-apl--symbol-doc)))
+  (regexp-opt (mapcan #'(lambda (v)
+                          (let ((name (car v)))
+                            (if (listp name)
+                                name
+                              (list name))))
+                      gnu-apl--symbol-doc)))
 
 ;;;
 ;;;  Eldoc integration
