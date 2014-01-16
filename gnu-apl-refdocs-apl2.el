@@ -8,7 +8,7 @@
 ;;;       ...)
 ;;;       IBM-COPYRIGHT-P)
 ;;;
-;;;  SYMBOL - A one-character string, the actual symbol
+;;;  SYMBOL - A one-character string or list of alternatives, the actual symbol
 ;;;  TYPE - The use-type, i.e. "Monadic", "Dyadic"...
 ;;;  SUMMARY - Short one-line summary
 ;;;  DESCRIPTION - Long description of the symbol
@@ -26,15 +26,47 @@ R and Z: Numeric")
 
 L, R and Z: Numeric"))
      t)
+
+    ;; ========================================
+
     ("−"
-     (("Monadic" "Negation" "Changes sign of B")
-      ("Dyadic" "Subtraction" "A minus B")))
+     (("Monadic" "Negation" "Reverses the sign of R"
+       "Z←−R
+Reverses the sign of R.
+
+R and Z: Numeric
+")
+      ("Dyadic" "Subtract" "Subtracts R from L"
+       "Z←L−R
+Subtracts R from L.
+
+L, R, and Z: Numeric"))
+     t)
+
+    ;; ========================================
+
     ("×"
-     (("Monadic" "Signum" "¯1 if B<0; 0 if B=0; 1 if B>0")
-      ("Dyadic" "Multiply" "A multiplied by B")))
+     (("Monadic" "Signum" "¯1 if R<0; 0 if R=0; 1 if R>0"
+       "Z←×R
+Yields the number of magnitude 1 with the same phase as R for
+nonzero R. If R is 0, Z is 0.
+
+R and Z: Numeric")
+      ("Dyadic" "Multiply" "Multiplies L by R"
+       "Z←L×R
+Multiplies L by R.
+
+L, R, and Z: Numeric"))
+     t)
+
+    ;; ========================================
+
     ("÷"
      (("Monadic" "Reciprocal" "1 divided by B")
       ("Dyadic" "Division (mathematics)" "A divided by B")))
+
+    ;; ========================================
+
     ("⋆"
      (("Monadic" "Exponential" "e to the R power"
        "Z←⋆R
@@ -47,29 +79,56 @@ Raises base L to the Rth power.
 
 Z, R and Z: Numeric"))
      t)
+
+    ;; ========================================
+
     ("○"
      (("Monadic" "Pi times" "Multiply by π")
       ("Dyadic" "Circle" "Trigonometric functions of B selected by A. A=1: sin(B) A=2: cos(B) A=3: tan(B)")))
+
+    ;; ========================================
+
     ("?"
      (("Monadic" "Roll" "One integer selected randomly from the first B integers")
       ("Dyadic" "Deal" "A distinct integers selected randomly from the first B integers")))
+
+    ;; ========================================
+
     ("∊"
      (("Monadic" "Enlist" "Create a vector containing all scalars in B")
       ("Dyadic" "Membership" "1 for elements of A present in B; 0 where not.")))
+
+    ;; ========================================
+
     ("⌈"
      (("Monadic" "Ceiling" "Least integer greater than or equal to B")
       ("Dyadic" "Sample maximum and minimum" "The greater value of A or B")))
+
+    ;; ========================================
+
     ("⌊"
      (("Monadic" "Floor" "Greatest integer less than or equal to B")
       ("Dyadic" "Sample maximum and minimum" "The smaller value of A or B")))
+
+    ;; ========================================
+
     ("⍴"
      (("Monadic" "Shape" "Number of components in each dimension of B")
       ("Dyadic" "Reshape" "Array of shape A with data B")))
+
+    ;; ========================================
+
     ("↑"
      (("Monadic" "Take" "Select the first element of B")
       ("Dyadic" "Take" "Select the first (or last) A elements of B according to ×A")))
+
+    ;; ========================================
+
     ("↓"
      (("Dyadic" "Drop " "Remove the first (or last) A elements of B according to ×A")))
+
+    ;; ========================================
+
     (("∣" "|")
      (("Monadic" "Magnitude" "Yields the distance between 0 and R"
        "Z←|R
@@ -85,6 +144,9 @@ Note: ⌊ is computed with a comparison tolerance of zero.
 
 L, R, and Z: Numeric
 Implicit Argument: ⎕CT")))
+
+    ;; ========================================
+
     (","
      (("Monadic" "Ravel" "Creates a vector from the items in R, taken in row-major order"
        "Z←,R
@@ -137,6 +199,9 @@ Implicit argument: ⎕IO
  ⍴Z ←→ Case dependent
 ⍴⍴Z ←→ 1+(⍴⍴L)⌈⍴⍴R"))
      )
+
+    ;; ========================================
+
     ("\\"
      (("Dyadic" "Expand" "Expands the last axis of R under the control of the Boolean vector LO"
        "Z←LO\\R
@@ -176,6 +241,9 @@ LO: Dyadic function
 ⍴Z ←→ ⍴R
 ⍴⍴Z ←→ ⍴⍴R"))
      t)
+
+    ;; ========================================
+
     ("⍀"
      (("Axis with index" "Expand with axis" "Expands the Xth axis of R under the control of the Boolean
 vector LO"
@@ -190,6 +258,9 @@ Implicit Argument: ⎕IO
  (⍴Z)[,X] ←→ ⍴,LO
  ⍴⍴Z      ←→ ⍴⍴R"))
      t)
+
+    ;; ========================================
+
     ("/"
      (("Dyadic" "Replicate" "Repeats each subarray along the last axis under the control of the vector LO"
        "Z←LO/R
@@ -211,77 +282,170 @@ LO: Dyadic function
  ⍴Z ←→ 1↓⍴R
 ⍴⍴Z ←→ 0⌈¯1+⍴⍴R"))
      t)
+
+    ;; ========================================
+
     ("⍳"
      (("Monadic" "Index generator" "Vector of the first B integers")
       ("Dyadic" "Index of" "The location (index) of B in A; 1+⌈/⍳⍴A if not found")))
+
+    ;; ========================================
+
     ("⌹"
      (("Monadic" "Matrix inverse" "Inverse of matrix B")
       ("Dyadic" "Matrix divide" "Solution to system of linear equations Ax = B")))
+
+    ;; ========================================
+
     ("⌽"
      (("Monadic" "Reversal" "Reverse elements of B along last axis")
       ("Dyadic" "Rotation" "The elements of B are rotated A positions")))
+
+    ;; ========================================
+
     ("⊖"
      (("Monadic" "Reversal" "Reverse elements of B along first axis")
       ("Dyadic" "Rotation" "The elements of B are rotated A positions along the first axis")))
+
+    ;; ========================================
+
     ("⍟"
      (("Monadic" "Logarithm" "Natural logarithm of B")
       ("Dyadic" "Logarithm" "Logarithm of B to base A")))
+
+    ;; ========================================
+
     ("⍕"
      (("Monadic" "Format" "A character representation of B")
       ("Dyadic" "Format" "Format B into a character matrix according to A")))
+
+    ;; ========================================
+
     ("⍉"
      (("Monadic" "Transpose" "Reverse the axes of B")
       ("Dyadic" "Transpose" "The axes of B are ordered by A")))
+
+    ;; ========================================
+
     ("!"
      (("Monadic" "Factorial" "Product of integers 1 to B")
       ("Dyadic" "Combinations" "Number of combinations of B taken A at a time")))
+
+    ;; ========================================
+
     ("<"
      (("Dyadic" "Less than" "Comparison: 1 if true, 0 if false")))
+
+    ;; ========================================
+
     ("≤" nil nil
      "Less than or equal" "Comparison: 1 if true, 0 if false")
+
+    ;; ========================================
+
     ("="
      (("Dyadic" "Equality" "Comparison: 1 if true, 0 if false")))
+
+    ;; ========================================
+
     ("≥"
      (("Dyadic" "Greater than or equal" "Comparison: 1 if true, 0 if false")))
+
+    ;; ========================================
+
     (">"
      (("Dyadic" "Greater than" "Comparison: 1 if true, 0 if false")))
+
+    ;; ========================================
+
     ("≠"
      (("Dyadic" "Not equal" "Comparison: 1 if true, 0 if false")))
+
+    ;; ========================================
+
     ("∨"
      (("Dyadic" "Logical disjunction" "Logic: 0 if A and B are 0; 1 otherwise")))
+
+    ;; ========================================
+
     ("∧"
      (("Dyadic" "Logical conjunction" "Logic: 1 if A and B are 1; 0 otherwise")))
+
+    ;; ========================================
+
     ("⍱"
      (("Dyadic" "Logical Nor" "Logic: 1 if both A and B are 0; otherwise 0")))
+
+    ;; ========================================
+
     ("⍲"
      (("Dyadic" "Logical Nand" "Logic: 0 if both A and B are 1; otherwise 1")))
+
+    ;; ========================================
+
     ("∼"
      (("Dyadic" "Not" "Logical: ∼1 is 0, ∼0 is 1")) nil)
+
+    ;; ========================================
+
     ("⍋"
      (("Monadic" "Grade up" "Indices of B which will arrange B in ascending order")))
+
+    ;; ========================================
+
     ("⍒"
      (("Monadic" "Grade down" "Indices of B which will arrange B in descending order")))
+
+    ;; ========================================
+
     ("⍎"
      (("Monadic" "Execute" "Execute an APL expression")))
+
+    ;; ========================================
+
     ("←"
      (("Dyadic" "Assignment" "Assign the value of B to A")))
+
+    ;; ========================================
+
     ("→"
      (("Monadic" "Goto" "Go to line B")))
+
+    ;; ========================================
+
     ("∇"
      (("Monadic" "Function definition" "Define or modify a function")))
+
+    ;; ========================================
+
     ("⊂"
      (("Monadic" "Enclose" "Produce a scalar from B")
       ("Dyadic" "Partition" "Divide B into vectors based on A")))
+
+    ;; ========================================
+
     ("⊃"
      (("Monadic" "Disclose" "Produce an array from B")
       ("Dyadic" "Pick" "Select a value from B based on A")))
+
+    ;; ========================================
+
     ("∪"
      (("Monadic" "Unique" "Return an array of all unique elements in B")))
+
+    ;; ========================================
+
     ("⍷"
      (("Dyadic" "Find" "Return a boolean array indicating the positions of the array A in B")))
+
+    ;; ========================================
+
     ("≡"
      (("Monadic" "Depth" "Return the levels of nesting in B")
       ("Dyadic" "Match" "Returns true if A has the same structure as well as data as B")))
+
+    ;; ========================================
+
     ("⊥"
      (("Dyadic" "Decode" "Yields the values of array R evaluated in a number system with radices L"
        "Z←L⊥R
@@ -292,6 +456,9 @@ L, R, and Z: Simple numeric array
 
 ⍴Z ←→ (1↓L),1↓⍴R
 ⍴⍴Z ←→ (0 1+⍴⍴L)+(0⌈¯1+⍴⍴R)")) t)
+
+    ;; ========================================
+
     ("⊤"
      (("Dyadic" "Encode" "Yields the representation of R in the number system whose radices are L"
        "Z←L⊤R
@@ -302,7 +469,4 @@ L, R, and Z: Simple numeric array
 
 ⍴Z ←→ (⍴L),⍴R
 ⍴⍴Z ←→ (⍴⍴L)+⍴⍴R")) t))
-  "Documentation for APL symbols. Each element is a list of six
-elements: The APL symbol, name of monadic operator, description
-of the monadic operator, name of the dyadic operator, description
-of the dyadic operator, extra documentation.")
+  "Documentation for APL symbols.")
