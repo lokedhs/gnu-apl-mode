@@ -534,8 +534,8 @@ L: Simple integer, either scalar or rank ¯1+⍴⍴R
 
  ⍴Z ←→ ⍴R
 ⍴⍴Z ←→ ⍴⍴R")
-      ("Dyadic with axis" "Rotate with axis" "Creates an array with items of R rotated |L positions along the Xth axis")
-      "Z←L⌽[X]R
+      ("Dyadic with axis" "Rotate with axis" "Creates an array with items of R rotated |L positions along the Xth axis"
+       "Z←L⌽[X]R
 Creates an array with items of R rotated
 |L positions along the Xth axis.
 The sign of L determines the direction
@@ -547,7 +547,7 @@ X: Simple scalar or one-item vector, integer: X∊ι⍴⍴R
 Implicit argument: ⎕IO
 
  ⍴Z ←→ ⍴R
-⍴⍴Z ←→ ⍴⍴R")
+⍴⍴Z ←→ ⍴⍴R"))
      t)
 
     ;; ========================================
