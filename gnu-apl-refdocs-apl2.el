@@ -62,8 +62,17 @@ L, R, and Z: Numeric"))
     ;; ========================================
 
     ("÷"
-     (("Monadic" "Reciprocal" "1 divided by B")
-      ("Dyadic" "Division (mathematics)" "A divided by B")))
+     (("Monadic" "Reciprocal" "1 divided by R"
+       "Z←÷R
+Divides 1 by R.
+
+R and Z: Numeric, nonzero")
+      ("Dyadic" "Divide" "Divides L by R"
+       "Z←L÷R
+Divides L by R.
+
+L, R, and Z: Numeric"))
+     t)
 
     ;; ========================================
 
@@ -72,6 +81,7 @@ L, R, and Z: Numeric"))
        "Z←⋆R
 Determines the Rth power of the base of the natural logarithms e,
 where e is approximately 2.7182818284590452.
+
 R and Z: Numeric")
       ("Dyadic" "Power" "L raised to the R power"
        "Z←L⋆R
@@ -83,8 +93,37 @@ Z, R and Z: Numeric"))
     ;; ========================================
 
     ("○"
-     (("Monadic" "Pi times" "Multiply by π")
-      ("Dyadic" "Circle" "Trigonometric functions of B selected by A. A=1: sin(B) A=2: cos(B) A=3: tan(B)")))
+     (("Monadic" "Pi times" "Multiply by π"
+       "Z←○R
+Multiplies any number by π (approximately
+3.1415926535897933).
+
+R and Z: Numeric")
+      ("Dyadic" "Circle functions" "Trigonometric functions of R selected by L"
+       "Z←L○R
+L determines which of a family of circular, hyperbolic, Pythagorean,
+and complex number functions to apply to R.
+
+L: Integer such that ¯12≤L and L≤12
+R and Z: Numeric
+
+Functions:
+
+ L     L○R            L      L○R
+  0   (1-R⋆2)⋆5
+ ¯1   arcsin R          1   sin R
+ ¯2   arccos R          2   cosin R
+ ¯3   arctan R          3   tan R
+ ¯4   (1+R⋆2)⋆5         4   (1+R⋆2)⋆5
+ ¯5   arcsinh R         5   sinh R 
+ ¯6   arccosh R         6   cosh R
+ ¯7   arctanh R         7   tanh R
+ ¯8   -(8○R)            8   -(1-R⋆2)⋆0.5 for R≥0, (¯1-R⋆2)⋆0.5 for R<0
+ ¯9   R                 9   Real R
+¯10   +R               10   |R
+¯11   0J1 R            11   Imaginary R
+¯12   ⋆0J1 R           12   Phase R"))
+     t)
 
     ;; ========================================
 
