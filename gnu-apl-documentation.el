@@ -259,7 +259,7 @@ it is open."
     (with-current-buffer buffer
       (dolist (s result)
         (let* ((doc (car s))
-               (symname-aliases (car s))
+               (symname-aliases (car doc))
                (name (if (listp symname-aliases) (car symname-aliases) symname-aliases)))
           (insert-button (cadr s)
                          'action #'(lambda (event) (gnu-apl-show-help-for-symbol name))
@@ -276,8 +276,12 @@ it is open."
                                    when (or (string-match regexp (second e))
                                             (string-match regexp (third e)))
                                    collect (list doc-entry
-                                                 (format "%s: %s: %s: %s"
-                                                         (first doc-entry) (first e) (second e) (third e)))))))
+                                                 (let ((symname-aliases (first doc-entry)))
+                                                   (format "%s: %s: %s: %s"
+                                                           (if (listp symname-aliases)
+                                                               (car symname-aliases)
+                                                             symname-aliases)
+                                                           (first e) (second e) (third e))))))))
     (if result
         (gnu-apl--open-apropos-results result)
       (message "No match"))))
