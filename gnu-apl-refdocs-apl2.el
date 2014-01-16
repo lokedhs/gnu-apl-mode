@@ -32,13 +32,11 @@ L, R and Z: Numeric"))
     ("−"
      (("Monadic" "Negation" "Reverses the sign of R"
        "Z←−R
-Reverses the sign of R.
 
 R and Z: Numeric
 ")
       ("Dyadic" "Subtract" "Subtracts R from L"
        "Z←L−R
-Subtracts R from L.
 
 L, R, and Z: Numeric"))
      t)
@@ -54,7 +52,6 @@ nonzero R. If R is 0, Z is 0.
 R and Z: Numeric")
       ("Dyadic" "Multiply" "Multiplies L by R"
        "Z←L×R
-Multiplies L by R.
 
 L, R, and Z: Numeric"))
      t)
