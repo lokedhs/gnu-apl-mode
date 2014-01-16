@@ -194,7 +194,7 @@ it is open."
   (regexp-opt (mapcan #'(lambda (v)
                           (let ((name (car v)))
                             (if (listp name)
-                                name
+                                (copy-seq name)
                               (list name))))
                       gnu-apl--symbol-doc)))
 
@@ -258,9 +258,12 @@ it is open."
   (let ((buffer (gnu-apl--open-new-buffer *gnu-apl-apropos-symbol-buffer-name*)))
     (with-current-buffer buffer
       (dolist (s result)
-        (insert-button (cadr s)
-                       'action #'(lambda (event) (gnu-apl-show-help-for-symbol (caar s)))
-                       'follow-link t)
+        (let* ((doc (car s))
+               (symname-aliases (car s))
+               (name (if (listp symname-aliases) (car symname-aliases) symname-aliases)))
+          (insert-button (cadr s)
+                         'action #'(lambda (event) (gnu-apl-show-help-for-symbol name))
+                         'follow-link t))
         (insert "\n"))
       (gnu-apl-documentation-search-mode)
       (read-only-mode 1))
