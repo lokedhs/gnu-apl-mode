@@ -298,7 +298,7 @@ Implicit argument: ⎕IO
 
     ;; ========================================
 
-    (("∣" "|")
+    (("|" "∣")
      (("Monadic" "Magnitude" "Yields the distance between 0 and R"
        "Z←|R
 
