@@ -887,17 +887,35 @@ Implicit argument: ⎕IO
     ;; ========================================
 
     ("⍎"
-     (("Monadic" "Execute" "Execute an APL expression")))
+     (("Monadic" "Execute" "Evaluates the statement represented by the character vector R"
+       "Z←⍎R
+Evaluates the statement represented by the character vector R.
+
+R: Simple character scalar or vector
+
+ ⍴Z ←→ Data dependent
+⍴⍴Z ←→ Data dependent"))
+     t)
 
     ;; ========================================
 
     ("←"
-     (("Dyadic" "Assignment" "Assign the value of B to A")))
+     (("Dyadic" "Assignment" "Specification or assignment arrow"
+       "←
+Associates a name with an array, or modifies the values of selected posi-
+tions in an array already associated with a name."))
+     t)
 
     ;; ========================================
 
     ("→"
-     (("Monadic" "Goto" "Go to line B")))
+     (("Monadic" "Goto" "Branch or escape arrow"
+       "→
+Followed by an expression, indicates the next line, if any, in a
+defined function or operator to be executed. Alone, clears the
+state indicator of a suspended operation and its entire calling
+sequence."))
+     t)
 
     ;; ========================================
 
@@ -907,8 +925,56 @@ Implicit argument: ⎕IO
     ;; ========================================
 
     ("⊂"
-     (("Monadic" "Enclose" "Produce a scalar from B")
-      ("Dyadic" "Partition" "Divide B into vectors based on A")))
+     (("Monadic" "Enclose" "Creates a scalar array whose only item is R"
+       "Z←⊂R
+Creates a scalar array whose only item is R.
+
+Z: Scalar array
+
+ ⍴Z ←→ ⍳0
+⍴⍴Z ←→ ,0")
+      ("Monadic with axis" "Enclose with Axis" "Yields an array across the set of axes indicated by X"
+       "Z←⊂[X]R
+Yields an array whose items are the contiguous subarrays along
+the set of axes indicated by X. That is, the set of axes indicated
+by X is enclosed.
+
+X: Simple scalar or vector, nonnegative integer.
+   If X is nonempty, X∊⍳⍴⍴R.
+
+Implicit argument: ⎕IO
+
+ ⍴Z ←→ (⍴R)[(⍳⍴⍴R)~X] 
+⍴↑Z ←→ (⍴R)[,X] 
+⍴⍴Z ←→ (⍴⍴R)-⍴,X")
+      ("Dyadic" "Partition" "Partitions R into an array of vectors specified by L"
+       "Z←L≡R
+Partitions R into an array of vectors specified by L.
+
+L: Simple scalar or vector of nonnegative integers
+R: Nonscalar
+Z: Array of vectors
+
+ ⍴Z ←→ (¯1↓⍴R),+/2</0,L (after left scalar extended)
+⍴⍴Z ←→ ⍴⍴R
+ ≡Z ←→ 1+≡R")
+      ("Dyadic with axis" "Partition with axis" "Partitions R into an array of vectors specified by L along axis X"
+       "Z←L⊂[X]R
+Partitions R into an array of vectors specified by L along axis
+X.
+
+L: Simple scalar or vector of nonnegative integers
+R: Nonscalar
+Z: Array of vectors
+X: Simple scalar or one-item vector;
+  nonnegative integer: X∊⍳⍴⍴R
+
+Implicit argument: ⎕IO
+
+X⊃⍴Z ←→ +/2</0,L
+ ⍴⍴Z ←→ ⍴⍴R
+  ≡Z ←→ 1+≡R"))
+     t)
 
     ;; ========================================
 
