@@ -637,79 +637,251 @@ Implicit argument: ⎕FC[1 4 6]
     ;; ========================================
 
     ("⍉"
-     (("Monadic" "Transpose" "Reverse the axes of B")
-      ("Dyadic" "Transpose" "The axes of B are ordered by A")))
+     (("Monadic" "Transpose" "Creates an array similar to R but with the order of the axes of R reversed"
+       "Z←⍉R
+Creates an array similar to R but with the order
+of the axes of R reversed.
+
+ ⍴Z ←→ ⌽⍴R
+⍴⍴Z ←→ ⍴⍴R")
+      ("Dyadic" "Transpose" "The axes of R are ordered by R"
+       "Z←L⍉R
+Case 1: L selects all axes of R. Creates an
+array similar to R but with the axes permuted
+according to L.
+
+Case 2: L includes repetitions of axes. Creates
+an array with two or more axes of R mapped
+into a single axis of Z, which is then a diagonal
+cross section of R.
+
+L: Simple scalar or vector, nonnegative integer
+
+Implicit Argument: ⎕IO
+
+Case 1
+         ⍴Z ←→ (⍴R)[⍋L]
+        ⍴⍴Z ←→ ⍴⍴R
+Case 2
+       I⊃⍴Z ←→ ⌊/(L=I)/⍴R
+        (for each I∊⍳⍴⍴Z)
+
+        ⍴⍴Z ←→ ,+/(LιL)=⍳⍴L"))
+     t)
 
     ;; ========================================
 
     ("!"
-     (("Monadic" "Factorial" "Product of integers 1 to B")
-      ("Dyadic" "Combinations" "Number of combinations of B taken A at a time")))
+     (("Monadic" "Factorial" "Product of integers 1 to R"
+       "Z←!R
+For positive integer R, yields the product of all positive integers
+through R.
+
+For all numbers but negative integers, factorial yields the Gamma
+function of R+1.
+
+R: Numeric, except for negative integers
+Z: Numeric
+
+Gamma Function: Factorial approximates the gamma function of (n+1).")
+      ("Dyadic" "Binomial" "For nonnegative integer arguments, yields the number of distinct combinations of R things taken L at a time"
+       "Z←L!R
+For nonnegative integer arguments, yields the number of distinct
+combinations of R things taken L at a time.
+
+In the following table, <0 means that L, R, or R−L is a negative integer and
+≥0 means that L, R, or R−L is a nonnegative integer. The corresponding
+definition is used.
+
+Case         Definition
+L    R   R|L
+≮0  ≮0   ≮0  Return (!R)÷(!L)×!R−L
+≮0  ≮0   <0  Return 0
+≮0  <0   ≮0  (Case cannot occur.)
+≮0  <0   <0  Return (¯1*L)×L!L−R+1
+<0  ≮0   ≮0  Return 0
+<0  ≮0   <0  (Case cannot occur.)
+<0  <0   ≮0  Return (¯1*R−L) (−R+1)!(| L+1)
+<0  <0   <0  Return 0"))
+     t)
 
     ;; ========================================
 
     ("<"
-     (("Dyadic" "Less than" "Comparison: 1 if true, 0 if false")))
+     (("Dyadic" "Less than" "Comparison: 1 if true, 0 if false"
+       "Z←L<R
+Less than
+
+L and R Numeric real
+Z: Boolean
+Implicit Argument: ⎕CT"))
+     t)
 
     ;; ========================================
 
-    ("≤" nil nil
-     "Less than or equal" "Comparison: 1 if true, 0 if false")
+    ("≤"
+     (("Dyadic" "Less than or equal" "Comparison: 1 if true, 0 if false"
+       "Z←L≤R
+Less than or equal
+
+L and R Numeric real
+Z: Boolean
+Implicit Argument: ⎕CT"))
+     t)
 
     ;; ========================================
 
     ("="
-     (("Dyadic" "Equality" "Comparison: 1 if true, 0 if false")))
+     (("Dyadic" "Equality" "Comparison: 1 if true, 0 if false"
+       "Z←L=R
+Equal
+
+Z: Boolean
+Implicit Argument: ⎕CT"))
+     t)
 
     ;; ========================================
 
     ("≥"
-     (("Dyadic" "Greater than or equal" "Comparison: 1 if true, 0 if false")))
+     (("Dyadic" "Greater than or equal" "Comparison: 1 if true, 0 if false"
+       "Z←L≥R
+Greater than or equal
+
+L and R Numeric real
+Z: Boolean
+Implicit Argument: ⎕CT"))
+     t)
 
     ;; ========================================
 
     (">"
-     (("Dyadic" "Greater than" "Comparison: 1 if true, 0 if false")))
+     (("Dyadic" "Greater than" "Comparison: 1 if true, 0 if false"
+       "Z←L>R
+Greater than
+
+L and R Numeric real
+Z: Boolean
+Implicit Argument: ⎕CT"))
+     t)
 
     ;; ========================================
 
     ("≠"
-     (("Dyadic" "Not equal" "Comparison: 1 if true, 0 if false")))
+     (("Dyadic" "Not equal" "Comparison: 1 if true, 0 if false"
+       "Z←L≠R
+Not equal
+
+Z: Boolean
+Implicit Argument: ⎕CT"))
+     t)
 
     ;; ========================================
 
     ("∨"
-     (("Dyadic" "Logical disjunction" "Logic: 0 if A and B are 0; 1 otherwise")))
+     (("Dyadic" "Or" "Logic: 0 if A and B are 0; 1 otherwise"
+       "Z←L∨R
+Or
+
+L, R, and Z: Boolean"))
+     t)
 
     ;; ========================================
 
     ("∧"
-     (("Dyadic" "Logical conjunction" "Logic: 1 if A and B are 1; 0 otherwise")))
+     (("Dyadic" "And" "Logic: 1 if A and B are 1; 0 otherwise"
+       "Z←L∧R
+And
+
+L, R, and Z: Boolean"))
+     t)
 
     ;; ========================================
 
     ("⍱"
-     (("Dyadic" "Logical Nor" "Logic: 1 if both A and B are 0; otherwise 0")))
+     (("Dyadic" "Nor" "Logic: 1 if both A and B are 0; otherwise 0"
+       "Z←L⍱R
+Nor
+
+L, R, and Z: Boolean"))
+     t)
 
     ;; ========================================
 
     ("⍲"
-     (("Dyadic" "Logical Nand" "Logic: 0 if both A and B are 1; otherwise 1")))
+     (("Dyadic" "Nand" "Logic: 0 if both A and B are 1; otherwise 1"
+       "Z←L⍲R
+Nand
+
+L, R, and Z: Boolean"))
+     t)
 
     ;; ========================================
 
     ("∼"
-     (("Dyadic" "Not" "Logical: ∼1 is 0, ∼0 is 1")) nil)
+     (("Dyadic" "Not" "Logical: ∼1 is 0, ∼0 is 1"))
+     nil)
 
     ;; ========================================
 
     ("⍋"
-     (("Monadic" "Grade up" "Indices of B which will arrange B in ascending order")))
+     (("Monadic" "Grade up" "Indices of R which will arrange R in ascending order"
+       "Z←⍋R
+Yields a vector of integers (a permutation of ⍳1↑⍴R) that puts the
+subarrays along the first axis of R in ascending order.
+
+R: Simple nonscalar numeric array
+Z: Simple vector nonnegative integers
+
+Implicit argument: ⎕IO
+
+ ⍴Z ←→ 1↑⍴R
+⍴⍴Z ←→ ,1")
+      ("Grade up" "Indices or R which will arrange R in ascending order based on collating sequence specified as L"
+       "Z←L⍋R
+Yields a vector of integers (a permutation of ⍳1↑⍴R) that puts the
+subarrays along the first axis of R in ascending order according to
+the collating sequence L.
+
+L: Simple nonempty nonscalar character array
+R: Simple nonscalar character array
+Z: Simple vector, nonnegative integers
+
+Implicit argument: ⎕IO
+
+ ⍴Z ←→ 1↑⍴R
+⍴⍴Z ←→ ,1"))
+     t)
 
     ;; ========================================
 
     ("⍒"
-     (("Monadic" "Grade down" "Indices of B which will arrange B in descending order")))
+     (("Monadic" "Grade down" "Indices of R which will arrange R in descending order"
+       "Z←⍒R
+Yields a vector of integers (a permutation of ⍳1↑⍴R) that puts the
+subarrays along the first axis of R in decending order.
+
+R: Simple nonscalar numeric array
+Z: Simple vector nonnegative integers
+
+Implicit argument: ⎕IO
+
+ ⍴Z ←→ 1↑⍴R
+⍴⍴Z ←→ ,1")
+      ("Dyadic" "Grade down" "Indices or R which will arrange R in descending order based on collating sequence specified as L"
+       "Z←L⍒R
+Yields a vector of integers (a permutation of ⍳1↑⍴R) that puts the
+subarrays along the first axis of R in descending order according to
+the collating sequence L.
+
+L: Simple nonempty nonscalar character array
+R: Simple nonscalar character array
+Z: Simple vector, nonnegative integers
+
+Implicit argument: ⎕IO
+
+ ⍴Z ←→ 1↑⍴R
+⍴⍴Z ←→ ,1"))
+     t)
 
     ;; ========================================
 
