@@ -313,7 +313,8 @@ Note: ⌊ is computed with a comparison tolerance of zero.
 
 L, R, and Z: Numeric
 
-Implicit Argument: ⎕CT")))
+Implicit Argument: ⎕CT"))
+     t)
 
     ;; ========================================
 
