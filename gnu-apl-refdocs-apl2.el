@@ -223,7 +223,7 @@ Z: Simple nonnegative integer vector.
  ⍴Z ←→ ⍴⍴R
 ⍴⍴Z ←→ ,1")
       ("Dyadic" "Reshape" "Structures the items of R into an array of shape L"
-       "Z←LρR
+       "Z←L⍴R
 
 L: Simple scalar or vector, not negative integers.
 
@@ -278,7 +278,7 @@ according to whether L[I] is positive or negative.
 L: Simple scalar or vector, integer
 
 Z: Nonscalar array
- ⍴Z ←→ 0 (ρR)| L
+ ⍴Z ←→ 0 (⍴R)| L
 ⍴⍴Z ←→ (⍴,L) ⍴⍴R")
       ("Dyadic with axis" "Drop with axis" "Remove the first or last L elements of R"
        "↓[] Drop with Axis
@@ -483,32 +483,156 @@ Implicit arguments: ⎕IO, ⎕CT
     ;; ========================================
 
     ("⌹"
-     (("Monadic" "Matrix inverse" "Inverse of matrix B")
-      ("Dyadic" "Matrix divide" "Solution to system of linear equations Ax = B")))
+     (("Monadic" "Matrix inverse" "Inverse of matrix B"
+       "Z←⌹R
+Yields the inverse of a nonsingular matrix. Results for other
+matrixes, vectors, and scalar R are discussed below.
+
+R and Z: Simple numeric array of rank 2 or less
+
+ ⍴Z ←→ ⍴R
+⍴⍴Z ←→ ⍴⍴R")
+      ("Dyadic" "Matrix divide" "Yields the solution to system of linear equations"
+       "Z←L⌹R
+Yields the solution of a system of linear equations or other algebraic
+or geometric results, according to the values and shapes of L and R.
+
+L and R: Simple numeric array of rank 2 or less
+Z: Simple numeric
+
+ ⍴Z ←→ (1↓⍴R),1↓⍴L
+⍴⍴Z ←→ ,1¯2+(⍴⍴L)+⍴⍴R"))
+     t)
 
     ;; ========================================
 
     ("⌽"
-     (("Monadic" "Reversal" "Reverse elements of B along last axis")
-      ("Dyadic" "Rotation" "The elements of B are rotated A positions")))
+     (("Monadic" "Reverse" "Creates an array with the items of R reversed along the last axis"
+       "Z←⌽R
+Creates an array with the items of R
+reversed along the last axis.
+
+ ⍴Z ←→ ⍴R
+⍴⍴Z ←→ ⍴⍴R")
+      ("Monadic with axis" "Reverse with axis" "Creates an array with items reversed along the Xth axis"
+       "Z←⌽[X]R
+
+X: Simple scalar or one-item vector, integer: X∊⍳⍴⍴R
+
+Implicit argument: ⎕IO
+
+ ⍴Z ←→ ⍴R
+⍴⍴Z ←→ ⍴⍴R")
+      ("Dyadic" "Rotate" "The elements of R are rotated L positions"
+       "Z←L⌽R
+Creates an array with items of R rotated
+L positions along the last axis.
+The sign of L determines the direction of
+the rotation.
+
+L: Simple integer, either scalar or rank ¯1+⍴⍴R
+
+ ⍴Z ←→ ⍴R
+⍴⍴Z ←→ ⍴⍴R")
+      ("Dyadic with axis" "Rotate with axis" "Creates an array with items of R rotated |L positions along the Xth axis")
+      "Z←L⌽[X]R
+Creates an array with items of R rotated
+|L positions along the Xth axis.
+The sign of L determines the direction
+of the rotation.
+
+L: Simple integer, scalar, or vector
+X: Simple scalar or one-item vector, integer: X∊ι⍴⍴R
+
+Implicit argument: ⎕IO
+
+ ⍴Z ←→ ⍴R
+⍴⍴Z ←→ ⍴⍴R")
+     t)
 
     ;; ========================================
 
     ("⊖"
-     (("Monadic" "Reversal" "Reverse elements of B along first axis")
-      ("Dyadic" "Rotation" "The elements of B are rotated A positions along the first axis")))
+     (("Monadic" "Reverse" "Creates an array with the items of R reversed along the first axis."
+       "Z←⊖R
+Creates an array with the items of R
+reversed along the first axis.
+
+ ⍴Z ←→ ⍴R
+⍴⍴Z ←→ ⍴⍴R")
+      ("Monadic with axis" "Reverse with axis" "Creates an array with items reversed along the Xth axis"
+       "Z←⊖[X]R Creates an array with items reversed along the
+Xth axis.
+
+X: Simple scalar or one-item vector, integer: X∊ι⍴⍴R
+
+Implicit argument: ⎕IO
+
+ ⍴Z ←→ ⍴R
+⍴⍴Z ←→ ⍴⍴R")
+      ("Dyadic" "Rotation" "The elements of R are rotated L positions along the first axis"
+       "Z←L⊖R
+Creates an array with items of R rotated
+L positions along the first axis.
+The sign of L determines the direction of
+the rotation.
+
+ ⍴Z ←→ ⍴R
+⍴⍴Z ←→ ⍴⍴R"))
+     t)
 
     ;; ========================================
 
     ("⍟"
-     (("Monadic" "Logarithm" "Natural logarithm of B")
-      ("Dyadic" "Logarithm" "Logarithm of B to base A")))
+     (("Monadic" "Logarithm" "Natural logarithm of R"
+       "Z←⍟R
+Determines the logarithm of R to the base of the natural logarithms
+e, where e is approximately 2.7182818284590452.
+
+R: Numeric, nonzero
+Z: Numeric")
+      ("Dyadic" "Logarithm" "Determines the base L logarithm of R"
+       "Z←L⍟R
+Determines the base L logarithm of R.
+
+L and R: Numeric, nonzero
+Z: Numeric"))
+     t)
 
     ;; ========================================
 
     ("⍕"
-     (("Monadic" "Format" "A character representation of B")
-      ("Dyadic" "Format" "Format B into a character matrix according to A")))
+     (("Monadic" "Format" "A character representation of R"
+       "Z←⍕R
+Creates a simple character array whose appearance is the same as
+the display of R (if PW is set sufficiently wide.)
+
+Z: Character array
+
+Implicit argument: ⎕PP
+
+ ⍴Z ←→ See APL2 Programming: Language Reference
+⍴⍴Z ←→ ,1 ⍴⍴R if R is simple
+⍴⍴Z ←→ ,1; or ,2 if R is nested")
+      ("Dyadic" "Format by specification" "Format R into a character matrix according to L"
+       "Z←L⍕R
+Transforms R to a character array that displays according to column
+specifications L. Each pair of L corresponds to a column. The first
+of the pair sets column width; the second sets display precision and
+format – either conventional or scaled.
+A single pair of integers extends the specification to all columns. A
+single integer is interpreted as (0,L).
+
+L: Simple integer vector
+R: Array of depth 2 or less, whose items are simple
+real scalars or simple character scalars or vectors
+Z: Simple character array
+
+Implicit argument: ⎕FC[1 4 6]
+
+1↓⍴Z ←→ 1↓⍴R
+ ⍴⍴Z ←→ 1 ⍴⍴R"))
+     t)
 
     ;; ========================================
 
