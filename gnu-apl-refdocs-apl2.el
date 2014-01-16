@@ -818,12 +818,6 @@ L, R, and Z: Boolean"))
 
     ;; ========================================
 
-    ("∼"
-     (("Dyadic" "Not" "Logical: ∼1 is 0, ∼0 is 1"))
-     nil)
-
-    ;; ========================================
-
     ("⍋"
      (("Monadic" "Grade up" "Indices of R which will arrange R in ascending order"
        "Z←⍋R
@@ -1079,5 +1073,18 @@ L, R, and Z: Simple numeric array
 
 ⍴Z ←→ (⍴L),⍴R
 ⍴⍴Z ←→ (⍴⍴L)+⍴⍴R"))
+     t)
+    (("~" "∼")
+     (("Monadic" "Not" "Logical: ∼1 is 0, ∼0 is 1"))
+     (("Dyadic" "Without" "Yields the items in L that do not occur in R"
+       "Z←L~R
+Yields the items in L that do not occur in R
+
+L: Scalar or vector
+Z: Vector
+
+Implicit argument: ⎕CT
+ ⍴Z ←→ Depends on the contents of L and R
+⍴⍴Z ←→ ,1"))
      t))
   "Documentation for APL symbols.")
