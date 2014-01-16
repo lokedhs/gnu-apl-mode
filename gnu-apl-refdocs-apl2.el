@@ -128,43 +128,176 @@ Functions:
     ;; ========================================
 
     ("?"
-     (("Monadic" "Roll" "One integer selected randomly from the first B integers")
-      ("Dyadic" "Deal" "A distinct integers selected randomly from the first B integers")))
+     (("Monadic" "Roll" "Selects an integer at random from the population ⍳R"
+"Z←?R
+
+R: Positive integer
+Z: Integer in the set ιR
+
+Implicit arguments: ⎕IO and ⎕RL")
+      ("Dyadic" "Deal" "Selects L integers at random from the population ⍳R without replacement"
+       "Z←L?R
+
+L and R: Simple scalar or one-item vector, nonnegative integer
+Z: Simple vector, integer in set ⍳R
+
+Implicit arguments: ⎕IO and ⎕RL
+
+ ⍴Z ←→ ,L
+⍴⍴Z ←→ ,1"))
+     t)
 
     ;; ========================================
 
     ("∊"
-     (("Monadic" "Enlist" "Create a vector containing all scalars in B")
-      ("Dyadic" "Membership" "1 for elements of A present in B; 0 where not.")))
+     (("Monadic" "Enlist" "Creates a simple vector whose items are the simple scalars in R"
+       "Z←∊R
+
+Z: Simple vector
+
+ ⍴Z ←→ Number of simple scalars in R
+⍴⍴Z ←→ ,1")
+      ("Dyadic" "Member" "1 for elements of L present in R; 0 where not."
+"Z←L∊R
+
+Yields a Boolean array Z with the same shape as L. An item of Z is
+1 if the corresponding item of L can be found anywhere in R. An
+item of Z is 0 otherwise.
+
+Z: Simple Boolean array
+
+Implicit argument: ⎕CT
+
+ ⍴Z ←→ ⍴L
+⍴⍴Z ←→ ⍴⍴L"))
+     t)
 
     ;; ========================================
 
     ("⌈"
-     (("Monadic" "Ceiling" "Least integer greater than or equal to B")
-      ("Dyadic" "Sample maximum and minimum" "The greater value of A or B")))
+     (("Monadic" "Ceiling" "Least integer greater than or equal to R"
+"Z←⌈R
+For real numbers, yields the smallest integer that is not
+less than R (within the comparison tolerance).
+For complex numbers, depends on the relationship of the real
+and imaginary parts of R.
+
+R and Z: Numeric
+
+Implicit argument: ⎕CT")
+      ("Dyadic" "Maximum" "The greater value of L or R"
+"Z←L⌈R
+Returns the larger of L and R.
+
+L, R, and Z: Numeric, real"))
+     t)
 
     ;; ========================================
 
     ("⌊"
-     (("Monadic" "Floor" "Greatest integer less than or equal to B")
-      ("Dyadic" "Sample maximum and minimum" "The smaller value of A or B")))
+     (("Monadic" "Floor" "Greatest integer less than or equal to R"
+       "Z←⌊R
+
+For real numbers, yields the largest integer that does not exceed
+R (within the comparison tolerance).
+
+For complex numbers, depends on the relationship of the real and
+imaginary parts of R.
+
+R and Z: numeric
+
+Implicit Argument: ⎕CT")
+      ("Dyadic" "Minimum" "The smaller value of L or R"
+       "Z←L⌊R
+Returns the smaller of L and R.
+
+L, R and Z: Numeric, real"))
+     t)
 
     ;; ========================================
 
     ("⍴"
-     (("Monadic" "Shape" "Number of components in each dimension of B")
-      ("Dyadic" "Reshape" "Array of shape A with data B")))
+     (("Monadic" "Shape" "Yields the size of each axis of R"
+       "Z←⍴R
+Yields the size of each axis of R.
+
+Z: Simple nonnegative integer vector.
+
+ ⍴Z ←→ ⍴⍴R
+⍴⍴Z ←→ ,1")
+      ("Dyadic" "Reshape" "Structures the items of R into an array of shape L"
+       "Z←LρR
+
+L: Simple scalar or vector, not negative integers.
+
+ ⍴Z ←→ ,L
+⍴⍴Z ←→ ⍴,L"))
+     t)
 
     ;; ========================================
 
     ("↑"
-     (("Monadic" "Take" "Select the first element of B")
-      ("Dyadic" "Take" "Select the first (or last) A elements of B according to ×A")))
+     (("Monadic" "First" "Selects the first item of R taken in row major order"
+       "Z←↑R
+Selects the first item of R taken in row major order. If R is empty,
+yields the prototype of R.
+
+ ⍴Z ←→ Depends on shape of the first item
+⍴⍴Z ←→ Depends on rank of the first item")
+      ("Dyadic" "Take" "Select the first or last L elements of R"
+       "Z←L↑R
+Selects subarrays from the beginning or end of the
+Ith axis of R, according to whether L[I]
+is positive or negative.
+
+L: Simple scalar or vector, integer
+
+ ⍴Z ←→ ,L
+⍴⍴Z ←→ ⍴,L")
+      ("Dyadic with axis" "Take with axis" "Select the first or last L elements of R"
+       "Z←L↑[X]R
+Selects subarrays from the beginning or end of
+the X[I]th axis of R, according to whether
+L[I] is positive or negative.
+
+L: Simple scalar or vector, integer
+R and Z: Nonscalar array
+X: Simple scalar or vector; nonnegative integers: X∊⍳⍴⍴R; or empty
+
+Implicit argument: ⎕IO
+
+ (⍴Z)[,X] ←→ ,L
+      ⍴⍴Z ←→ ⍴⍴R"))
+     t)
 
     ;; ========================================
 
     ("↓"
-     (("Dyadic" "Drop " "Remove the first (or last) A elements of B according to ×A")))
+     (("Dyadic" "Drop" "Remove the first or last L elements of R"
+       "Z←L↓R
+Removes subarrays from the beginning or end of the Ith axis of R,
+according to whether L[I] is positive or negative.
+
+L: Simple scalar or vector, integer
+
+Z: Nonscalar array
+ ⍴Z ←→ 0 (ρR)| L
+⍴⍴Z ←→ (⍴,L) ⍴⍴R")
+      ("Dyadic with axis" "Drop with axis" "Remove the first or last L elements of R"
+       "↓[] Drop with Axis
+Z←L↓[X]R
+Removes subarrays from the beginning or end of the X[I]th
+axis of R, according to whether L[I] is positive or negative.
+
+L: Simple scalar or vector, integer
+R and Z: Nonscalar array
+X: Simple scalar or vector; nonnegative integers: Xε⍳⍴⍴R; or empty
+
+Implicit argument: ⎕IO
+
+ (⍴Z)[,X] ←→ 0 (⍴R)[,X]| L
+      ⍴⍴Z ←→ ⍴⍴R"))
+     t)
 
     ;; ========================================
 
@@ -182,6 +315,7 @@ For all numbers, Z is R-L×⌊R÷L+L=0.
 Note: ⌊ is computed with a comparison tolerance of zero.
 
 L, R, and Z: Numeric
+
 Implicit Argument: ⎕CT")))
 
     ;; ========================================
@@ -246,7 +380,7 @@ Implicit argument: ⎕IO
        "Z←LO\\R
 Positions in Z that correspond to ones in LO are filled with
 items of R. Positions in Z that correspond to 0's in LO are
-filled with the fill item (↑0ρ ↑R).
+filled with the fill item (↑0⍴⊂↑R).
 
 LO: Simple Boolean scalar or vector
 Z: Nonscalar array
@@ -325,8 +459,29 @@ LO: Dyadic function
     ;; ========================================
 
     ("⍳"
-     (("Monadic" "Index generator" "Vector of the first B integers")
-      ("Dyadic" "Index of" "The location (index) of B in A; 1+⌈/⍳⍴A if not found")))
+     (("Monadic" "Interval" "Vector of the first R integers"
+       "Z←⍳R
+Produces R consecutive ascending integers, beginning with ⎕IO.
+
+R: Simple scalar or one-item vector, nonnegative integer
+Z: Simple vector, nonnegative integers
+
+Implicit argument: ⎕IO
+
+ ⍴Z ←→ ,R
+⍴⍴Z ←→ ,1")
+      ("Dyadic" "Index of" "The location (index) of B in A; 1+⌈/⍳⍴A if not found"
+       "Z←L⍳R
+Yields the first occurrence in L of items in R.
+
+L: Vector
+Z: Nonnegative integers
+
+Implicit arguments: ⎕IO, ⎕CT
+
+ ⍴Z ←→ ⍴R
+⍴⍴Z ←→ ⍴⍴R"))
+     t)
 
     ;; ========================================
 
