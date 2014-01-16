@@ -979,24 +979,80 @@ X⊃⍴Z ←→ +/2</0,L
     ;; ========================================
 
     ("⊃"
-     (("Monadic" "Disclose" "Produce an array from B")
-      ("Dyadic" "Pick" "Select a value from B based on A")))
+     (("Monadic" "Disclose" "Structures the items of R into an array, whose rightmost axes come from the axes of the items of R"
+       "Z←⊃R
+Structures the items of R into an array, whose rightmost axes come
+from the axes of the items of R.
+
+  (⍴Z) ←→ (⍴R),↑⌈/(⍴¨̈(,R),⊂↑R)~⊂⍳0
+ (⍴⍴Z) ←→ (⍴⍴R)+↑⌈/⍴¨̈⍴¨̈(,R),⊂↑R")
+      ("Monadic with axis" "Disclose with axis" "Structures the items of R into an array. X defines the axes of Z, into which items of R are structured"
+       "Z←⊃[X]R
+Structures the items of R into an array. X defines the axes of Z,
+into which items of R are structured.
+
+X: Simple scalar or vector, nonnegative integers
+
+Implicit argument: ⎕IO
+ (⍴Z)[,X] ←→ ↑⌈/(⍴¨̈(,R),⊂↑R)~⊂ι0
+      ⍴⍴Z ←→ (⍴⍴R)+⌈/∊⍴¨̈⍴¨̈(,R),⊂↑R")
+      ("Dyadic" "Pick" "Selects an item of R as specified by the path indexes L"
+       "Z←L⊃R
+Selects an item of R as specified by the path indexes L.
+
+L: Scalar or vector whose depth is ≤2; integer or empty
+
+Implicit argument: ⎕IO
+
+ ⍴Z ←→ Depends on the shape of the selected item
+⍴⍴Z ←→ Depends on the rank of the selected item"))
+     t)
 
     ;; ========================================
 
     ("∪"
-     (("Monadic" "Unique" "Return an array of all unique elements in B")))
+     (("Monadic" "Unique" "Return an array of all unique elements in R")))
 
     ;; ========================================
 
     ("⍷"
-     (("Dyadic" "Find" "Return a boolean array indicating the positions of the array A in B")))
+     (("Dyadic" "Find" "Return a boolean array indicating the positions of the array L in R"
+       "Z←L⍷R
+Yields a Boolean array that maps to R. An item of Z is 1, where the
+pattern L begins in the corresponding position of R. Otherwise, an
+item of Z is 0.
+
+Z: Simple Boolean array
+
+Implicit argument: ⎕CT
+
+ ⍴Z ←→ ⍴R
+⍴⍴Z ←→ ⍴⍴R"))
+     t)
 
     ;; ========================================
 
     ("≡"
-     (("Monadic" "Depth" "Return the levels of nesting in B")
-      ("Dyadic" "Match" "Returns true if A has the same structure as well as data as B")))
+     (("Monadic" "Depth" "Return the levels of nesting in R"
+       "Z←≡R
+Reports levels of nesting: 0 for a simple scalar; for other
+arrays, 1 plus the depth of the item with the maximum depth.
+
+Z: Simple scalar, nonnegative integers
+
+ ⍴Z ←→ Empty
+⍴⍴Z ←→ ,0")
+      ("Dyadic" "Match" "Yields a 1 if the arguments are the same in structure and data, and a 0 otherwise"
+       "Z←L≡R
+Yields a 1 if the arguments are the same in structure and data, and
+a 0 otherwise.
+
+Z: Boolean
+
+Implicit argument: ⎕CT
+ ⍴Z ←→ ⍳0
+⍴⍴Z ←→ ,0"))
+     t)
 
     ;; ========================================
 
@@ -1022,5 +1078,6 @@ are L.
 L, R, and Z: Simple numeric array
 
 ⍴Z ←→ (⍴L),⍴R
-⍴⍴Z ←→ (⍴⍴L)+⍴⍴R")) t))
+⍴⍴Z ←→ (⍴⍴L)+⍴⍴R"))
+     t))
   "Documentation for APL symbols.")
