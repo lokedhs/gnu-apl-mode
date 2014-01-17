@@ -151,7 +151,6 @@ documentation will not be loaded.")
                            ("shoe-jot" "⍝" "\\")
                            ("backslash-bar" "⍀" "|")
                            ("rho" "⍴" "r")
-                           ("root" "√" "R")
 
                            ;; Second row
                            ("alpha" "⍺" "a")
@@ -186,12 +185,13 @@ documentation will not be loaded.")
                            ("i-beam" "⌶" "M")
                            ("squish-quad" "⌷" ",")
                            ("comma-bar" "⍪" "<")
+                           ("delta-underbar" "⍙" ">")
                            ("slash-bar" "⌿" "?")
 
                            ;; Extras
                            ("pi" "π")
                            ("star-diaeresis" "⍣")
-                           ("delta-underbar" "⍙")
+                           ("root" "√")
                            ))
 
 (defun gnu-apl--make-key-command-sym (n)
