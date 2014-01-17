@@ -29,7 +29,7 @@ L, R and Z: Numeric"))
 
     ;; ========================================
 
-    ("−"
+    (("-" "−")
      (("Monadic" "Negation" "Reverses the sign of R"
        "Z←−R
 
@@ -146,7 +146,7 @@ Implicit arguments: ⎕IO and ⎕RL
 
     ;; ========================================
 
-    ("∊"
+    (("∊" "ε")
      (("Monadic" "Enlist" "Creates a simple vector whose items are the simple scalars in R"
        "Z←∊R
 
