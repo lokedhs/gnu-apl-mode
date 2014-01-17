@@ -788,7 +788,7 @@ L, R, and Z: Boolean"))
 
     ;; ========================================
 
-    ("∧"
+    (("∧" "^")
      (("Dyadic" "And" "Logic: 1 if A and B are 1; 0 otherwise"
        "Z←L∧R
 And
