@@ -257,6 +257,7 @@ documentation will not be loaded.")
 (load "gnu-apl-editor")
 (load "gnu-apl-network")
 (load "gnu-apl-spreadsheet")
+(load "gnu-apl-plot")
 (if gnu-apl-use-free-documentation
     (load "gnu-apl-refdocs-bsd-license")
   (load "gnu-apl-refdocs-apl2"))
