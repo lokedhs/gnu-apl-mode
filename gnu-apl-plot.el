@@ -44,6 +44,15 @@ from the APL runtime"
                 (t
                  (error "Unknown cell content: %S" entry))))))
 
+(defun gnu-apl-dump-variable-csv (varname filename)
+  "Exports the array stored in the APL variable named by VARNAME
+to CSV format and save it to the file name FILENAME."
+  (interactive (list (gnu-apl--choose-variable "Variable: " :variable)
+                     (read-file-name "Output filename: ")))
+  (gnu-apl--send-network-command (concat "getvar:" name))
+  (let ((result (gnu-apl--read-network-reply-block)))
+    ))
+
 (gnu-apl--define-variable-reading-function (gnu-apl-plot-line result)
   (unless (gnu-apl--single-dimension-p result)
     (user-error "Line plots are only supported for one-dimensional values"))
