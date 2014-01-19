@@ -44,14 +44,52 @@ from the APL runtime"
                 (t
                  (error "Unknown cell content: %S" entry))))))
 
+(defun gnu-apl--cell-value-as-string (value)
+  (cond ((stringp value)
+         (format "\"%s\"" value))
+        ((integerp value)
+         (format "%d" value))
+        ((numberp value)
+         (format "%f" value))
+        ((and (listp value) (eq (car value) :unicode))
+         (format "\"%s\"" (char-to-string (cadr value))))
+        (t
+         (error "Unable to convert value of type %s to string" (symbol-name (car value))))))
+
+(defun gnu-apl--write-array-content-to-csv (content)
+  (llog "writing: %S" content)
+  (cond ((gnu-apl--single-dimension-p content)
+         (loop for value in content
+               do (progn
+                    (insert (gnu-apl--cell-value-as-string value))
+                    (insert "\n"))))
+        ((and (listp content) (eq (car content) :vector))
+         (unless (= (length (cadr content)) 2)
+           (error "Unexpected dimensions: %d" (length (cadr content))))
+         (loop for row-value in (caddr content)
+               do (loop for col-content in row-value
+                        for first = t then nil
+                        when (not first)
+                        do (insert ";")
+                        do (insert (gnu-apl--cell-value-as-string col-content)))
+               do (insert "\n")))
+        (t
+         (llog "Value: %S" content)
+         (error "Unable to write variable of this type"))))
+
 (defun gnu-apl-dump-variable-csv (varname filename)
   "Exports the array stored in the APL variable named by VARNAME
 to CSV format and save it to the file name FILENAME."
   (interactive (list (gnu-apl--choose-variable "Variable: " :variable)
                      (read-file-name "Output filename: ")))
-  (gnu-apl--send-network-command (concat "getvar:" name))
+  (gnu-apl--send-network-command (concat "getvar:" varname))
   (let ((result (gnu-apl--read-network-reply-block)))
-    ))
+    (unless (string= (car result) "content")
+      (error "Error from runtime"))
+    (let ((value (car (read-from-string (apply #'concat (cdr result))))))
+      (with-temp-buffer
+        (gnu-apl--write-array-content-to-csv value)
+        (write-file filename)))))
 
 (gnu-apl--define-variable-reading-function (gnu-apl-plot-line result)
   (unless (gnu-apl--single-dimension-p result)
