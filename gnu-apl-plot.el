@@ -16,9 +16,9 @@
 (cl-defmacro gnu-apl--define-variable-reading-function ((fun-name varname) &body body)
   (declare (indent 1))
   (let ((result-sym (gensym "result-")))
-    `(defun gnu-apl-plot-variable (varname)
+    `(defun gnu-apl-plot-variable (,varname)
        (interactive (list (gnu-apl--choose-variable "Variable: " :variable)))
-       (gnu-apl--send-network-command (concat "getvar:" name))
+       (gnu-apl--send-network-command (concat "getvar:" ,varname))
        (let ((,result-sym (gnu-apl--read-network-reply-block)))
          (unless (string= (car ,result-sym) "content")
            (error "Unable to read variable. Response: %s" (car result)))
@@ -57,7 +57,6 @@ from the APL runtime"
          (error "Unable to convert value of type %s to string" (symbol-name (car value))))))
 
 (defun gnu-apl--write-array-content-to-csv (content)
-  (llog "writing: %S" content)
   (cond ((gnu-apl--single-dimension-p content)
          (loop for value in content
                do (progn
@@ -70,11 +69,10 @@ from the APL runtime"
                do (loop for col-content in row-value
                         for first = t then nil
                         when (not first)
-                        do (insert ";")
+                        do (insert " ")
                         do (insert (gnu-apl--cell-value-as-string col-content)))
                do (insert "\n")))
         (t
-         (llog "Value: %S" content)
          (error "Unable to write variable of this type"))))
 
 (defun gnu-apl-dump-variable-csv (varname filename)
@@ -92,28 +90,12 @@ to CSV format and save it to the file name FILENAME."
         (write-file filename)))))
 
 (gnu-apl--define-variable-reading-function (gnu-apl-plot-line result)
-  (unless (gnu-apl--single-dimension-p result)
-    (user-error "Line plots are only supported for one-dimensional values"))
   (gnu-apl--with-temp-files ((script-file "script")
                              (data-file "data"))
     (with-temp-buffer
-      (cond ((gnu-apl--single-dimension-p result)
-             (loop for entry in result
-                   do (gnu-apl--plot-insert-cell entry)
-               (insert "\n")))
-            ((and (eq (car result) :array)
-                  (= (length (cadr result)) 2))
-             (loop for row in (caddr result)
-                   do (loop for entry in row
-                            for first = t then nil
-                            unless first
-                            do (insert " ")
-                            do (gnu-apl--plot-insert-cell entry))
-                   do (insert "\n")))
-            (t
-             (error "Unsupported content")))
-
+      (gnu-apl--write-array-content-to-csv result)
       (write-file data-file))
     (with-temp-buffer
       (insert "plot \"" data-file "\" title \"Data from variable\" with lines\n")
-      (write-file script-file))))
+      (write-file script-file))
+    (shell-command (format "gnuplot -p %s" script-file))))
