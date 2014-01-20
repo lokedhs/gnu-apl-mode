@@ -92,16 +92,6 @@ or NIL if there is no active session.")
         (setq gnu-apl-input-display-type prevmode)
         result))))
 
-(defun gnu-apl--process-si-line (line)
-  (when (string-match (concat "^\\(?:\r      .\\)?\\([a-zA-Z0-9_∆]+\\)\\[[0-9]+\\]") line)
-    (match-string 1 line)))
-
-(defun gnu-apl--process-si-lines (lines)
-  (loop for line in lines
-        for processed = (gnu-apl--process-si-line line)
-        when processed
-        collect processed))
-
 (defun gnu-apl--erase-and-set-function (name content)
   (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-start* "'"))
   (gnu-apl-interactive-send-string (concat ")ERASE " name))
