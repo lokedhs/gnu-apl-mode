@@ -228,6 +228,7 @@ function editor.
       (setq gnu-apl-current-session buffer)
 
       (gnu-apl-interactive-mode)
+      (set-buffer-process-coding-system 'utf-8 'utf-8)
       (when gnu-apl-native-communication
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-start* "'"))
         (gnu-apl--send buffer (concat "'libemacs' ⎕FX "
