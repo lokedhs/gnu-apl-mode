@@ -54,8 +54,8 @@ or NIL if there is no active session.")
 
 (defun gnu-apl--set-face-for-parsed-text (start end mode string)
   (case mode
-    (cerr (add-text-properties start end '(font-lock-face gnu-apl-error-face) string))
-    (uerr (add-text-properties start end '(font-lock-face gnu-apl-user-status-text-face) string))))
+    (cerr (add-text-properties start end '(font-lock-face gnu-apl-error) string))
+    (uerr (add-text-properties start end '(font-lock-face gnu-apl-user-status-text) string))))
 
 (defun gnu-apl--parse-text (string)  
   (let ((tags nil))

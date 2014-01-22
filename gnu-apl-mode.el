@@ -74,17 +74,37 @@ automatically disabled anyway.")
   :group 'gnu-apl)
 
 ;;;###autoload
-(defface gnu-apl-error-face
+(defface gnu-apl-error
   '((((class color))
-     :foreground "red"))
+     :foreground "red"
+     :inherit gnu-apl-default)
+    (t
+     :inherit gnu-apl-default))
   "Face used for error messages in the interactive APL buffer"
   :group 'gnu-apl)
 
 ;;;###autoload
-(defface gnu-apl-user-status-text-face
+(defface gnu-apl-user-status-text
   '((((class color))
-     :foreground "#ff0080"))
+     :foreground "#ff0080"
+     :inherit gnu-apl-default)
+    (t
+     :inherit gnu-apl-default))
   "Face used for user diagnostic messages in the interactive APL buffer"
+  :group 'gnu-apl)
+
+;;;###autoload
+(defface gnu-apl-help
+  '((t
+     :inherit gnu-apl-default))
+  "Face used for displaying text in help buffers"
+  :group 'gnu-apl)
+
+;;;###autoload
+(defface gnu-apl-kbd-help-screen
+  '((t
+     :inherit gnu-apl-default))
+  "Face used to display the keyboard help popup"
   :group 'gnu-apl)
 
 (defvar gnu-apl-use-free-documentation nil
