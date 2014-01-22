@@ -61,23 +61,27 @@ from the APL runtime"
          (loop for value in content
                do (progn
                     (insert (gnu-apl--cell-value-as-string value))
-                    (insert "\n"))))
+                    (insert "\n")))
+         (list (length content) 1))
         ((and (listp content) (eq (car content) :vector))
-         (unless (= (length (cadr content)) 2)
-           (error "Unexpected dimensions: %d" (length (cadr content))))
-         (loop for row-value in (caddr content)
-               do (loop for col-content in row-value
-                        for first = t then nil
-                        when (not first)
-                        do (insert " ")
-                        do (insert (gnu-apl--cell-value-as-string col-content)))
-               do (insert "\n")))
+         (let ((size (cadr content)))
+           (unless (= (length size) 2)
+             (error "Unexpected dimensions: %d" (length size)))
+           (loop for row-value in (caddr content)
+                 do (loop for col-content in row-value
+                          for first = t then nil
+                          when (not first)
+                          do (insert " ")
+                          do (insert (gnu-apl--cell-value-as-string col-content)))
+                 do (insert "\n"))
+           size))
         (t
          (error "Unable to write variable of this type"))))
 
 (defun gnu-apl-dump-variable-csv (varname filename)
   "Exports the array stored in the APL variable named by VARNAME
-to CSV format and save it to the file name FILENAME."
+to CSV format and save it to the file name FILENAME. Returns the
+dimension of the exported data as a list of the form (ROWS COLS)"
   (interactive (list (gnu-apl--choose-variable "Variable: " :variable)
                      (read-file-name "Output filename: ")))
   (gnu-apl--send-network-command (concat "getvar:" varname))
@@ -86,16 +90,24 @@ to CSV format and save it to the file name FILENAME."
       (error "Error from runtime"))
     (let ((value (car (read-from-string (apply #'concat (cdr result))))))
       (with-temp-buffer
-        (gnu-apl--write-array-content-to-csv value)
-        (write-file filename)))))
+        (prog1
+            (gnu-apl--write-array-content-to-csv value)
+          (write-file filename))))))
 
 (gnu-apl--define-variable-reading-function (gnu-apl-plot-line result)
   (gnu-apl--with-temp-files ((script-file "script")
                              (data-file "data"))
-    (with-temp-buffer
-      (gnu-apl--write-array-content-to-csv result)
-      (write-file data-file))
-    (with-temp-buffer
-      (insert "plot \"" data-file "\" title \"Data from variable\" with lines\n")
-      (write-file script-file))
+    (let ((size (with-temp-buffer
+                     (prog1
+                         (gnu-apl--write-array-content-to-csv result)
+                       (write-file data-file)))))
+      (with-temp-buffer
+        (insert "plot ")
+        (let ((numcols (cadr size)))
+          (dotimes (n numcols)
+            (insert (format "\"%s\" using %d title \"Col %d\" with lines" data-file (1+ n) (1+ n)))
+            (when (< n (1- numcols))
+              (insert ",\\"))
+            (insert "\n")))
+        (write-file script-file)))
     (shell-command (format "gnuplot -p %s" script-file))))
