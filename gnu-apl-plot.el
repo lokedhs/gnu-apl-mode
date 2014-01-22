@@ -16,7 +16,7 @@
 (cl-defmacro gnu-apl--define-variable-reading-function ((fun-name varname) &body body)
   (declare (indent 1))
   (let ((result-sym (gensym "result-")))
-    `(defun gnu-apl-plot-variable (,varname)
+    `(defun ,fun-name (,varname)
        (interactive (list (gnu-apl--choose-variable "Variable: " :variable)))
        (gnu-apl--send-network-command (concat "getvar:" ,varname))
        (let ((,result-sym (gnu-apl--read-network-reply-block)))
