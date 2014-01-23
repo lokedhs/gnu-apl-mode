@@ -43,19 +43,22 @@ dervived from the APL2 documentation.")
 (defun gnu-apl--get-full-docstring-for-symbol (string)
   (let ((doc (gnu-apl--get-doc-for-symbol string)))
     (when doc
-      (with-output-to-string
+      (with-temp-buffer
         (loop for e in (second doc)
               for first = t then nil
               unless first
               do (princ "\n")
               do (progn
-                   (princ (format "%s: %s\n%s\n\n" (first e) (second e) (third e)))
+                   (insert (format "%s: %s" (first e) (second e)))
+                   (insert (format "\n%s\n\n" (third e)))
                    (let ((long (fourth e)))
                      (when long
-                       (princ (format "%s\n" long)))))
-              do (princ "\n===================================\n"))
+                       (insert (format "%s\n" long)))))
+              do (insert "\n===================================\n"))
         (when (third doc)
-          (princ (format "\n%s" gnu-apl--ibm-copyright-notice)))))))
+          (insert (format "\n%s" gnu-apl--ibm-copyright-notice)))
+        (add-text-properties (point-min) (point-max) '(face gnu-apl-help))
+        (buffer-string)))))
 
 (defun gnu-apl-show-help-for-symbol-point ()
   "Open the help window for the symbol at point."
@@ -95,9 +98,8 @@ dervived from the APL2 documentation.")
     (let ((buffer (get-buffer-create *gnu-apl-documentation-buffer-name*)))
       (with-current-buffer buffer
         (delete-region (point-min) (point-max))
-        (insert string)
         (goto-char (point-min))
-        (add-text-properties (point-min) (point-max) (list 'face 'gnu-apl-help))
+        (add-text-properties (point-min) (point-max) '(face gnu-apl-help))
         (gnu-apl-documentation-mode)
         (read-only-mode 1))
       (pop-to-buffer buffer))))
@@ -266,7 +268,7 @@ it is open."
                          'action #'(lambda (event) (gnu-apl-show-help-for-symbol name))
                          'follow-link t))
         (insert "\n"))
-      (add-text-properties (point-min) (point-max) (list 'face 'gnu-apl-help))
+      (add-text-properties (point-min) (point-max) '(face gnu-apl-help))
       (gnu-apl-documentation-search-mode)
       (read-only-mode 1))
     (pop-to-buffer buffer)))

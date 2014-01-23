@@ -259,7 +259,12 @@ documentation will not be loaded.")
   "Syntax table for gnu-apl-mode")
 
 (defun gnu-apl--init-mode-common ()
-  (set (make-local-variable 'eldoc-documentation-function) 'gnu-apl--eldoc-data))
+  (set (make-local-variable 'eldoc-documentation-function) 'gnu-apl--eldoc-data)
+  ;; TODO: It's an open question as to whether the below is a good idea
+  ;; or if a user should manually set this from the hook
+  ;;(setq buffer-face-mode-face 'gnu-apl-default)
+  ;;(buffer-face-mode)
+  )
 
 (define-derived-mode gnu-apl-mode prog-mode "GNU APL"
   "Major mode for editing GNU APL files."

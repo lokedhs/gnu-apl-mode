@@ -22,12 +22,11 @@ You can then start the APL interaction using `M-x gnu-apl`.
 GNU APL version requirements
 ----------------------------
 
-This package requires certain features of GNU APL that at the time of
-this writing is only available in the latest versions from the
-Subversion repository. In partciular, it takes advantage of a command
-line option called `--emacs` which enables certain features that are
-used by this mode. If your version of GNU APL is too old, you will get
-an error message saying that the `--emacs` flag is not understood.
+This package requires certain features of GNU APL that was implemented
+as of version 1.2. In partciular, it takes advantage of a command line
+option called `--emacs` which enables certain features that are used
+by this mode. If your version of GNU APL is too old, you will get an
+error message saying that the `--emacs` flag is not understood.
 
 Native code dependencies
 ------------------------
@@ -47,12 +46,17 @@ directory where GNU APL is installed.
 Configuring APL font
 --------------------
 
-Usually, one wants to use a different font for APL buffers. This can
-be done using the following configuration:
+Usually, one wants to use a different font for APL buffers. This mode
+includes a face called `gnu-apl-default` which is used in various
+places, such as the help buffers. However, it's not currently enabled
+by default in the interactive session, nor in APL buffers.
+
+If you want to enable this, add the following to your
+`~/.emacs.d/init.el`:
 
 ```lisp
 (defun em-gnu-apl-init ()
-  (setq buffer-face-mode-face '(:height 130 :family "APL385 Unicode"))
+  (setq buffer-face-mode-face 'gnu-apl-default)
   (buffer-face-mode))
 
 (add-hook 'gnu-apl-interactive-mode-hook 'em-gnu-apl-init)
@@ -61,6 +65,8 @@ be done using the following configuration:
 
 This enables `buffer-face-mode` with the chosen font when an APL
 buffer is opened.
+
+This may be changed to be the default in a future version.
 
 Keymap
 ------
