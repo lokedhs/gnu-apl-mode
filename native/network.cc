@@ -98,7 +98,7 @@ Token start_listener( int port )
     stringstream serv_name;
     serv_name << port;
 
-    struct addrinfo hints;
+    struct addrinfo hints = { 0 };
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = 0;
@@ -144,6 +144,16 @@ Token start_listener( int port )
         DOMAIN_ERROR;
     }
 
+    struct sockaddr_in listen_address;
+    socklen_t listen_address_len = sizeof( listen_address );
+    if( getsockname( server_socket, (struct sockaddr *)&listen_address, &listen_address_len ) == -1 ) {
+        close( server_socket );
+        stringstream errmsg;
+        errmsg << "Error getting port number of socket: " << strerror( errno ) << endl;
+        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
+        DOMAIN_ERROR;        
+    }
+
     ListenerLoopData *listener_loop_data = new ListenerLoopData( server_socket );
     int res = pthread_create( &thread_id, NULL, listener_loop, listener_loop_data );
     if( res != 0 ) {
@@ -153,7 +163,8 @@ Token start_listener( int port )
         DOMAIN_ERROR;
     }
 
-    COUT << "Network listener started. Connection information: mode:tcp addr:" << port << endl;
+    COUT << "Network listener started. Connection information: mode:tcp addr:"
+         << ntohs( listen_address.sin_port ) << endl;
 
     return Token(TOK_APL_VALUE1, Value::Str0_P);
 }

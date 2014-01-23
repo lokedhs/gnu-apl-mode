@@ -4,6 +4,11 @@
   "The buffer that holds the currently active GNU APL session,
 or NIL if there is no active session.")
 
+(defvar gnu-apl-libemacs-location "libemacs"
+  "The location of the native code library from the interpreter.
+This shouldn't nor mally need to be changed except when doing
+development of the native code.")
+
 (defun gnu-apl-interactive-send-string (string)
   (let ((p (get-buffer-process (gnu-apl--get-interactive-session)))
         (string-with-ret (if (and (plusp (length string))
@@ -225,9 +230,9 @@ the path to the apl program (defaults to `gnu-apl-executable')."
       (set-buffer-process-coding-system 'utf-8 'utf-8)
       (when gnu-apl-native-communication
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-start* "'"))
-        (gnu-apl--send buffer (concat "'libemacs' ⎕FX "
+        (gnu-apl--send buffer (concat "'" gnu-apl-libemacs-location "' ⎕FX "
                                       "'" *gnu-apl-native-lib* "'"))
-        (gnu-apl--send buffer (format "%s[1] %d" *gnu-apl-native-lib* 7293))
+        (gnu-apl--send buffer (format "%s[1] %d" *gnu-apl-native-lib* gnu-apl-native-listener-port))
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-end* "'"))))
     (when gnu-apl-show-keymap-on-startup
       (run-at-time "0 sec" nil #'(lambda () (gnu-apl-show-keyboard 1))))))

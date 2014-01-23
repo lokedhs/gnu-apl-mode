@@ -100,7 +100,7 @@ Token eval_XB(Value_P X, Value_P B)
     {
         int port;
         if( B->is_empty() ) {
-            port = 7293;
+            port = 0;
         }
         else {
             port = B->get_ravel( 0 ).get_near_int( qct );

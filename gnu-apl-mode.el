@@ -56,6 +56,12 @@ is nil, the apl binary is called with the --silent flag."
   :type 'boolean
   :group 'gnu-apl)
 
+(defcustom gnu-apl-native-listener-port 0
+  "The port number that the native listener should listen to. If
+zero, randomly choose an available port."
+  :type 'integer
+  :group 'gnu-apl)
+
 ;;; This parameter is not customisable since there are very few cases
 ;;; where it would beed to be changed.
 (defvar gnu-apl-native-communication t
