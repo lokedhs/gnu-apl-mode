@@ -57,8 +57,9 @@ is nil, the apl binary is called with the --silent flag."
   :group 'gnu-apl)
 
 (defcustom gnu-apl-native-listener-port 0
-  "The port number that the native listener should listen to. If
-zero, randomly choose an available port."
+  "The port number that the native listener should listen to.
+If zero, randomly choose an available port.
+If -1, request the use of Unix domain sockets."
   :type 'integer
   :group 'gnu-apl)
 

@@ -25,6 +25,7 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 #include <errno.h>
 #include <netdb.h>
 
@@ -92,66 +93,109 @@ Token start_listener( int port )
 {
     pthread_t thread_id;
     int server_socket;
-    struct addrinfo *addr;
     int ret;
+    string conninfo;
 
-    stringstream serv_name;
-    serv_name << port;
+    if( port >= 0 ) {
+        struct addrinfo *addr;
 
-    struct addrinfo hints = { 0 };
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = 0;
-    hints.ai_flags = 0;
-    hints.ai_addrlen = 0;
-    hints.ai_addr = NULL;
-    hints.ai_canonname = NULL;
-    hints.ai_next = NULL;
+        stringstream serv_name;
+        serv_name << port;
 
-    ret = getaddrinfo( "127.0.0.1", serv_name.str().c_str(), &hints, &addr );
-    if( ret != 0 ) {
-        stringstream errmsg;
-        errmsg << "Error looking up listener host: " << gai_strerror( ret );
-        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-        DOMAIN_ERROR;
+        struct addrinfo hints = { 0 };
+        hints.ai_family = AF_INET;
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_protocol = 0;
+        hints.ai_flags = 0;
+        hints.ai_addrlen = 0;
+        hints.ai_addr = NULL;
+        hints.ai_canonname = NULL;
+        hints.ai_next = NULL;
+
+        ret = getaddrinfo( "127.0.0.1", serv_name.str().c_str(), &hints, &addr );
+        if( ret != 0 ) {
+            stringstream errmsg;
+            errmsg << "Error looking up listener host: " << gai_strerror( ret );
+            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
+            DOMAIN_ERROR;
+        }
+
+        AddrWrapper addrWrapper( addr );
+
+        server_socket = socket( AF_INET, SOCK_STREAM, 0 );
+        if( server_socket == -1 ) {
+            stringstream errmsg;
+            errmsg << "Error creating socket: " << strerror( errno );
+            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
+            DOMAIN_ERROR;
+        }
+
+        int v = 1;
+        setsockopt( server_socket, SOL_SOCKET, SO_REUSEADDR, (void *)&v, sizeof( v ) );
+
+        if( bind( server_socket, addr->ai_addr, addr->ai_addrlen ) == -1 ) {
+            stringstream errmsg;
+            errmsg << "Unable to bind to port " << port << ": " << strerror( errno );
+            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
+            DOMAIN_ERROR;
+        }
+
+        if( listen( server_socket, 2 ) == -1 ) {
+            close( server_socket );
+            stringstream errmsg;
+            errmsg << "Error calling accept: " << strerror( errno ) << endl;
+            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
+            DOMAIN_ERROR;
+        }
+
+        struct sockaddr_in listen_address;
+        socklen_t listen_address_len = sizeof( listen_address );
+        if( getsockname( server_socket, (struct sockaddr *)&listen_address, &listen_address_len ) == -1 ) {
+            close( server_socket );
+            stringstream errmsg;
+            errmsg << "Error getting port number of socket: " << strerror( errno ) << endl;
+            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
+            DOMAIN_ERROR;
+        }
+
+        stringstream info_stream;
+        info_stream << "mode:tcp addr:" << ntohs( listen_address.sin_port );
+        conninfo = info_stream.str();
     }
+    else {
+        server_socket = socket( AF_UNIX, SOCK_STREAM, 0 );
+        if( server_socket == -1 ) {
+            stringstream errmsg;
+            errmsg << "Error creating unix domain socket: " << strerror( errno ) << endl;
+            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
+            DOMAIN_ERROR;
+        }
 
-    AddrWrapper addrWrapper( addr );
+        stringstream name;
+        name << "/tmp/gnu_apl_conn_" << getpid();
 
-    server_socket = socket( AF_INET, SOCK_STREAM, 0 );
-    if( server_socket == -1 ) {
-        stringstream errmsg;
-        errmsg << "Error creating socket: " << strerror( errno );
-        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-        DOMAIN_ERROR;
-    }
+        struct sockaddr_un addr;
+        addr.sun_family = AF_UNIX;
+        strncpy( addr.sun_path, name.str().c_str(), sizeof( addr.sun_path ) );
+        if( bind( server_socket, (struct sockaddr *)&addr, sizeof( addr ) ) == -1 ) {
+            close( server_socket );
+            stringstream errmsg;
+            errmsg << "Error binding unix domain socket: " << strerror( errno ) << endl;
+            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
+            DOMAIN_ERROR;
+        }
 
-    int v = 1;
-    setsockopt( server_socket, SOL_SOCKET, SO_REUSEADDR, (void *)&v, sizeof( v ) );
+        if( listen( server_socket, 2 ) == -1 ) {
+            close( server_socket );
+            stringstream errmsg;
+            errmsg << "Error starting listener on unix domain socket: " << strerror( errno ) << endl;
+            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
+            DOMAIN_ERROR;
+        }
 
-    if( bind( server_socket, addr->ai_addr, addr->ai_addrlen ) == -1 ) {
-        stringstream errmsg;
-        errmsg << "Unable to bind to port " << port << ": " << strerror( errno );
-        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-        DOMAIN_ERROR;
-    }
-
-    if( listen( server_socket, 2 ) == -1 ) {
-        close( server_socket );
-        stringstream errmsg;
-        errmsg << "Error calling accept: " << strerror( errno ) << endl;
-        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-        DOMAIN_ERROR;
-    }
-
-    struct sockaddr_in listen_address;
-    socklen_t listen_address_len = sizeof( listen_address );
-    if( getsockname( server_socket, (struct sockaddr *)&listen_address, &listen_address_len ) == -1 ) {
-        close( server_socket );
-        stringstream errmsg;
-        errmsg << "Error getting port number of socket: " << strerror( errno ) << endl;
-        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-        DOMAIN_ERROR;        
+        stringstream info_stream;
+        info_stream << "mode:unix addr:" << name.str();
+        conninfo = info_stream.str();
     }
 
     ListenerLoopData *listener_loop_data = new ListenerLoopData( server_socket );
@@ -163,8 +207,7 @@ Token start_listener( int port )
         DOMAIN_ERROR;
     }
 
-    COUT << "Network listener started. Connection information: mode:tcp addr:"
-         << ntohs( listen_address.sin_port ) << endl;
+    COUT << "Network listener started. Connection information: " << conninfo << endl;
 
     return Token(TOK_APL_VALUE1, Value::Str0_P);
 }

@@ -8,6 +8,13 @@
                               :type 'plain
                               :return-list nil
                               :end-of-command "\n"))
+        ((string= connect-mode "unix")
+         (make-network-process :name "gnu-apl-native"
+                               :buffer "*gnu-apl-connection*"
+                               :family 'local
+                               :type nil
+                               :service addr
+                               :coding 'utf-8))
         (t
          (error "Unexpected connect mode: %s" connect-mode))))
 
