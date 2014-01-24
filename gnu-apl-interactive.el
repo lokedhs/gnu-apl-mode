@@ -264,3 +264,22 @@ function or nil if the function could not be parsed."
              (case (length parts)
                (2 (cadr parts))
                (3 (cadr parts))))))))
+
+(defun gnu-apl-find-function-at-point ()
+  "Jump to the definition of the function at point"
+  (interactive)
+  (let ((name (thing-at-point 'symbol)))
+    (if (not (string-match "[a-zA-Z_∆⍙][a-zA-Z_∆⍙]*" name))
+        (message "Symbol at point is not a proper APL symbol")
+      (progn
+        (gnu-apl--send-network-command (concat "functiontag:" name))
+        (let ((result (gnu-apl--read-network-reply-block)))
+          (if (not (string= (car result) "tag"))
+              (message "No function definition found")
+            (let ((reference (cadr result)))
+              (unless (string-match "^\\(.*\\)!\\([0-9]+\\)$" reference)
+                (error "Unexpected tag format: %S" reference))
+              (let ((file (match-string 1 reference))
+                    (line-num (string-to-number (match-string 2 reference))))
+                (find-file file)
+                (goto-line line-num)))))))))

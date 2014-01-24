@@ -242,10 +242,12 @@ documentation will not be loaded.")
         (define-key map (kbd "C-c C-k") 'gnu-apl-show-keyboard)
         (define-key map (kbd "C-c C-h") 'gnu-apl-show-help-for-symbol-point)
         (define-key map (kbd "C-c C-a") 'gnu-apl-apropos-symbol)
+        (define-key map (kbd "M-.") 'gnu-apl-find-function-at-point)
         (define-key map [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
         (define-key map [menu-bar gnu-apl toggle-keyboard] '("Toggle keyboard" . gnu-apl-show-keyboard))
         (define-key map [menu-bar gnu-apl show-help-for-symbol] '("Documentation for symbol" . gnu-apl-show-help-for-symbol))
-        (define-key map [menu-bar gnu-apl apropos-symbol] '("Search symbols" . gnu-apl-apropos-symbol))))
+        (define-key map [menu-bar gnu-apl apropos-symbol] '("Search symbols" . gnu-apl-apropos-symbol))
+        (define-key map [menu-bar gnu-apl find-symbol-at-point] '("Find symbol at point" . gnu-apl-find-function-at-point))))
     map))
 
 (defvar gnu-apl-mode-map
