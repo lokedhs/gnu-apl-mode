@@ -42,17 +42,7 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
         Shape shape( content.size() );
         Value_P function_list_value( new Value( shape, LOC ) );
         for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
-#if 0
-            UCS_string s = ucs_string_from_string( *i );
-            Shape row_shape( s.size() );
-            Value_P row_cell( new Value( row_shape, LOC ) );
-            for( int i2 = 0 ; i2 < s.size() ; i2++ ) {
-                new (row_cell->next_ravel()) CharCell( s[i2] );
-            }
-            new (function_list_value->next_ravel()) PointerCell( row_cell );
-#else
             new (function_list_value->next_ravel()) PointerCell( make_string_cell( *i, LOC ) );
-#endif
         }
         function_list_value->check_value( LOC );
 
