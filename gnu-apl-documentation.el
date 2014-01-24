@@ -28,7 +28,7 @@ dervived from the APL2 documentation.")
 (define-derived-mode gnu-apl-keymap-mode fundamental-mode "GNU APL Keymap"
   "Major mode for displaying the keymap help"
   (use-local-map gnu-apl-keymap-mode-map)
-  (read-only-mode))
+  (read-only-mode 1))
 
 (defun gnu-apl--get-doc-for-symbol (string)
   (loop for e in gnu-apl--symbol-doc

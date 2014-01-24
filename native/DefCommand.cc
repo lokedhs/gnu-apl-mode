@@ -28,21 +28,50 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
 {
     vector<string> content = conn.load_block();
 
-    Shape shape( content.size() );
-    Value_P function_list_value( new Value( shape, LOC ) );
-    for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
-        UCS_string s = ucs_string_from_string( *i );
-        Shape row_shape( s.size() );
-        Value_P row_cell( new Value( row_shape, LOC ) );
-        for( int i2 = 0 ; i2 < s.size() ; i2++ ) {
-            new (row_cell->next_ravel()) CharCell( s[i2] );
-        }
-        new (function_list_value->next_ravel()) PointerCell( row_cell );
-    }
-    function_list_value->check_value( LOC );
+    try {
+        stringstream out;
 
-    Quad_FX quad_fx;
-    Token result = quad_fx.eval_B( function_list_value );
-    conn.write_string_to_fd( result.canonical( PST_CS_NONE ).to_string() );
-    conn.write_string_to_fd( "\n" END_TAG "\n" );
+        Shape shape( content.size() );
+        Value_P function_list_value( new Value( shape, LOC ) );
+        for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
+#if 0
+            UCS_string s = ucs_string_from_string( *i );
+            Shape row_shape( s.size() );
+            Value_P row_cell( new Value( row_shape, LOC ) );
+            for( int i2 = 0 ; i2 < s.size() ; i2++ ) {
+                new (row_cell->next_ravel()) CharCell( s[i2] );
+            }
+            new (function_list_value->next_ravel()) PointerCell( row_cell );
+#else
+            new (function_list_value->next_ravel()) PointerCell( make_string_cell( *i, LOC ) );
+#endif
+        }
+        function_list_value->check_value( LOC );
+
+        Quad_FX quad_fx;
+
+        if( args.size() > 1 ) {
+            Shape tag_shape( 2 );
+            Value_P tag( new Value( tag_shape, LOC ) );
+            new (tag->next_ravel()) IntCell( 0 );
+            new (tag->next_ravel()) PointerCell( make_string_cell( args[0], LOC ) );
+            Token result = quad_fx.eval_AB( tag, function_list_value );
+            out << "function defined\n" << result.canonical( PST_CS_NONE ).to_string();
+        }
+        else {
+            Token result = quad_fx.eval_B( function_list_value );
+            out << "function defined\n" << result.canonical( PST_CS_NONE ).to_string();
+        }
+        out << "\n";
+        conn.write_string_to_fd( out.str() );
+    }
+    catch( Error &error ) {
+        stringstream out;
+        out << "error\n";
+        error.print( out );
+        out << "\n";
+        conn.write_string_to_fd( out.str() );
+    }
+
+    conn.write_string_to_fd( END_TAG "\n" );
 }

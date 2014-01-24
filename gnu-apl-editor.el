@@ -72,14 +72,18 @@ the function and set it in the running APL interpreter."
           (gnu-apl--send-si-and-send-new-function (gnu-apl--function-definition-to-list
                                                    (buffer-substring start end)) nil))))))
 
-(defun gnu-apl--send-new-function (content)
-  (gnu-apl--send-network-command "def")
+(defun gnu-apl--send-new-function (content &optional tag)
+  (gnu-apl--send-network-command (concat "def" (if tag (concat ":" tag) "")))
   (gnu-apl--send-block content)
   (let ((return-data (gnu-apl--read-network-reply-block)))
-    (unless (and return-data (null (cdr return-data)))
-      (error "foo"))))
+    (if (and return-data (string= (car return-data) "function defined"))
+        t
+      (progn
+        (gnu-apl--display-error-buffer (format "Error sending function: %s" (car content))
+                                       (cdr return-data))
+        nil))))
 
-(defun gnu-apl--send-si-and-send-new-function (parts edit-when-fail)
+(defun gnu-apl--send-si-and-send-new-function (parts edit-when-fail &optional tag)
   "Send an )SI request that should be checked against the current
 function being sent. Returns non-nil if the function was send
 successfully."
@@ -93,13 +97,12 @@ successfully."
           (ecase gnu-apl-redefine-function-when-in-use-action
             (error (error "Function already on the )SI stack"))
             (clear (gnu-apl--send-network-command "sic")
-                   (gnu-apl--send-new-function parts))
+                   (gnu-apl--send-new-function parts tag))
             (ask (when (y-or-n-p "Function already on )SI stack. Clear )SI stack? ")
                    (gnu-apl--send-network-command "sic")
-                   (gnu-apl--send-new-function parts)
+                   (gnu-apl--send-new-function parts tag)
                    t)))
-        (gnu-apl--send-new-function parts)
-        t))))
+        (gnu-apl--send-new-function parts tag)))))
 
 (defun gnu-apl-save-function ()
   "Save the currently edited function."
@@ -172,3 +175,16 @@ successfully."
                      nil ; hist
                      nil ; def
                      )))
+
+(defun gnu-apl--display-error-buffer (title messages)
+  "Open an error buffer with the given title and content"
+  (let ((buffer (get-buffer-create "*gnu-apl error*")))
+    (pop-to-buffer buffer)
+    (delete-region (point-min) (point-max))
+    (insert title)
+    (insert "\n")
+    (dolist (row messages)
+      (insert row)
+      (insert "\n"))
+    (goto-char (point-min))
+    (read-only-mode 1)))
