@@ -52,7 +52,7 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
             Shape tag_shape( 2 );
             Value_P tag( new Value( tag_shape, LOC ) );
             new (tag->next_ravel()) IntCell( 0 );
-            new (tag->next_ravel()) PointerCell( make_string_cell( args[0], LOC ) );
+            new (tag->next_ravel()) PointerCell( make_string_cell( args[1], LOC ) );
             function_list_value->check_value( LOC );
             Token result = quad_fx.eval_AB( tag, function_list_value );
             out << "function defined\n" << result.canonical( PST_CS_NONE ).to_string();

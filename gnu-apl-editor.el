@@ -35,6 +35,11 @@ the function and set it in the running APL interpreter."
         (error "When splitting function, header does not start with function definition"))
       (cons (subseq definition 1) body))))
 
+(defun gnu-apl--make-tag (filename line)
+  "Creates a tag appropriate for sending to the APL interpreter
+using the def command."
+  (format "%s!%d" filename line))
+
 (defun gnu-apl-interactive-send-current-function ()
   (interactive)
 
@@ -58,6 +63,7 @@ the function and set it in the running APL interpreter."
 
         (unless (zerop (forward-line 1))
           (user-error "No end marker found"))
+
         (let ((end (loop for line = (gnu-apl--trim-trailing-newline
                                      (gnu-apl--trim-spaces (thing-at-point 'line)))
                          when (string= line "∇")
@@ -69,8 +75,10 @@ the function and set it in the running APL interpreter."
           (let ((overlay (make-overlay start end)))
             (overlay-put overlay 'face '(background-color . "green"))
             (run-at-time "0.5 sec" nil #'(lambda () (delete-overlay overlay))))
-          (gnu-apl--send-si-and-send-new-function (gnu-apl--function-definition-to-list
-                                                   (buffer-substring start end)) nil))))))
+          (let ((function-lines (gnu-apl--function-definition-to-list (buffer-substring start end))))
+            (gnu-apl--send-si-and-send-new-function function-lines nil
+                                                    (gnu-apl--make-tag (buffer-file-name)
+                                                                       (line-number-at-pos start)))))))))
 
 (defun gnu-apl--send-new-function (content &optional tag)
   (gnu-apl--send-network-command (concat "def" (if tag (concat ":" tag) "")))
