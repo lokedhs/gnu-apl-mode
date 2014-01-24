@@ -30,7 +30,7 @@
           (set (make-local-variable 'gnu-apl--current-incoming) "")
           (set (make-local-variable 'gnu-apl--results) nil))
       ;; TODO: Error handling is pretty poor right now
-        ('file-error (error "err:%S type:%S" err (type-of err))))))
+      ('file-error (error "err:%S type:%S" err (type-of err))))))
 
 (defun gnu-apl--filter-network (proc output)
   (with-current-buffer (gnu-apl--get-interactive-session)
