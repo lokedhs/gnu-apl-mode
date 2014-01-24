@@ -24,6 +24,14 @@
 
 #include "Quad_FX.hh"
 
+static void log_error( Error &error, ostream &out )
+{
+    UCS_string l1 = error.get_error_line_1();
+    UCS_string l2 = error.get_error_line_2();
+    UCS_string l3 = error.get_error_line_3();
+    out << l1 << endl << l2 << endl << l3;
+}
+
 void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
     vector<string> content = conn.load_block();
@@ -55,6 +63,7 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
             Value_P tag( new Value( tag_shape, LOC ) );
             new (tag->next_ravel()) IntCell( 0 );
             new (tag->next_ravel()) PointerCell( make_string_cell( args[0], LOC ) );
+            function_list_value->check_value( LOC );
             Token result = quad_fx.eval_AB( tag, function_list_value );
             out << "function defined\n" << result.canonical( PST_CS_NONE ).to_string();
         }
@@ -68,7 +77,9 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
     catch( Error &error ) {
         stringstream out;
         out << "error\n";
-        error.print( out );
+
+        log_error( error, out );
+
         out << "\n";
         conn.write_string_to_fd( out.str() );
     }

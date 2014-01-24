@@ -148,5 +148,6 @@ Value_P make_string_cell( const std::string &string, const char *loc )
     for( int i = 0 ; i < s.size() ; i++ ) {
         new (cell->next_ravel()) CharCell( s[i] );
     }
+    cell->check_value( loc );
     return cell;
 }
