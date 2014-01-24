@@ -241,8 +241,8 @@ the path to the apl program (defaults to `gnu-apl-executable')."
   "Parse a function definition string. Returns the name of the
 function or nil if the function could not be parsed."
   (let ((line (gnu-apl--trim-spaces string)))
-    (cond ((string-match (concat "^\\(?:[a-z0-9∆_]+ *← *\\)?" ; result variable
-                                 "\\([a-za-z0-9∆_ ]+\\)" ; function and arguments
+    (cond ((string-match (concat "^\\(?:[a-z0-9∆⍙_]+ *← *\\)?" ; result variable
+                                 "\\([a-za-z0-9∆⍙_ ]+\\)" ; function and arguments
                                  "\\(?:;.*\\)?$" ; local variables
                                  )
                          line)
@@ -253,9 +253,9 @@ function or nil if the function could not be parsed."
                (2 (car parts))
                (3 (cadr parts)))))
           
-          ((string-match (concat "^\\(?:[a-z0-9∆_]+ *← *\\)?" ; result variable
-                                 "\\(?: *[a-z0-9∆_]+ *\\)?" ; optional left argument
-                                 "(\\([a-za-z0-9∆_ ]+\\))" ; left argument and function name
+          ((string-match (concat "^\\(?:[a-z0-9∆⍙_]+ *← *\\)?" ; result variable
+                                 "\\(?: *[a-z0-9∆⍙_]+ *\\)?" ; optional left argument
+                                 "(\\([a-za-z0-9∆⍙_ ]+\\))" ; left argument and function name
                                  ".*$" ; don't care about what comes after
                                  )
                          line)

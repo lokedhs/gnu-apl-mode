@@ -264,6 +264,8 @@ documentation will not be loaded.")
           do (modify-syntax-entry (aref char 0) "." table))
     (modify-syntax-entry (aref "⍝" 0) "<" table)
     (modify-syntax-entry ?\n ">" table)
+    (modify-syntax-entry (aref "∆" 0) "w" table)
+    (modify-syntax-entry (aref "⍙" 0) "w" table)
     table)
   "Syntax table for gnu-apl-mode")
 
