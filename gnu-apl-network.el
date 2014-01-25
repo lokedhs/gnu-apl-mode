@@ -25,6 +25,7 @@
       (error "Connection is already established"))
     (condition-case err
         (let ((proc (gnu-apl--connect-to-remote connect-mode addr)))
+          (set-process-coding-system proc 'utf-8 'utf-8)
           (set-process-filter proc 'gnu-apl--filter-network)
           (set (make-local-variable 'gnu-apl--connection) proc)
           (set (make-local-variable 'gnu-apl--current-incoming) "")
