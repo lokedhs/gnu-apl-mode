@@ -21,6 +21,23 @@
 #ifndef NETWORK_HH
 #define NETWORK_HH
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <errno.h>
+#include <netdb.h>
+
+class AddrWrapper {
+public:
+    AddrWrapper(struct addrinfo *addr_in) : addr(addr_in) {}
+    virtual ~AddrWrapper() { freeaddrinfo( addr ); }
+
+private:
+    struct addrinfo *addr;
+};
+
+
 Token start_listener( int port );
+void *connection_loop( void *arg );
 
 #endif

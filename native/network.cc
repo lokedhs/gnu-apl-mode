@@ -20,30 +20,12 @@
 
 #include "emacs.hh"
 #include "NetworkConnection.hh"
+#include "Listener.hh"
 
 #include <memory>
 #include <pthread.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <errno.h>
-#include <netdb.h>
 
-class AddrWrapper {
-public:
-    AddrWrapper(struct addrinfo *addr_in) : addr(addr_in) {}
-    virtual ~AddrWrapper() { freeaddrinfo( addr ); }
-
-private:
-    struct addrinfo *addr;
-};
-
-struct ListenerLoopData {
-    ListenerLoopData( int server_socket_in ) : server_socket( server_socket_in ) {}
-    int server_socket;
-};
-
-static void *connection_loop( void *arg )
+void *connection_loop( void *arg )
 {
     std::auto_ptr<NetworkConnection> connection( (NetworkConnection *)arg );
     try {
@@ -63,28 +45,9 @@ static void *connection_loop( void *arg )
 
 static void *listener_loop( void *arg )
 {
-    ListenerLoopData *data = (ListenerLoopData *)arg;
-    int server_socket = data->server_socket;
-    delete data;
+    auto_ptr<Listener> listener( (Listener *)arg );
 
-    while( 1 ) {
-        struct sockaddr addr;
-        socklen_t length;
-        int socket = accept( server_socket, &addr, &length );
-        if( socket == -1 ) {
-            CERR << "Error accepting network connection: " << strerror( errno ) << endl;
-            break;
-        }
-        else {
-            NetworkConnection *conn = new NetworkConnection( socket );
-            pthread_t thread_id;
-            int ret = pthread_create( &thread_id, NULL, connection_loop, conn );
-            if( ret != 0 ) {
-                CERR << "Error creating thread" << endl;
-                delete conn;
-            }
-        }
-    }
+    listener->wait_for_connection();
 
     return NULL;
 }
@@ -92,120 +55,18 @@ static void *listener_loop( void *arg )
 Token start_listener( int port )
 {
     pthread_t thread_id;
-    int server_socket;
-    int ret;
-    string conninfo;
 
-    if( port >= 0 ) {
-        struct addrinfo *addr;
+    auto_ptr<Listener> listener( Listener::create_listener( port ) );
 
-        stringstream serv_name;
-        serv_name << port;
-
-        struct addrinfo hints = { 0 };
-        hints.ai_family = AF_INET;
-        hints.ai_socktype = SOCK_STREAM;
-        hints.ai_protocol = 0;
-        hints.ai_flags = 0;
-        hints.ai_addrlen = 0;
-        hints.ai_addr = NULL;
-        hints.ai_canonname = NULL;
-        hints.ai_next = NULL;
-
-        ret = getaddrinfo( "127.0.0.1", serv_name.str().c_str(), &hints, &addr );
-        if( ret != 0 ) {
-            stringstream errmsg;
-            errmsg << "Error looking up listener host: " << gai_strerror( ret );
-            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-            DOMAIN_ERROR;
-        }
-
-        AddrWrapper addrWrapper( addr );
-
-        server_socket = socket( AF_INET, SOCK_STREAM, 0 );
-        if( server_socket == -1 ) {
-            stringstream errmsg;
-            errmsg << "Error creating socket: " << strerror( errno );
-            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-            DOMAIN_ERROR;
-        }
-
-        int v = 1;
-        setsockopt( server_socket, SOL_SOCKET, SO_REUSEADDR, (void *)&v, sizeof( v ) );
-
-        if( bind( server_socket, addr->ai_addr, addr->ai_addrlen ) == -1 ) {
-            stringstream errmsg;
-            errmsg << "Unable to bind to port " << port << ": " << strerror( errno );
-            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-            DOMAIN_ERROR;
-        }
-
-        if( listen( server_socket, 2 ) == -1 ) {
-            close( server_socket );
-            stringstream errmsg;
-            errmsg << "Error calling accept: " << strerror( errno ) << endl;
-            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-            DOMAIN_ERROR;
-        }
-
-        struct sockaddr_in listen_address;
-        socklen_t listen_address_len = sizeof( listen_address );
-        if( getsockname( server_socket, (struct sockaddr *)&listen_address, &listen_address_len ) == -1 ) {
-            close( server_socket );
-            stringstream errmsg;
-            errmsg << "Error getting port number of socket: " << strerror( errno ) << endl;
-            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-            DOMAIN_ERROR;
-        }
-
-        stringstream info_stream;
-        info_stream << "mode:tcp addr:" << ntohs( listen_address.sin_port );
-        conninfo = info_stream.str();
-    }
-    else {
-        server_socket = socket( AF_UNIX, SOCK_STREAM, 0 );
-        if( server_socket == -1 ) {
-            stringstream errmsg;
-            errmsg << "Error creating unix domain socket: " << strerror( errno ) << endl;
-            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-            DOMAIN_ERROR;
-        }
-
-        stringstream name;
-        name << "/tmp/gnu_apl_conn_" << getpid();
-
-        struct sockaddr_un addr;
-        addr.sun_family = AF_UNIX;
-        strncpy( addr.sun_path, name.str().c_str(), sizeof( addr.sun_path ) );
-        if( bind( server_socket, (struct sockaddr *)&addr, sizeof( addr ) ) == -1 ) {
-            close( server_socket );
-            stringstream errmsg;
-            errmsg << "Error binding unix domain socket: " << strerror( errno ) << endl;
-            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-            DOMAIN_ERROR;
-        }
-
-        if( listen( server_socket, 2 ) == -1 ) {
-            close( server_socket );
-            stringstream errmsg;
-            errmsg << "Error starting listener on unix domain socket: " << strerror( errno ) << endl;
-            Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-            DOMAIN_ERROR;
-        }
-
-        stringstream info_stream;
-        info_stream << "mode:unix addr:" << name.str();
-        conninfo = info_stream.str();
-    }
-
-    ListenerLoopData *listener_loop_data = new ListenerLoopData( server_socket );
-    int res = pthread_create( &thread_id, NULL, listener_loop, listener_loop_data );
+    string conninfo = listener->start();
+    
+    int res = pthread_create( &thread_id, NULL, listener_loop, listener.get() );
     if( res != 0 ) {
-        delete listener_loop_data;
-        close( server_socket );
         Workspace::more_error() = UCS_string( "Unable to start network connection thread" );
         DOMAIN_ERROR;
     }
+
+    listener.release();
 
     COUT << "Network listener started. Connection information: " << conninfo << endl;
 
