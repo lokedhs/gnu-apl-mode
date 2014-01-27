@@ -122,13 +122,19 @@ Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
     return Token(TOK_APL_VALUE1, Value::Str0_P);
 }
 
+void close_fun( Cause cause )
+{
+    
+}
+
 void *get_function_mux( const char *function_name )
 {
-    if (!strcmp(function_name, "get_signature"))   return (void *)&get_signature;
-    if (!strcmp(function_name, "eval_B"))          return (void *)&eval_B;
-    if (!strcmp(function_name, "eval_AB"))         return (void *)&eval_AB;
-    if (!strcmp(function_name, "eval_XB"))         return (void *)&eval_XB;
-    if (!strcmp(function_name, "eval_AXB"))        return (void *)&eval_AXB;
+    if( strcmp( function_name, "get_signature" ) == 0 ) return (void *)&get_signature;
+    if( strcmp( function_name, "eval_B" ) == 0 )        return (void *)&eval_B;
+    if( strcmp( function_name, "eval_AB" ) == 0 )       return (void *)&eval_AB;
+    if( strcmp( function_name, "eval_XB" ) == 0 )       return (void *)&eval_XB;
+    if( strcmp( function_name, "eval_AXB" ) == 0 )      return (void *)&eval_AXB;
+    if( strcmp( function_name, "close_fun" ) == 0 )     return (void *)&close_fun;
     return 0;
 }
 
