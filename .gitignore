@@ -2,6 +2,7 @@
 .apl.history
 *.o
 *.so
+*.dylib
 GPATH
 GRTAGS
 GSYMS

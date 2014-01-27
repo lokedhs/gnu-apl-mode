@@ -3,6 +3,7 @@
 \.orig$
 \.o$
 \.so$
+\.dylib$
 ^GPATH$
 ^GRTAGS$
 ^GSYMS$
