@@ -37,7 +37,7 @@ from the APL runtime"
     (integer (insert (format "%d" entry)))
     (number (insert (format "%f" entry)))
     (string (insert (format "\"%s\"" entry)))
-    (list (cond ((listp entry)
+    (list (cond ((listp (car entry))
                  (error "Cell contains array"))
                 ((eq (car entry) :unicode)
                  (insert (char-to-string (cadr entry))))
