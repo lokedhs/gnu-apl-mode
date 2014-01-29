@@ -25,6 +25,10 @@
 #include <memory>
 #include <pthread.h>
 
+static std::vector<Listener *> registered_listeners;
+static pthread_mutex_t registered_listeners_lock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t registered_listeners_cond = PTHREAD_COND_INITIALIZER;
+
 void *connection_loop( void *arg )
 {
     std::auto_ptr<NetworkConnection> connection( (NetworkConnection *)arg );
@@ -45,7 +49,7 @@ void *connection_loop( void *arg )
 
 static void *listener_loop( void *arg )
 {
-    auto_ptr<Listener> listener( (Listener *)arg );
+    Listener *listener( (Listener *)arg );
 
     listener->wait_for_connection();
 
@@ -66,9 +70,62 @@ Token start_listener( int port )
         DOMAIN_ERROR;
     }
 
+    listener->set_thread( thread_id );
     listener.release();
 
     COUT << "Network listener started. Connection information: " << conninfo << endl;
 
     return Token(TOK_APL_VALUE1, Value::Str0_P);
+}
+
+void register_listener( Listener *listener )
+{
+    pthread_mutex_lock( &registered_listeners_lock );
+    registered_listeners.push_back( listener );
+    pthread_cond_broadcast( &registered_listeners_cond );
+    pthread_mutex_unlock( &registered_listeners_lock );
+}
+
+void unregister_listener( Listener *listener )
+{
+    pthread_mutex_lock( &registered_listeners_lock );
+    bool found = false;
+    for( vector<Listener *>::iterator i  = registered_listeners.begin() ; i != registered_listeners.end() ; i++ ) {
+        if( *i == listener ) {
+            registered_listeners.erase( i );            
+            found = true;
+            break;
+        }
+    }
+
+    CERR << "Listener is supposed to be found: " << found << endl;
+
+    pthread_mutex_unlock( &registered_listeners_lock );
+
+    pthread_cond_broadcast( &registered_listeners_cond );
+    listener->close_connection();
+}
+
+void close_listeners( void )
+{
+    vector<Listener *> to_be_closed;
+    pthread_mutex_lock( &registered_listeners_lock );
+    for( vector<Listener *>::iterator i = registered_listeners.begin() ; i != registered_listeners.end() ; i++ ) {
+        to_be_closed.push_back( *i );
+    }
+//    registered_listeners.clear();
+    pthread_mutex_unlock( &registered_listeners_lock );
+
+    for( vector<Listener *>::iterator i = to_be_closed.begin() ; i != to_be_closed.end() ; i ++ ) {
+        (*i)->close_connection();
+//        delete *i;
+    }
+
+#if 0
+    pthread_mutex_lock( &registered_listeners_lock );
+    while( registered_listeners.size() > 0 ) {
+        pthread_cond_wait( &registered_listeners_cond, &registered_listeners_lock );
+    }
+    pthread_mutex_unlock( &registered_listeners_lock );
+#endif
 }

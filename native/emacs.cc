@@ -124,7 +124,7 @@ Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
 
 void close_fun( Cause cause )
 {
-    
+    close_listeners();
 }
 
 void *get_function_mux( const char *function_name )

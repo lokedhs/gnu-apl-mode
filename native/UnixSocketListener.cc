@@ -10,6 +10,11 @@
 #include <sys/un.h>
 #include <errno.h>
 #include <netdb.h>
+#include <unistd.h>
+
+UnixSocketListener::~UnixSocketListener()
+{
+}
 
 std::string UnixSocketListener::start( void )
 {
@@ -23,10 +28,11 @@ std::string UnixSocketListener::start( void )
 
     stringstream name;
     name << "/tmp/gnu_apl_conn_" << getpid();
+    filename = name.str();
 
     struct sockaddr_un addr;
     addr.sun_family = AF_UNIX;
-    strncpy( addr.sun_path, name.str().c_str(), sizeof( addr.sun_path ) );
+    strncpy( addr.sun_path, filename.c_str(), sizeof( addr.sun_path ) );
     if( bind( server_socket, (struct sockaddr *)&addr, sizeof( addr ) ) == -1 ) {
         close( server_socket );
         stringstream errmsg;
@@ -34,6 +40,8 @@ std::string UnixSocketListener::start( void )
         Workspace::more_error() = UCS_string( errmsg.str().c_str() );
         DOMAIN_ERROR;
     }
+
+    initialised = true;
 
     if( listen( server_socket, 2 ) == -1 ) {
         close( server_socket );
@@ -56,7 +64,9 @@ void UnixSocketListener::wait_for_connection( void )
         socklen_t length;
         int socket = accept( server_socket, &addr, &length );
         if( socket == -1 ) {
-            CERR << "Error accepting network connection: " << strerror( errno ) << endl;
+            if( !closing ) {
+                CERR << "Error accepting network connection: " << strerror( errno ) << endl;
+            }
             break;
         }
         else {
@@ -73,4 +83,17 @@ void UnixSocketListener::wait_for_connection( void )
 
 void UnixSocketListener::close_connection( void )
 {
+    closing = true;
+    if( initialised ) {
+        if( server_socket != 0 ) {
+            close( server_socket );
+        }
+
+        void *result;
+        pthread_join( thread_id, &result );
+
+        if( unlink( filename.c_str() ) == -1 ) {
+            CERR << "Error removing socket file name: " << filename << ": " << strerror( errno ) << endl;
+        }
+    }
 }

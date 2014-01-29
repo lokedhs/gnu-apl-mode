@@ -21,11 +21,15 @@
 #ifndef NETWORK_HH
 #define NETWORK_HH
 
+#include "emacs.hh"
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <errno.h>
 #include <netdb.h>
+
+class Listener;
 
 class AddrWrapper {
 public:
@@ -39,5 +43,8 @@ private:
 
 Token start_listener( int port );
 void *connection_loop( void *arg );
+void register_listener( Listener *listener );
+void unregister_listener( Listener *listener );
+void close_listeners( void );
 
 #endif
