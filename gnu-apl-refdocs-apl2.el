@@ -942,7 +942,7 @@ Implicit argument: ⎕IO
 ⍴↑Z ←→ (⍴R)[,X] 
 ⍴⍴Z ←→ (⍴⍴R)-⍴,X")
       ("Dyadic" "Partition" "Partitions R into an array of vectors specified by L"
-       "Z←L≡R
+       "Z←L⊂R
 Partitions R into an array of vectors specified by L.
 
 L: Simple scalar or vector of nonnegative integers
