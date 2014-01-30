@@ -99,6 +99,7 @@ dervived from the APL2 documentation.")
       (with-current-buffer buffer
         (delete-region (point-min) (point-max))
         (insert string)
+        (goto-char (point-min))
         (gnu-apl-documentation-mode)
         (read-only-mode 1))
       (pop-to-buffer buffer))))
