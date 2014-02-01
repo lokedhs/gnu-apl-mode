@@ -483,6 +483,21 @@ Implicit arguments: ⎕IO, ⎕CT
 
     ;; ========================================
 
+    ("."
+     ("Axis operator" "Inner product" "Compute inner product of from LO and RO"
+      "Z←L LO.RO R
+Combines the subarrays along the last axis of L with subarrays
+along the first axis of R by applying an RO outer product. An
+LO-reduction is then applied to each item of that result.
+
+LO: Dyadic function
+RO: Dyadic function
+ ⍴Z ←→ (¯1↓⍴L),1↓⍴R
+⍴⍴Z ←→ ,0⌈¯2+(⍴⍴L)+⍴⍴R")
+     t)
+
+    ;; ========================================
+
     ("⌹"
      (("Monadic" "Matrix inverse" "Inverse of matrix B"
        "Z←⌹R
@@ -831,7 +846,7 @@ Implicit argument: ⎕IO
 
  ⍴Z ←→ 1↑⍴R
 ⍴⍴Z ←→ ,1")
-      ("Grade up" "Indices or R which will arrange R in ascending order based on collating sequence specified as L"
+      ("Dyadic" "Grade up" "Indices of R which will arrange R in ascending order based on collating sequence specified as L"
        "Z←L⍋R
 Yields a vector of integers (a permutation of ⍳1↑⍴R) that puts the
 subarrays along the first axis of R in ascending order according to
@@ -862,7 +877,7 @@ Implicit argument: ⎕IO
 
  ⍴Z ←→ 1↑⍴R
 ⍴⍴Z ←→ ,1")
-      ("Dyadic" "Grade down" "Indices or R which will arrange R in descending order based on collating sequence specified as L"
+      ("Dyadic" "Grade down" "Indices of R which will arrange R in descending order based on collating sequence specified as L"
        "Z←L⍒R
 Yields a vector of integers (a permutation of ⍳1↑⍴R) that puts the
 subarrays along the first axis of R in descending order according to
@@ -1059,7 +1074,8 @@ radices L.
 L, R, and Z: Simple numeric array
 
 ⍴Z ←→ (1↓L),1↓⍴R
-⍴⍴Z ←→ (0 1+⍴⍴L)+(0⌈¯1+⍴⍴R)")) t)
+⍴⍴Z ←→ (0 1+⍴⍴L)+(0⌈¯1+⍴⍴R)"))
+     t)
 
     ;; ========================================
 
@@ -1086,5 +1102,22 @@ Z: Vector
 Implicit argument: ⎕CT
  ⍴Z ←→ Depends on the contents of L and R
 ⍴⍴Z ←→ ,1"))
-     t))
+     t)
+
+    ;; ========================================
+
+    ("⊢"
+     ("Dyadic" "Right" "Returns R"
+      "Z←L⊢R
+Returns R (discarding L)")
+     nil)
+
+    ;; ========================================
+
+    ("⊣"
+     ("Dyadic" "Left" "Returns L"
+      "Z←L⊢R
+Returns L (discarding R)")
+     nil)
+    )
   "Documentation for APL symbols.")
