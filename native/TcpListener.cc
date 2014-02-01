@@ -48,9 +48,16 @@ std::string TcpListener::start( void )
     }
 
     int v = 1;
-    setsockopt( server_socket, SOL_SOCKET, SO_REUSEADDR, (void *)&v, sizeof( v ) );
+    if( setsockopt( server_socket, SOL_SOCKET, SO_REUSEADDR, (void *)&v, sizeof( v ) ) == -1 ) {
+        close( server_socket );
+        stringstream errmsg;
+        errmsg << "Error setting SO_REUSEADDR parameter: " << strerror( errno );
+        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
+        DOMAIN_ERROR;        
+    }
 
     if( bind( server_socket, addr->ai_addr, addr->ai_addrlen ) == -1 ) {
+        close( server_socket );
         stringstream errmsg;
         errmsg << "Unable to bind to port " << port << ": " << strerror( errno );
         Workspace::more_error() = UCS_string( errmsg.str().c_str() );
@@ -88,7 +95,9 @@ void TcpListener::wait_for_connection( void )
         socklen_t length;
         int socket = accept( server_socket, &addr, &length );
         if( socket == -1 ) {
-            CERR << "Error accepting network connection: " << strerror( errno ) << endl;
+            if( !closing ) {
+                CERR << "Error accepting network connection: " << strerror( errno ) << endl;
+            }
             break;
         }
         else {
@@ -105,4 +114,12 @@ void TcpListener::wait_for_connection( void )
 
 void TcpListener::close_connection( void )
 {
+    closing = true;
+
+    if( server_socket != 0 ) {
+        close( server_socket );
+    }
+
+    void *result;
+    pthread_join( thread_id, &result );
 }
