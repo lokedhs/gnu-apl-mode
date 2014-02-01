@@ -993,8 +993,8 @@ X⊃⍴Z ←→ +/2</0,L
 Structures the items of R into an array, whose rightmost axes come
 from the axes of the items of R.
 
-  (⍴Z) ←→ (⍴R),↑⌈/(⍴¨̈(,R),⊂↑R)~⊂⍳0
- (⍴⍴Z) ←→ (⍴⍴R)+↑⌈/⍴¨̈⍴¨̈(,R),⊂↑R")
+  (⍴Z) ←→ (⍴R),↑⌈/(⍴¨(,R),⊂↑R)~⊂⍳0
+ (⍴⍴Z) ←→ (⍴⍴R)+↑⌈/⍴¨⍴¨(,R),⊂↑R")
       ("Monadic with axis" "Disclose with axis" "Structures the items of R into an array. X defines the axes of Z, into which items of R are structured"
        "Z←⊃[X]R
 Structures the items of R into an array. X defines the axes of Z,
@@ -1003,8 +1003,8 @@ into which items of R are structured.
 X: Simple scalar or vector, nonnegative integers
 
 Implicit argument: ⎕IO
- (⍴Z)[,X] ←→ ↑⌈/(⍴¨̈(,R),⊂↑R)~⊂ι0
-      ⍴⍴Z ←→ (⍴⍴R)+⌈/∊⍴¨̈⍴¨̈(,R),⊂↑R")
+ (⍴Z)[,X] ←→ ↑⌈/(⍴¨¨(,R),⊂↑R)~⊂ι0
+      ⍴⍴Z ←→ (⍴⍴R)+⌈/∊⍴¨⍴¨(,R),⊂↑R")
       ("Dyadic" "Pick" "Selects an item of R as specified by the path indexes L"
        "Z←L⊃R
 Selects an item of R as specified by the path indexes L.
@@ -1119,5 +1119,24 @@ Returns R (discarding L)")
       "Z←L⊢R
 Returns L (discarding R)")
      nil)
-    )
+
+    ;; ========================================
+
+    (("¨"
+      ("Monadic axis" "Each" "Applies the function LO to each item of R"
+       "Z←LO¨ R
+Applies the function LO to each item of R
+
+ ⍴Z ←→ ⍴R
+⍴⍴Z ←→ ⍴⍴R")
+      ("Dyadic axis" "Each" "Applies the function LO between corresponding pairs of items of L and R"
+       "Z←L LO¨ R
+Applies the function LO between corresponding pairs of items of L
+and R
+
+LO: Dyadic function
+
+ ⍴Z ←→ ⍴R or ⍴L
+⍴⍴Z ←→ ⍴⍴R or ⍴⍴L"))
+     t))
   "Documentation for APL symbols.")
