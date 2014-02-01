@@ -1,5 +1,25 @@
 ;;; -*- lexical-binding: t -*-
 
+(defun gnu-apl--string-to-apl-expression (string)
+  "Escape quotes in an APL string. If the string contains
+non-printable characters, generate a full expression. For now,
+non-printable means CR or NL characters."
+  (if (string-match "[\n\r]" string)
+      ;; The string must be formatted as an APL expression
+      (with-output-to-string
+        (princ "(⎕UCS")
+        (loop for char across string
+              do (princ (format " %d" char)))
+        (princ ")"))
+    ;; We can simply use plain string
+    (with-output-to-string
+      (princ "'")
+      (loop for char across string
+            do (if (= char ?\')
+                   (princ "''")
+                 (princ (char-to-string char))))
+      (princ "'"))))
+
 (defun gnu-apl-edit-variable (name)
   (interactive (list (gnu-apl--choose-variable "Variable: " :variable)))
   (gnu-apl--send-network-command (concat "getvar:" name))
@@ -108,7 +128,7 @@ content of the spreadsheet in this buffer."
                             (typecase item
                               (null (princ "(0⍴0)"))
                               (number (princ item))
-                              (string (princ (format "'%s'" (replace-regexp-in-string "'" "''" item))))
+                              (string (princ (gnu-apl--string-to-apl-expression item)))
                               (t (ses-goto-print row col) (error "Invalid content in cell %d,%d" row col)))
                             (if (< col (1- cols))
                                 (princ " ")
