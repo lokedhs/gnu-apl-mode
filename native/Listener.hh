@@ -22,4 +22,16 @@ protected:
     pthread_t thread_id;
 };
 
+class ListenerWrapper {
+public:
+    ListenerWrapper( Listener *listener_in ) : listener( listener_in ) { }
+
+    virtual ~ListenerWrapper() {
+        listener->close_connection();
+    }
+
+private:
+    Listener *listener;
+};
+
 #endif

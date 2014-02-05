@@ -51,6 +51,7 @@ static void *listener_loop( void *arg )
 {
     Listener *listener( (Listener *)arg );
 
+    ListenerWrapper listener_wrapper( listener );
     listener->wait_for_connection();
 
     return NULL;
@@ -98,12 +99,12 @@ void unregister_listener( Listener *listener )
         }
     }
 
-    CERR << "Listener is supposed to be found: " << found << endl;
+    Assert( found );
 
     pthread_mutex_unlock( &registered_listeners_lock );
 
     pthread_cond_broadcast( &registered_listeners_cond );
-    listener->close_connection();
+//    listener->close_connection();
 }
 
 void close_listeners( void )
