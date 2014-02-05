@@ -94,7 +94,6 @@ void UnixSocketListener::wait_for_connection( void )
             CERR << "Timed out while waiting for incoming connection" << endl;
             break;
         }
-        CERR << "ret=" << ret << ", 0r=" << fds[0].revents << ", 1r=" << fds[1].revents << endl;
 
         if( fds[1].revents & (POLLIN | POLLPRI) ) {
             CERR << "Connection interrupted (expected)" << endl;
