@@ -270,7 +270,7 @@ function or nil if the function could not be parsed."
   "Jump to the definition of the function at point."
   (interactive)
   (let ((name (thing-at-point 'symbol)))
-    (if (not (string-match "[a-zA-Z_∆⍙][a-zA-Z_∆⍙]*" name))
+    (if (not (string-match "[a-zA-Z_∆⍙][a-zA-Z0-9_∆⍙]*" name))
         (message "Symbol at point is not a proper APL symbol")
       (progn
         (gnu-apl--send-network-command (concat "functiontag:" name))
