@@ -261,7 +261,7 @@ function or nil if the function could not be parsed."
                           (format "( *%s +\\(%s\\)%s +%s)" s s f s)
                           (format "\\(?:%s +\\)?( *%s +\\(%s\\)%s +%s) +%s" s s s f s s))))
       (loop for pattern in patterns
-            when (string-match (concat "^\\(?:[a-z0-9∆⍙_]+ *← *\\)?" ; result variable
+            when (string-match (concat (format "^\\(?:%s *← *\\)?" s) ; result variable
                                        pattern
                                        " *\\(?:;.*\\)?$" ; local variables
                                        )
