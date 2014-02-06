@@ -241,30 +241,32 @@ the path to the apl program (defaults to `gnu-apl-executable')."
 (defun gnu-apl--parse-function-header (string)
   "Parse a function definition string. Returns the name of the
 function or nil if the function could not be parsed."
-  (let ((line (gnu-apl--trim-spaces string)))
-    (cond ((string-match (concat "^\\(?:[a-z0-9∆⍙_]+ *← *\\)?" ; result variable
-                                 "\\([a-za-z0-9∆⍙_ ]+\\)" ; function and arguments
-                                 "\\(?:;.*\\)?$" ; local variables
-                                 )
-                         line)
-           ;; Plain function definition
-           (let ((parts (split-string (match-string 1 line))))
-             (ecase (length parts)
-               (1 (car parts))
-               (2 (car parts))
-               (3 (cadr parts)))))
-          
-          ((string-match (concat "^\\(?:[a-z0-9∆⍙_]+ *← *\\)?" ; result variable
-                                 "\\(?: *[a-z0-9∆⍙_]+ *\\)?" ; optional left argument
-                                 "(\\([a-za-z0-9∆⍙_ ]+\\))" ; left argument and function name
-                                 ".*$" ; don't care about what comes after
-                                 )
-                         line)
-           ;; Axis operator definition
-           (let ((parts (split-string (match-string 1 line))))
-             (case (length parts)
-               (2 (cadr parts))
-               (3 (cadr parts))))))))
+  (let* ((s "[a-zA-Z_∆⍙][a-zA-Z0-9_∆⍙]*")
+         (f (format "\\(?: *\\[ *%s *\\]\\)?" s))
+         (line (gnu-apl--trim-spaces string)))
+    ;; Patterns that cover the following variations:
+    ;;    FN
+    ;;    FN R
+    ;;    L FN R
+    ;;    (LO FN)
+    ;;    (LO FN) R
+    ;;    (LO FN RO)
+    ;;    (LO FN RO) R
+    ;;    L (LO FN) R
+    ;;    L (LO FN RO) R
+    (let ((patterns (list (format "\\(%s\\)%s" s f)
+                          (format "\\(?:%s +\\)?\\(%s\\)%s +%s" s s f s)
+                          (format "( *%s +\\(%s\\)%s *)" s s f)
+                          (format "\\(?:%s +\\)?( *%s +\\(%s\\)%s *) +%s" s s s f s)
+                          (format "( *%s +\\(%s\\)%s +%s)" s s f s)
+                          (format "\\(?:%s +\\)?( *%s +\\(%s\\)%s +%s) +%s" s s s f s s))))
+      (loop for pattern in patterns
+            when (string-match (concat "^\\(?:[a-z0-9∆⍙_]+ *← *\\)?" ; result variable
+                                       pattern
+                                       " *\\(?:;.*\\)?$" ; local variables
+                                       )
+                               line)
+            return (match-string 1 line)))))
 
 (defun gnu-apl-find-function-at-point ()
   "Jump to the definition of the function at point."
