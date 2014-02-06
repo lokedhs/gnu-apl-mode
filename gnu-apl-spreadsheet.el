@@ -1,6 +1,10 @@
 ;;; -*- lexical-binding: t -*-
 
 (defun gnu-apl-edit-variable (name)
+  "Open the variable editor for the APL variable NAME.
+Currently only two-dimensional arrays of depth 1 are supported.
+These variables will be edited in a spreadsheet. After eidting,
+press C-c C-c to update the variable in the active interpreter."
   (interactive (list (gnu-apl--choose-variable "Variable: " :variable)))
   (gnu-apl--send-network-command (concat "getvar:" name))
   (let ((result (gnu-apl--read-network-reply-block)))
@@ -15,6 +19,8 @@
              (error "Unable to edit values of this type"))))))
 
 (defun gnu-apl-spreadsheet-send-to-variable (varname)
+  "Send the content of the spreadsheet to the variable VARNAME in
+the active interpreter."
   (interactive (list (or (and (boundp 'gnu-apl-var-name) gnu-apl-var-name)
                          (read-from-minibuffer "Variable name: "))))
   (let* ((variable-name varname)
@@ -80,18 +86,17 @@
       (set (make-local-variable 'gnu-apl-window-configuration) window-configuration)
       (message "To save the buffer, use M-x gnu-apl-spreadsheet-send-this-document (C-c C-c)"))))
 
-(defun gnu-apl-copy-spreadsheet-to-kill-ring (function-name)
-  "Copy a function definition representing the data in the active
-SES spreadhsheet into the kill ring. When executed, this function
-returns the content of the spreadsheet."
-  (interactive "sFunction name: ")
-  (kill-new (concat "∇" (gnu-apl-make-function-from-spreadsheet-data function-name) "\n∇")))
+(defun gnu-apl-copy-spreadsheet-to-kill-ring (varname)
+  "Copy APL code representing the data in the active SES
+spreadhsheet into the kill ring. When executed, this sets the
+value of VARNAME to the content of the spreadsheet."
+  (interactive "sVariable name: ")
+  (kill-new (concat (gnu-apl-make-function-from-spreadsheet-data varname) "\n")))
 
-(defun gnu-apl-make-function-from-spreadsheet-data (function-name)
-  "Return an APL function with name NAME that that returns an APL
-array with the same values as the spreadsheet in the current
-buffer."
-  (concat "Z←" function-name "\n" (gnu-apl-make-array-loading-instructions "Z")))
+(defun gnu-apl-make-function-from-spreadsheet-data (varname)
+  "Return a APL code that sets VARNAME to an array with the same
+values as the spreadsheet in the current buffer."
+  (concat (gnu-apl-make-array-loading-instructions varname)))
 
 (defun gnu-apl-make-array-loading-instructions (var-name)
   "Return APL instructions that sets variable VAR-NAME to the

@@ -187,6 +187,7 @@ function editor.
   (setq font-lock-defaults '(nil t)))
 
 (defun gnu-apl-open-customise ()
+  "Open the customisation editor for the gnu-apl customisation group."
   (interactive)
   (customize-group 'gnu-apl t))
 
@@ -266,7 +267,7 @@ function or nil if the function could not be parsed."
                (3 (cadr parts))))))))
 
 (defun gnu-apl-find-function-at-point ()
-  "Jump to the definition of the function at point"
+  "Jump to the definition of the function at point."
   (interactive)
   (let ((name (thing-at-point 'symbol)))
     (if (not (string-match "[a-zA-Z_∆⍙][a-zA-Z_∆⍙]*" name))

@@ -23,6 +23,7 @@ the function and set it in the running APL interpreter."
         (gnu-apl--open-function-editor-with-timer content)))))
 
 (defun gnu-apl-interactive-send-region (start end)
+  "Send the region to the active GNU APL interpreter."
   (interactive "r")
   (gnu-apl-interactive-send-string (buffer-substring start end))
   (message "Region sent to APL"))
@@ -41,6 +42,9 @@ using the def command."
   (format "%s!%d" filename line))
 
 (defun gnu-apl-interactive-send-current-function ()
+  "Send the function definition at point to the running GNU APL interpreter.
+The block is bounded by a function definition of the form
+∇definition on the top, and ending with a single ∇ character."
   (interactive)
 
   (labels ((full-function-definition-p (line)
