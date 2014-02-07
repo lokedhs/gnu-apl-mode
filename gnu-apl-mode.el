@@ -123,7 +123,7 @@ documentation will not be loaded.")
 ;;; Keymap based on the image available at: http://www.sudleyplace.com/APL/Keyboard.ahtml
 ;;; GNU APL keyboard layout: http://commons.wikimedia.org/wiki/File:GNU_APL_keyboard_layout.png
 (defvar gnu-apl--symbols '(;; Top row
-                           ("diamond" "⋄" "`")
+                           ("diamond" "◊" "`")
                            ("tilde-diaeresis" "⍨" "~")
                            ("diaeresis" "¨" "1")
                            ("inverted-exclamation-mark" "¡" "!")
