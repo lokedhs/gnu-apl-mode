@@ -16,6 +16,7 @@ private:
     std::string filename;
     bool initialised;
     bool closing;
+    int notification_fd;
 };
 
 #endif

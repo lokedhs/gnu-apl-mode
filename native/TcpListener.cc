@@ -65,9 +65,9 @@ std::string TcpListener::start( void )
     }
 
     if( listen( server_socket, 2 ) == -1 ) {
-        close( server_socket );
         stringstream errmsg;
         errmsg << "Error calling accept: " << strerror( errno ) << endl;
+        close( server_socket );
         Workspace::more_error() = UCS_string( errmsg.str().c_str() );
         DOMAIN_ERROR;
     }
@@ -75,9 +75,9 @@ std::string TcpListener::start( void )
     struct sockaddr_in listen_address;
     socklen_t listen_address_len = sizeof( listen_address );
     if( getsockname( server_socket, (struct sockaddr *)&listen_address, &listen_address_len ) == -1 ) {
-        close( server_socket );
         stringstream errmsg;
         errmsg << "Error getting port number of socket: " << strerror( errno ) << endl;
+        close( server_socket );
         Workspace::more_error() = UCS_string( errmsg.str().c_str() );
         DOMAIN_ERROR;
     }
