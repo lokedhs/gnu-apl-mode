@@ -49,9 +49,9 @@ std::string TcpListener::start( void )
 
     int v = 1;
     if( setsockopt( server_socket, SOL_SOCKET, SO_REUSEADDR, (void *)&v, sizeof( v ) ) == -1 ) {
-        close( server_socket );
         stringstream errmsg;
         errmsg << "Error setting SO_REUSEADDR parameter: " << strerror( errno );
+        close( server_socket );
         Workspace::more_error() = UCS_string( errmsg.str().c_str() );
         DOMAIN_ERROR;        
     }
