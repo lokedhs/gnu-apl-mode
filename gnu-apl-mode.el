@@ -44,6 +44,7 @@ buffer can also be toggled using the command
   :type 'boolean
   :group 'gnu-apl)
 
+;;;###autoload
 (defcustom gnu-apl-show-apl-welcome t
   "Choose if the GNU APL welcome screen should be displayed.
 When non-nil, display the GNU APL welcome screen. When this value
@@ -51,16 +52,24 @@ is nil, the apl binary is called with the --silent flag."
   :type 'boolean
   :group 'gnu-apl)
 
+;;;###autoload
 (defcustom gnu-apl-show-tips-on-start t
   "When non-nil, show some help when starting a new APL session."
   :type 'boolean
   :group 'gnu-apl)
 
+;;;###autoload
 (defcustom gnu-apl-native-listener-port 0
   "The port number that the native listener should listen to.
 If zero, randomly choose an available port.
 If -1, request the use of Unix domain sockets."
   :type 'integer
+  :group 'gnu-apl)
+
+;;;###autoload
+(defcustom gnu-apl-gnuplot-program "gnuplot"
+  "The name of the gnuplot executable."
+  :type 'string
   :group 'gnu-apl)
 
 ;;; This parameter is not customisable since there are very few cases

@@ -110,4 +110,4 @@ dimension of the exported data as a list of the form (ROWS COLS)"
               (insert ",\\"))
             (insert "\n")))
         (write-file script-file)))
-    (shell-command (format "gnuplot -p %s" script-file))))
+    (shell-command (format "%s -p %s" gnu-apl-gnuplot-program script-file))))
