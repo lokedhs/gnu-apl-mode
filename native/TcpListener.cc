@@ -57,9 +57,9 @@ std::string TcpListener::start( void )
     }
 
     if( bind( server_socket, addr->ai_addr, addr->ai_addrlen ) == -1 ) {
-        close( server_socket );
         stringstream errmsg;
         errmsg << "Unable to bind to port " << port << ": " << strerror( errno );
+        close( server_socket );
         Workspace::more_error() = UCS_string( errmsg.str().c_str() );
         DOMAIN_ERROR;
     }
