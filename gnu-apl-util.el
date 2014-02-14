@@ -28,3 +28,20 @@
       (delete-windows-on buffer)
       (kill-buffer buffer))
     (get-buffer-create name)))
+
+(defun gnu-apl--kbd (definition)
+  (if (functionp #'kbd)
+      (kbd definition)
+    (eval `(kbd ,definition))))
+
+(unless (fboundp 'cl-find)
+  (defun cl-find (&rest args)
+    (apply #'find args)))
+
+(unless (fboundp 'cl-defun)
+  (defmacro cl-defun (&rest args)
+    `(defun* ,@args)))
+
+(unless (fboundp 'cl-defmacro)
+  (defmacro cl-defmacro (&rest args)
+    `(defmacro* ,@args)))
