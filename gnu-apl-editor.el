@@ -148,12 +148,7 @@ successfully."
       (unless function-name
         (user-error "Illegal function header"))
 
-      ;; Ensure that there are no function-end markers in the buffer
-      ;; (unless it's the last character in the buffer)
-      (let* ((end-of-function (if (search-forward "∇" nil t)
-                                  (1- (point))
-                                (point-max)))
-             (buffer-content (gnu-apl--trim-trailing-newline (buffer-substring (point) end-of-function)))
+      (let* ((buffer-content (gnu-apl--trim-trailing-newline (buffer-substring (point) (point-max))))
              (content (list* function-header
                              (split-string buffer-content "\r?\n"))))
 
