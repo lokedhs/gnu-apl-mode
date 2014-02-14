@@ -1115,28 +1115,28 @@ Returns R (discarding L)")
     ;; ========================================
 
     ("⊣"
-     ("Dyadic" "Left" "Returns L"
-      "Z←L⊢R
-Returns L (discarding R)")
+     (("Dyadic" "Left" "Returns L"
+       "Z←L⊢R
+Returns L (discarding R)"))
      nil)
 
     ;; ========================================
 
     ("¨"
-     ("Monadic axis" "Each" "Applies the function LO to each item of R"
-      "Z←LO¨ R
+     (("Monadic axis" "Each" "Applies the function LO to each item of R"
+        "Z←LO¨ R
 Applies the function LO to each item of R
 
  ⍴Z ←→ ⍴R
 ⍴⍴Z ←→ ⍴⍴R")
-     ("Dyadic axis" "Each" "Applies the function LO between corresponding pairs of items of L and R"
-      "Z←L LO¨ R
+      ("Dyadic axis" "Each" "Applies the function LO between corresponding pairs of items of L and R"
+       "Z←L LO¨ R
 Applies the function LO between corresponding pairs of items of L
 and R
 
 LO: Dyadic function
 
  ⍴Z ←→ ⍴R or ⍴L
-⍴⍴Z ←→ ⍴⍴R or ⍴⍴L")
+⍴⍴Z ←→ ⍴⍴R or ⍴⍴L"))
      t))
   "Documentation for APL symbols.")
