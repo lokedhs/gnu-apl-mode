@@ -96,7 +96,6 @@ The block is bounded by a function definition of the form
            (if (string= (second return-data) "parse error")
                (let ((error-msg (third return-data))
                      (line (string-to-int (fourth return-data))))
-                 (setq palle (current-buffer))
                  (goto-line line)
                  (let ((overlay (make-overlay (save-excursion
                                                 (beginning-of-line)
