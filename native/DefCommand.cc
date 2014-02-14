@@ -59,7 +59,27 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
         }
         else {
             Token result = quad_fx.eval_B( function_list_value );
-            out << "function defined\n" << result.canonical( PST_CS_NONE ).to_string();
+            if( result.is_apl_val() ) {
+                Value_P value = result.get_apl_val();
+                if( value->is_int_skalar( 0 ) ) {
+                    out << "error\n"
+                        << "parse error\n"
+                        << "Error parsing expression\n"
+                        << value->get_ravel( 0 ).get_int_value();
+                }
+                else if( value->is_char_string() ) {
+                    out << "function defined\n"
+                        << value->get_UCS_ravel();
+                }
+                else {
+                    out << "error\n"
+                        << "illegal result type";
+                }
+            }
+            else {
+                out << "error\n"
+                    << "unknown error";
+            }
         }
         out << "\n";
         conn.write_string_to_fd( out.str() );

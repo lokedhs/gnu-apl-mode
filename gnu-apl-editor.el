@@ -88,12 +88,31 @@ The block is bounded by a function definition of the form
   (gnu-apl--send-network-command (concat "def" (if tag (concat ":" tag) "")))
   (gnu-apl--send-block content)
   (let ((return-data (gnu-apl--read-network-reply-block)))
-    (if (and return-data (string= (car return-data) "function defined"))
-        t
-      (progn
-        (gnu-apl--display-error-buffer (format "Error sending function: %s" (car content))
-                                       (cdr return-data))
-        nil))))
+    (cond ((null return-data)
+           (error "Got nil result from def command"))
+          ((string= (car return-data) "function defined")
+           t)
+          ((string= (car return-data) "error")
+           (if (string= (second return-data) "parse error")
+               (let ((error-msg (third return-data))
+                     (line (string-to-int (fourth return-data))))
+                 (setq palle (current-buffer))
+                 (goto-line line)
+                 (let ((overlay (make-overlay (save-excursion
+                                                (beginning-of-line)
+                                                (point))
+                                              (save-excursion
+                                                (end-of-line)
+                                                (point)))))
+                   (overlay-put overlay 'face '(background-color . "yellow"))
+                   (run-at-time "0.5 sec" nil #'(lambda () (delete-overlay overlay))))
+                 (message "Error on line %d: %s" line error-msg)
+                 nil)
+             (error "Unexpected error: " (second return-data))))
+          (t
+           (gnu-apl--display-error-buffer (format "Error second function: %s" (car content))
+                                          (cdr return-data))
+           nil))))
 
 (defun gnu-apl--send-si-and-send-new-function (parts edit-when-fail &optional tag)
   "Send an )SI request that should be checked against the current
@@ -119,34 +138,33 @@ successfully."
 (defun gnu-apl-save-function ()
   "Save the currently edited function."
   (interactive)
-  (save-excursion
-    (goto-char (point-min))
-    (let ((definition (gnu-apl--trim-spaces (gnu-apl--trim-trailing-newline (thing-at-point 'line)))))
-      (unless (string= (subseq definition 0 1) "∇")
-        (user-error "Function header does not start with function definition symbol"))
-      (unless (zerop (forward-line))
-        (user-error "Empty function definition"))
-      (let* ((function-header (subseq definition 1))
-             (function-name (gnu-apl--parse-function-header function-header)))
-        (unless function-name
-          (user-error "Illegal function header"))
+  (goto-char (point-min))
+  (let ((definition (gnu-apl--trim-spaces (gnu-apl--trim-trailing-newline (thing-at-point 'line)))))
+    (unless (string= (subseq definition 0 1) "∇")
+      (user-error "Function header does not start with function definition symbol"))
+    (unless (zerop (forward-line))
+      (user-error "Empty function definition"))
+    (let* ((function-header (subseq definition 1))
+           (function-name (gnu-apl--parse-function-header function-header)))
+      (unless function-name
+        (user-error "Illegal function header"))
 
-        ;; Ensure that there are no function-end markers in the buffer
-        ;; (unless it's the last character in the buffer)
-        (let* ((end-of-function (if (search-forward "∇" nil t)
-                                    (1- (point))
-                                  (point-max)))
-               (buffer-content (gnu-apl--trim-trailing-newline (buffer-substring (point) end-of-function)))
-               (content (list* function-header
-                               (split-string buffer-content "\r?\n"))))
+      ;; Ensure that there are no function-end markers in the buffer
+      ;; (unless it's the last character in the buffer)
+      (let* ((end-of-function (if (search-forward "∇" nil t)
+                                  (1- (point))
+                                (point-max)))
+             (buffer-content (gnu-apl--trim-trailing-newline (buffer-substring (point) end-of-function)))
+             (content (list* function-header
+                             (split-string buffer-content "\r?\n"))))
 
-          (when (gnu-apl--send-si-and-send-new-function content t)
-            (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
-                                            gnu-apl-window-configuration
-                                          nil)))
-              (kill-buffer (current-buffer))
-              (when window-configuration
-                (set-window-configuration window-configuration)))))))))
+        (when (gnu-apl--send-si-and-send-new-function content t)
+          (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
+                                          gnu-apl-window-configuration
+                                        nil)))
+            (kill-buffer (current-buffer))
+            (when window-configuration
+              (set-window-configuration window-configuration))))))))
 
 (define-minor-mode gnu-apl-interactive-edit-mode
   "Minor mode for editing functions in the GNU APL function editor"
