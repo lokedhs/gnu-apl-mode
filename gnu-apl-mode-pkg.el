@@ -5,4 +5,4 @@
 ;; Author: Elias Martenson <lokedhs@gmail.com>
 ;; URL: https://github.com/lokedhs/gnu-apl-mode
 (define-package "gnu-apl-mode" "1.2.0" "Integrate GNU APL with Emacs"
-  nil)
+  '((emacs "24")))
