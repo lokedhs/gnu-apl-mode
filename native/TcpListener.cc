@@ -119,7 +119,4 @@ void TcpListener::close_connection( void )
     if( server_socket != 0 ) {
         close( server_socket );
     }
-
-    void *result;
-    pthread_join( thread_id, &result );
 }
