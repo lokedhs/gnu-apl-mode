@@ -16,7 +16,6 @@
 
 UnixSocketListener::~UnixSocketListener()
 {
-    printf("Dest USL:%p\n", this);
 }
 
 std::string UnixSocketListener::start( void )
