@@ -36,8 +36,10 @@ private:
 
 static void send_reply( NetworkConnection &conn, std::string message )
 {
-    conn.write_string_to_fd( message );
-    conn.write_string_to_fd( "\n" END_TAG "\n" );
+    stringstream out;
+    out << message << "\n"
+        << END_TAG << "\n";
+    conn.write_string_to_fd( out.str() );
 }
 
 static void escape_char( stringstream &out, Unicode unicode )
@@ -166,10 +168,9 @@ void GetVarCommand::run_command( NetworkConnection &conn, const std::vector<std:
         stringstream out;
         out << "content\n";
         apl_value_to_el( out, value );
-        conn.write_string_to_fd( out.str() );
+        conn.send_reply( out.str() );
     }
     catch( InvalidSymbolContent &exception ) {
-        conn.write_string_to_fd( exception.get_message() );
+        conn.send_reply( exception.get_message() );
     }
-    conn.write_string_to_fd( "\n" END_TAG "\n" );
 }

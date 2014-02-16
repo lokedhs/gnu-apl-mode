@@ -44,7 +44,5 @@ void RunCommand::run_command( NetworkConnection &conn, const std::vector<std::st
         result_stream << "result:NOT-IMPL";
     }
 
-    result_stream << "\n" << END_TAG << "\n";
-
-    conn.write_string_to_fd( result_stream.str() );
+    conn.send_reply( result_stream.str() );
 }

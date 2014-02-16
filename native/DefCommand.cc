@@ -81,7 +81,8 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
                     << "unknown error";
             }
         }
-        out << "\n";
+        out << "\n"
+            << END_TAG << "\n";
         conn.write_string_to_fd( out.str() );
     }
     catch( Error &error ) {
@@ -90,9 +91,8 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
 
         log_error( error, out );
 
-        out << "\n";
+        out << "\n"
+            << END_TAG << "\n";
         conn.write_string_to_fd( out.str() );
     }
-
-    conn.write_string_to_fd( END_TAG "\n" );
 }

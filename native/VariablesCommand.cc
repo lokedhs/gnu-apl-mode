@@ -56,6 +56,5 @@ void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<s
         }
     }
 
-    conn.write_string_to_fd( out.str() );
-    conn.write_string_to_fd( END_TAG "\n" );
+    conn.send_reply( out.str() );
 }
