@@ -22,9 +22,56 @@
 #include "FollowCommand.hh"
 #include "emacs.hh"
 
-#include "Quad_FX.hh"
+#include "Symbol.hh"
+
+static void symbol_assignment( const Symbol &symbol, Symbol_Event ev )
+{
+    CERR << "event on " << symbol.get_name() << ": " << ev << endl;
+}
+
+static bool parse_boolean( string arg )
+{
+    if( arg == "on" ) {
+        return true;
+    }
+    else if( arg == "off" ) {
+        return false;
+    }
+    else {
+        throw ConnectionError( "unexpected argument to trace" );
+    }
+}
+
+static void enable_trace( const Symbol *symbol )
+{
+}
+
+static void disable_trace( const Symbol *symbol )
+{
+}
 
 void FollowCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
+    if( args.size() != 3 ) {
+        throw ConnectionError( "Wrong number of arguments to trace" );
+    }
 
+    SymbolTable &symbol_table = const_cast<SymbolTable &>( Workspace::get_symbol_table() );
+    Symbol *symbol = symbol_table.lookup_existing_symbol( ucs_string_from_string( args[1] ) );
+    if( symbol == NULL ) {
+        conn.send_reply( "undefined" );
+        return;
+    }
+    if( symbol->get_nc() != NC_VARIABLE ) {
+        conn.send_reply( "wrong type" );
+        return;
+    }
+
+    bool enable = parse_boolean( args[2] );
+    if( enable ) {
+        enable_trace( symbol );
+    }
+    else {
+        disable_trace( symbol );
+    }
 }
