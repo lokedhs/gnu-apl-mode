@@ -32,6 +32,8 @@ std::string UnixSocketListener::start( void )
     name << "/tmp/gnu_apl_conn_" << getpid();
     filename = name.str();
 
+    unlink( filename.c_str() );
+
     struct sockaddr_un addr;
     addr.sun_family = AF_UNIX;
     strncpy( addr.sun_path, filename.c_str(), sizeof( addr.sun_path ) );
