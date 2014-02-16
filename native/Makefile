@@ -22,7 +22,7 @@ CXXFLAGS = -Wall -fPIC -g -I$(APL_DIST)/src
 LIBS = -lpthread
 OBJS = emacs.o network.o util.o Listener.o TcpListener.o UnixSocketListener.o NetworkConnection.o \
 	SiCommand.o SicCommand.o FnCommand.o DefCommand.o GetVarCommand.o \
-	VariablesCommand.o FnTagCommand.o
+	VariablesCommand.o FnTagCommand.o VersionCommand.o
 
 UNAME = $(shell uname)
 ifeq ($(UNAME),Darwin)

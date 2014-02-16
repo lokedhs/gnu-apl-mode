@@ -31,6 +31,7 @@
 #include "VariablesCommand.hh"
 #include "RunCommand.hh"
 #include "FnTagCommand.hh"
+#include "VersionCommand.hh"
 
 #include <iostream>
 #include <sstream>
@@ -59,6 +60,7 @@ NetworkConnection::NetworkConnection( int socket_in )
     add_command( commands, new GetVarCommand( "getvar" ) );
     add_command( commands, new VariablesCommand( "variables" ) );
     add_command( commands, new FnTagCommand( "functiontag" ) );
+    add_command( commands, new VersionCommand( "proto" ) );
 }
 
 NetworkConnection::~NetworkConnection()
