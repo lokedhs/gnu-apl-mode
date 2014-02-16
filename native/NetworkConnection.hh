@@ -42,6 +42,7 @@ private:
     int buffer_pos;
     int buffer_length;
     std::map<std::string, NetworkCommand *> commands;
+    pthread_mutex_t connection_lock;
 
     int process_command( const std::string &command );
     void show_si( void );

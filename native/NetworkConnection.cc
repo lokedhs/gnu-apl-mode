@@ -21,6 +21,7 @@
 #include "emacs.hh"
 #include "util.hh"
 #include "NetworkConnection.hh"
+#include "LockWrapper.hh"
 #include "UserFunction.hh"
 #include "Quad_FX.hh"
 #include "SiCommand.hh"
@@ -32,6 +33,7 @@
 #include "RunCommand.hh"
 #include "FnTagCommand.hh"
 #include "VersionCommand.hh"
+#include "FollowCommand.hh"
 
 #include <iostream>
 #include <sstream>
@@ -44,7 +46,6 @@
 #include <errno.h>
 #include <string.h>
 
-
 static void add_command( std::map<std::string, NetworkCommand *> &commands, NetworkCommand *command )
 {
     commands.insert( std::pair<std::string, NetworkCommand *>( command->get_name(), command ) );
@@ -53,6 +54,8 @@ static void add_command( std::map<std::string, NetworkCommand *> &commands, Netw
 NetworkConnection::NetworkConnection( int socket_in )
     : socket_fd(socket_in), buffer_pos(0), buffer_length(0)
 {
+    pthread_mutex_init( &connection_lock, NULL );
+
     add_command( commands, new SiCommand( "si" ) );
     add_command( commands, new SicCommand( "sic" ) );
     add_command( commands, new FnCommand( "fn" ) );
@@ -61,6 +64,7 @@ NetworkConnection::NetworkConnection( int socket_in )
     add_command( commands, new VariablesCommand( "variables" ) );
     add_command( commands, new FnTagCommand( "functiontag" ) );
     add_command( commands, new VersionCommand( "proto" ) );
+    add_command( commands, new FollowCommand( "trace" ) );
 }
 
 NetworkConnection::~NetworkConnection()
@@ -111,6 +115,8 @@ std::string NetworkConnection::read_line_from_fd()
 
 void NetworkConnection::write_string_to_fd( const std::string &s )
 {
+    LockWrapper lock_wrapper( &connection_lock );
+
     const char *buf = s.c_str();
     int n = strlen( buf );
     int pos = 0;
@@ -138,7 +144,7 @@ std::vector<std::string> NetworkConnection::load_block( void )
 
 int NetworkConnection::process_command( const std::string &command )
 {
-    LockWrapper lock;
+    ActiveWrapper lock;
     std::vector<std::string> elements = split( command, ':' );
     if( elements.size() > 0 ) {
         std::string operation = elements[0];
