@@ -182,6 +182,7 @@ function editor.
   (set (make-local-variable 'gnu-apl-preoutput-filter-state) 'normal)
   (set (make-local-variable 'gnu-apl-input-display-type) 'cout)
   (set (make-local-variable 'comint-input-sender) 'gnu-apl--send)
+  (set (make-local-variable 'gnu-apl-trace-symbols) nil)
   (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
 
   (setq font-lock-defaults '(nil t)))

@@ -32,13 +32,17 @@
           (set (make-local-variable 'gnu-apl--current-incoming) "")
           (set (make-local-variable 'gnu-apl--results) nil)
           (set (make-local-variable 'gnu-apl--notifications) nil)
-          (set (make-local-variable 'gnu-apl--incoming-state) 'normal))
-          (set-process-filter proc 'gnu-apl--filter-network)
+          (set (make-local-variable 'gnu-apl--incoming-state) 'normal)
+          (set-process-filter proc 'gnu-apl--filter-network))
       ;; TODO: Error handling is pretty poor right now
       ('file-error (error "err:%S type:%S" err (type-of err))))))
 
 (defun gnu-apl--process-notification (lines)
-  (llog "Got notification: %S" lines))
+  (let ((type (car lines)))
+    (cond ((string= type "symbol_update")
+           (gnu-apl--trace-symbol-updated (cdr lines)))
+          (t
+           (error "Unexpected notificationt type: %s" type)))))
 
 (defun gnu-apl--filter-network (proc output)
   (with-current-buffer (gnu-apl--get-interactive-session)
@@ -68,6 +72,10 @@
 
           finally (when (plusp start)
                     (setq gnu-apl--current-incoming (subseq gnu-apl--current-incoming start))))))
+
+(defun gnu-apl--send-network-command-and-read (command)
+  (gnu-apl--send-network-command command)
+  (gnu-apl--read-network-reply-block))
 
 (defun gnu-apl--send-network-command (command)
   (with-current-buffer (gnu-apl--get-interactive-session)

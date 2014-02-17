@@ -21,6 +21,7 @@
 #ifndef NETWORK_CONNECTION_HH
 #define NETWORK_CONNECTION_HH
 
+#include <pthread.h>
 #include <string>
 #include <vector>
 #include <map>

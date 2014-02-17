@@ -79,7 +79,7 @@ static void enable_trace( NetworkConnection &conn, Symbol *symbol )
     TraceData *data = find_trace_data( symbol );
     data->add_listener( &conn );
 
-    conn.send_reply( "trace enable" );
+    conn.send_reply( "enabled" );
 }
 
 static void disable_trace( NetworkConnection &conn, Symbol *symbol )
@@ -89,7 +89,7 @@ static void disable_trace( NetworkConnection &conn, Symbol *symbol )
     TraceData *data = find_trace_data( symbol );
     data->remove_listener( &conn );
 
-    conn.send_reply( "trace disable" );
+    conn.send_reply( "disabled" );
 }
 
 void FollowCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )

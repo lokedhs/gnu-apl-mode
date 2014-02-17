@@ -29,9 +29,13 @@ void TraceData::remove_listener( NetworkConnection *connection )
 
 void TraceData::send_update( Symbol_Event ev )
 {
+    Value_P v = symbol->get_value();
+
     stringstream out;
     out << "symbol_update" << endl
-        << symbol->get_name();
+        << symbol->get_name() << endl;
+    v->print( out );
+
     string str = out.str();
     for( set<NetworkConnection *>::iterator it = active_listeners.begin() ; it != active_listeners.end() ; it++ ) {
         NetworkConnection *conn = *it;
