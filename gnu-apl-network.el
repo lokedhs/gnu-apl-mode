@@ -28,12 +28,12 @@
     (condition-case err
         (let ((proc (gnu-apl--connect-to-remote connect-mode addr)))
           (set-process-coding-system proc 'utf-8 'utf-8)
-          (set-process-filter proc 'gnu-apl--filter-network)
           (set (make-local-variable 'gnu-apl--connection) proc)
           (set (make-local-variable 'gnu-apl--current-incoming) "")
           (set (make-local-variable 'gnu-apl--results) nil)
           (set (make-local-variable 'gnu-apl--notifications) nil)
           (set (make-local-variable 'gnu-apl--incoming-state) 'normal))
+          (set-process-filter proc 'gnu-apl--filter-network)
       ;; TODO: Error handling is pretty poor right now
       ('file-error (error "err:%S type:%S" err (type-of err))))))
 
