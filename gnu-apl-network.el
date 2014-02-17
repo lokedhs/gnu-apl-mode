@@ -1,6 +1,8 @@
 ;;; -*- lexical-binding: t -*-
 
 (defvar *gnu-apl-end-tag* "APL_NATIVE_END_TAG")
+(defvar *gnu-apl-notification-start* "APL_NATIVE_NOTIFICATION_START")
+(defvar *gnu-apl-notification-end* "APL_NATIVE_NOTIFICATION_END")
 
 (defun gnu-apl--connect-to-remote (connect-mode addr)
   (cond ((string= connect-mode "tcp")
@@ -33,6 +35,18 @@
       ;; TODO: Error handling is pretty poor right now
       ('file-error (error "err:%S type:%S" err (type-of err))))))
 
+(defun gnu-apl--process-notification (lines)
+  (llog "Got notification: %S" lines))
+
+(defun gnu-apl--find-notification ()
+  (let ((start (cl-find *gnu-apl-notification-start* gnu-apl--current-incoming :test #'string=)))
+    (when start
+      (let ((end (cl-find *gnu-apl-notification-end* gnu-apl--current-incoming
+                          :test #'string=
+                          :start (1+ start))))
+        (when end
+          (list start end))))))
+
 (defun gnu-apl--filter-network (proc output)
   (with-current-buffer (gnu-apl--get-interactive-session)
     (setq gnu-apl--current-incoming (concat gnu-apl--current-incoming output))
@@ -43,7 +57,14 @@
                (setq start (1+ pos))
                (setq gnu-apl--results (nconc gnu-apl--results (list s))))
           finally (when (plusp start)
-                    (setq gnu-apl--current-incoming (subseq gnu-apl--current-incoming start))))))
+                    (setq gnu-apl--current-incoming (subseq gnu-apl--current-incoming start))))
+    (loop for pos = (gnu-apl--find-notification)
+          while pos
+          do (progn
+               (gnu-apl--process-notification (subseq gnu-apl--current-incoming
+                                                      (1+ (car pos)) (1- (cadr pos))))
+               (setq gnu-apl--current-incoming (append (subseq gnu-apl--current-incoming 0 (car pos))
+                                                       (subseq gnu-apl--current-incoming (cadr pos))))))))
 
 (defun gnu-apl--send-network-command (command)
   (with-current-buffer (gnu-apl--get-interactive-session)
@@ -56,7 +77,7 @@
 
 (defun gnu-apl--read-network-reply ()
   (with-current-buffer (gnu-apl--get-interactive-session)
-    (loop while (null gnu-apl--results)
+    (loop while (or (null gnu-apl--results))
           do (accept-process-output gnu-apl--connection 3))
     (let ((value (pop gnu-apl--results)))
       value)))

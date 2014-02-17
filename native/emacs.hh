@@ -40,6 +40,7 @@ void set_active( bool v );
 
 #define END_TAG "APL_NATIVE_END_TAG"
 #define NOTIFICATION_START_TAG "APL_NATIVE_NOTIFICATION_START"
+#define NOTIFICATION_END_TAG "APL_NATIVE_NOTIFICATION_END"
 
 class ActiveWrapper
 {
