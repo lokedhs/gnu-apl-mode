@@ -39,6 +39,7 @@ void set_active( bool v );
 #define PROTOCOL_VERSION "1.2"
 
 #define END_TAG "APL_NATIVE_END_TAG"
+#define NOTIFICATION_START_TAG "APL_NATIVE_NOTIFICATION_START"
 
 class ActiveWrapper
 {

@@ -183,3 +183,12 @@ void NetworkConnection::send_reply( const std::string &str )
         << END_TAG << "\n";
     write_string_to_fd( out.str() );
 }
+
+void NetworkConnection::send_notification( const std::string &str )
+{
+    std::stringstream out;
+    out << NOTIFICATION_START_TAG << "\n"
+        << str << "\n"
+        << END_TAG << "\n";
+    write_string_to_fd( out.str() );
+}

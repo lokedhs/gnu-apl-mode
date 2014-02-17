@@ -36,6 +36,7 @@ public:
     void write_string_to_fd( const std::string &s );
     std::vector<std::string> load_block( void );
     void send_reply( const std::string &message );
+    void send_notification( const std::string &message );
 
 private:
     int socket_fd;

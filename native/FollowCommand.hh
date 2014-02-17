@@ -22,11 +22,14 @@
 #define FOLLOW_COMMAND_HH
 
 #include "NetworkCommand.hh"
+#include "Symbol.hh"
 
 class FollowCommand : public NetworkCommand {
 public:
     FollowCommand( std::string name_in ) : NetworkCommand( name_in ) {};
     virtual void run_command( NetworkConnection &conn, const std::vector<std::string> &args );
 };
+
+void symbol_assignment( const Symbol &symbol, Symbol_Event ev );
 
 #endif

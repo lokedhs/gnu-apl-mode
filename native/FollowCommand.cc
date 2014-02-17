@@ -18,15 +18,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "emacs.hh"
 #include "NetworkConnection.hh"
 #include "FollowCommand.hh"
-#include "emacs.hh"
 
+#include "TraceData.hh"
 #include "Symbol.hh"
+#include "LockWrapper.hh"
 
-static void symbol_assignment( const Symbol &symbol, Symbol_Event ev )
+#include <map>
+
+typedef map<const Symbol *, TraceData *> SymbolTraceMap;
+
+SymbolTraceMap trace_data; 
+pthread_mutex_t trace_data_lock = PTHREAD_MUTEX_INITIALIZER;
+
+void symbol_assignment( const Symbol &symbol, Symbol_Event ev )
 {
-    CERR << "event on " << symbol.get_name() << ": " << ev << endl;
+    LockWrapper lock_wrapper( &trace_data_lock );
+
+    SymbolTraceMap::iterator it = trace_data.find( &symbol );
+    if( it != trace_data.end() ) {
+        TraceData *data = it->second;
+        data->send_update( ev );
+    }
 }
 
 static bool parse_boolean( string arg )
@@ -42,12 +57,39 @@ static bool parse_boolean( string arg )
     }
 }
 
-static void enable_trace( const Symbol *symbol )
+static TraceData *find_trace_data( Symbol *symbol )
 {
+    TraceData *data;
+    SymbolTraceMap::iterator it = trace_data.find( symbol );
+    if( it == trace_data.end() ) {
+        data = new TraceData( symbol );
+        trace_data[symbol] = data;
+    }
+    else {
+        data = it->second;
+    }
+
+    return data;
 }
 
-static void disable_trace( const Symbol *symbol )
+static void enable_trace( NetworkConnection &conn, Symbol *symbol )
 {
+    LockWrapper lock_wrapper( &trace_data_lock );
+
+    TraceData *data = find_trace_data( symbol );
+    data->add_listener( &conn );
+
+    conn.send_reply( "trace enable" );
+}
+
+static void disable_trace( NetworkConnection &conn, Symbol *symbol )
+{
+    LockWrapper lock_wrapper( &trace_data_lock );
+
+    TraceData *data = find_trace_data( symbol );
+    data->remove_listener( &conn );
+
+    conn.send_reply( "trace disable" );
 }
 
 void FollowCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
@@ -69,9 +111,9 @@ void FollowCommand::run_command( NetworkConnection &conn, const std::vector<std:
 
     bool enable = parse_boolean( args[2] );
     if( enable ) {
-        enable_trace( symbol );
+        enable_trace( conn, symbol );
     }
     else {
-        disable_trace( symbol );
+        disable_trace( conn, symbol );
     }
 }
