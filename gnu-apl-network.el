@@ -31,21 +31,14 @@
           (set-process-filter proc 'gnu-apl--filter-network)
           (set (make-local-variable 'gnu-apl--connection) proc)
           (set (make-local-variable 'gnu-apl--current-incoming) "")
-          (set (make-local-variable 'gnu-apl--results) nil))
+          (set (make-local-variable 'gnu-apl--results) nil)
+          (set (make-local-variable 'gnu-apl--notifications) nil)
+          (set (make-local-variable 'gnu-apl--incoming-state) 'normal))
       ;; TODO: Error handling is pretty poor right now
       ('file-error (error "err:%S type:%S" err (type-of err))))))
 
 (defun gnu-apl--process-notification (lines)
   (llog "Got notification: %S" lines))
-
-(defun gnu-apl--find-notification ()
-  (let ((start (cl-find *gnu-apl-notification-start* gnu-apl--current-incoming :test #'string=)))
-    (when start
-      (let ((end (cl-find *gnu-apl-notification-end* gnu-apl--current-incoming
-                          :test #'string=
-                          :start (1+ start))))
-        (when end
-          (list start end))))))
 
 (defun gnu-apl--filter-network (proc output)
   (with-current-buffer (gnu-apl--get-interactive-session)
@@ -55,16 +48,26 @@
           while pos
           do (let ((s (subseq gnu-apl--current-incoming start pos)))
                (setq start (1+ pos))
-               (setq gnu-apl--results (nconc gnu-apl--results (list s))))
+
+               (cond ((string= s *gnu-apl-notification-start*)
+                      (unless (eq gnu-apl--incoming-state 'normal)
+                        (error "Attempt to enter notification state while in notification"))
+                      (setq gnu-apl--incoming-state 'override))
+                     ((string= s *gnu-apl-notification-end*)
+                      (unless (eq gnu-apl--incoming-state 'override)
+                        (error "Attempt to exit notification state while in normal state"))
+                      (setq gnu-apl--incoming-state 'normal)
+                      (gnu-apl--process-notification gnu-apl--notifications)
+                      (setq gnu-apl--notifications nil))
+                     ((eq gnu-apl--incoming-state 'normal)
+                      (setq gnu-apl--results (nconc gnu-apl--results (list s))))
+                     ((eq gnu-apl--incoming-state 'override)
+                      (setq gnu-apl--notifications (nconc gnu-apl--notifications (list s))))
+                     (t
+                      (error "Illegal state"))))
+
           finally (when (plusp start)
-                    (setq gnu-apl--current-incoming (subseq gnu-apl--current-incoming start))))
-    (loop for pos = (gnu-apl--find-notification)
-          while pos
-          do (progn
-               (gnu-apl--process-notification (subseq gnu-apl--current-incoming
-                                                      (1+ (car pos)) (1- (cadr pos))))
-               (setq gnu-apl--current-incoming (append (subseq gnu-apl--current-incoming 0 (car pos))
-                                                       (subseq gnu-apl--current-incoming (cadr pos))))))))
+                    (setq gnu-apl--current-incoming (subseq gnu-apl--current-incoming start))))))
 
 (defun gnu-apl--send-network-command (command)
   (with-current-buffer (gnu-apl--get-interactive-session)
@@ -77,7 +80,7 @@
 
 (defun gnu-apl--read-network-reply ()
   (with-current-buffer (gnu-apl--get-interactive-session)
-    (loop while (or (null gnu-apl--results))
+    (loop while (null gnu-apl--results)
           do (accept-process-output gnu-apl--connection 3))
     (let ((value (pop gnu-apl--results)))
       value)))
