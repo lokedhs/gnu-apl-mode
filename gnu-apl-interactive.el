@@ -221,6 +221,7 @@ the path to the apl program (defaults to `gnu-apl-executable')."
       (user-error "GNU APL Executable was not set"))
     (pop-to-buffer-same-window buffer)
     (unless (comint-check-proc buffer)
+      (gnu-apl--cleanup-trace-symbol buffer)
       (when gnu-apl-show-tips-on-start
         (gnu-apl--insert-tips))
       (apply #'make-comint-in-buffer
