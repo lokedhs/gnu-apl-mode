@@ -3,6 +3,7 @@
 (defvar *gnu-apl-end-tag* "APL_NATIVE_END_TAG")
 (defvar *gnu-apl-notification-start* "APL_NATIVE_NOTIFICATION_START")
 (defvar *gnu-apl-notification-end* "APL_NATIVE_NOTIFICATION_END")
+(defvar *gnu-apl-protocol* "1.3")
 
 (defun gnu-apl--connect-to-remote (connect-mode addr)
   (cond ((string= connect-mode "tcp")
@@ -20,6 +21,22 @@
         (t
          (error "Unexpected connect mode: %s" connect-mode))))
 
+(defun gnu-apl--protocol-acceptable-p (version)
+  (let ((remote-version-parts (split-string version "\\."))
+        (supported-version-parts (split-string *gnu-apl-protocol* "\\.")))
+    (loop with remote-parts-length = (length remote-version-parts)
+          for i from 0 below (length supported-version-parts)
+          for s = (nth i supported-version-parts)
+          when (>= i remote-parts-length)
+          return nil
+          do (let ((si (string-to-int s))
+                   (ri (string-to-int (nth i remote-version-parts))))
+               (cond ((< si ri)
+                      (return t))
+                     ((> si ri)
+                      (return nil))))
+          finally (return t))))
+
 (defun gnu-apl--connect (connect-mode addr)
   (with-current-buffer (gnu-apl--get-interactive-session)
     (when (and (boundp 'gnu-apl--connection)
@@ -35,7 +52,11 @@
           (set (make-local-variable 'gnu-apl--incoming-state) 'normal)
           (set-process-filter proc 'gnu-apl--filter-network))
       ;; TODO: Error handling is pretty poor right now
-      ('file-error (error "err:%S type:%S" err (type-of err))))))
+      ('file-error (error "err:%S type:%S" err (type-of err))))
+    (condition-case err
+        (let ((version (gnu-apl--send-network-command-and-read "proto")))
+          (unless (gnu-apl--protocol-acceptable-p (car version))
+            (error "GNU APL version too old. Please upgrade to at least %s" *gnu-apl-protocol*))))))
 
 (defun gnu-apl--process-notification (lines)
   (let ((type (car lines)))

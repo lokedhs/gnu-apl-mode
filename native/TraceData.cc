@@ -1,6 +1,7 @@
 #include "TraceData.hh"
 #include "LockWrapper.hh"
 #include "FollowCommand.hh"
+#include "Workspace.hh"
 
 TraceData::TraceData( Symbol *symbol_in ) : symbol( symbol_in )
 {
@@ -27,6 +28,14 @@ void TraceData::remove_listener( NetworkConnection *connection )
     }
 }
 
+static Value_P make_value( APL_Integer v )
+{
+    Value_P value( new Value( LOC ) );
+    value->get_ravel( 0 ) = IntCell( v );
+    value->check_value( LOC );
+    return value;
+}
+
 void TraceData::send_update( Symbol_Event ev )
 {
     Value_P v = symbol->get_value();
@@ -34,7 +43,12 @@ void TraceData::send_update( Symbol_Event ev )
     stringstream out;
     out << "symbol_update" << endl
         << symbol->get_name() << endl;
+    Quad_PW &quad_pw = Workspace::get_v_Quad_PW();
+    Symbol *s = &quad_pw;
+    APL_Integer pw = quad_pw.current();
+//    s->assign( make_value( MAX_QUAD_PW ), LOC );
     v->print( out );
+//    s->assign( make_value( pw ), LOC );
 
     string str = out.str();
     for( set<NetworkConnection *>::iterator it = active_listeners.begin() ; it != active_listeners.end() ; it++ ) {
