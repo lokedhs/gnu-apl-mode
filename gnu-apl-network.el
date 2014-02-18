@@ -113,9 +113,7 @@
 (defun gnu-apl--read-network-reply ()
   (with-current-buffer (gnu-apl--get-interactive-session)
     (loop while (and (null gnu-apl--results) (process-live-p gnu-apl--connection))
-          do (llog "waiting: %S" (current-time))
-          do (accept-process-output gnu-apl--connection 3)
-          do (llog "After accept"))
+          do (accept-process-output gnu-apl--connection 3))
     (unless gnu-apl--results
       (signal 'gnu-apl-network-proto-error 'disconnected))
     (let ((value (pop gnu-apl--results)))
