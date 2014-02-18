@@ -4,7 +4,7 @@
   "Open the function with the given name in a separate buffer.
 After editing the function, use `gnu-apl-save-function' to save
 the function and set it in the running APL interpreter."
-  (interactive (list (gnu-apl--choose-variable "Function name: " :function)))
+  (interactive (list (gnu-apl--choose-variable "Function name" :function (gnu-apl--symbol-at-point))))
   (gnu-apl--get-function name))
 
 (defun gnu-apl--get-function (function-definition)
@@ -186,19 +186,32 @@ successfully."
     (set (make-local-variable 'gnu-apl-window-configuration) window-configuration)
     (message "To save the buffer, use M-x gnu-apl-save-function (C-c C-c)")))
 
-(defun gnu-apl--choose-variable (prompt &optional type)
+(defun gnu-apl--choose-variable (prompt &optional type default-value)
   (gnu-apl--send-network-command (concat "variables"
                                          (ecase type
                                            (nil "")
                                            (:function ":function")
                                            (:variable ":variable"))))
   (let ((results (gnu-apl--read-network-reply-block)))
-    (completing-read prompt results
-                     nil ; require-match
-                     nil ; initial-input
-                     nil ; hist
-                     nil ; def
-                     )))
+    (let ((initial (if (and default-value
+                            (cl-find default-value results :test #'string=))
+                       default-value
+                     nil)))
+      (let ((response (completing-read (if initial
+                                           (format "%s (default \"%s\"): " prompt initial)
+                                         (format "%s: " prompt))
+                                       results ; options
+                                       nil ; predicate
+                                       nil ; require-match
+                                       nil ; initial-input
+                                       nil ; hist
+                                       initial ; def
+                                       t ; inherit input method
+                                       )))
+        (let ((trimmed (gnu-apl--trim-spaces response)))
+          (when (string= trimmed "")
+            (user-error "Illegal variable"))
+          trimmed)))))
 
 (defun gnu-apl--display-error-buffer (title messages)
   "Open an error buffer with the given title and content"

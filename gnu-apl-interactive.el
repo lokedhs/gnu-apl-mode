@@ -17,13 +17,17 @@ development of the native code.")
                            (concat string "\n"))))
     (comint-send-string p string-with-ret)))
 
+(defun gnu-apl--get-interactive-session-with-nocheck ()
+  (when gnu-apl-current-session
+    (let ((proc-status (comint-check-proc gnu-apl-current-session)))
+      (when (eq (car proc-status) 'run)
+        gnu-apl-current-session))))
+
 (defun gnu-apl--get-interactive-session ()
-  (unless gnu-apl-current-session
-    (user-error "No active GNU APL session"))
-  (let ((proc-status (comint-check-proc gnu-apl-current-session)))
-    (unless (eq (car proc-status) 'run)
-      (user-error "GNU APL session has exited"))
-    gnu-apl-current-session))
+  (let ((session (gnu-apl--get-interactive-session-with-nocheck)))
+    (unless session
+      (user-error "No active GNU APL session"))
+    session))
 
 (defvar *gnu-apl-native-lib* "EMACS_NATIVE")
 (defvar *gnu-apl-ignore-start* "IGNORE-START")
