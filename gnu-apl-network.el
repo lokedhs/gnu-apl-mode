@@ -24,20 +24,7 @@
          (error "Unexpected connect mode: %s" connect-mode))))
 
 (defun gnu-apl--protocol-acceptable-p (version)
-  (let ((remote-version-parts (split-string version "\\."))
-        (supported-version-parts (split-string *gnu-apl-protocol* "\\.")))
-    (loop with remote-parts-length = (length remote-version-parts)
-          for i from 0 below (length supported-version-parts)
-          for s = (nth i supported-version-parts)
-          when (>= i remote-parts-length)
-          return nil
-          do (let ((si (string-to-int s))
-                   (ri (string-to-int (nth i remote-version-parts))))
-               (cond ((< si ri)
-                      (return t))
-                     ((> si ri)
-                      (return nil))))
-          finally (return t))))
+  (not (version< version *gnu-apl-protocol*)))
 
 (defun gnu-apl--connect (connect-mode addr)
   (with-current-buffer (gnu-apl--get-interactive-session)
