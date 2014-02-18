@@ -5,6 +5,8 @@
 (defvar *gnu-apl-notification-end* "APL_NATIVE_NOTIFICATION_END")
 (defvar *gnu-apl-protocol* "1.3")
 
+(define-error 'gnu-apl-protocol-error "Network connection error")
+
 (defun gnu-apl--connect-to-remote (connect-mode addr)
   (cond ((string= connect-mode "tcp")
          (open-network-stream "*gnu-apl-connection*" nil "localhost" (string-to-number addr)
@@ -56,7 +58,8 @@
     (condition-case err
         (let ((version (gnu-apl--send-network-command-and-read "proto")))
           (unless (gnu-apl--protocol-acceptable-p (car version))
-            (error "GNU APL version too old. Please upgrade to at least %s" *gnu-apl-protocol*))))))
+            (error "GNU APL version too old (%s). Please upgrade to at least %s" (car version) *gnu-apl-protocol*)))
+      ('gnu-apl-protocol-error (error "GNU APL version too old (<1.3). Please upgrade to at least %s" *gnu-apl-protocol*)))))
 
 (defun gnu-apl--process-notification (lines)
   (let ((type (car lines)))
@@ -109,8 +112,12 @@
 
 (defun gnu-apl--read-network-reply ()
   (with-current-buffer (gnu-apl--get-interactive-session)
-    (loop while (null gnu-apl--results)
-          do (accept-process-output gnu-apl--connection 3))
+    (loop while (and (null gnu-apl--results) (process-live-p gnu-apl--connection))
+          do (llog "waiting: %S" (current-time))
+          do (accept-process-output gnu-apl--connection 3)
+          do (llog "After accept"))
+    (unless gnu-apl--results
+      (signal 'gnu-apl-protocol-error 'disconnected))
     (let ((value (pop gnu-apl--results)))
       value)))
 

@@ -63,7 +63,7 @@ NetworkConnection::NetworkConnection( int socket_in )
     add_command( commands, new GetVarCommand( "getvar" ) );
     add_command( commands, new VariablesCommand( "variables" ) );
     add_command( commands, new FnTagCommand( "functiontag" ) );
-    add_command( commands, new VersionCommand( "proto" ) );
+//    add_command( commands, new VersionCommand( "proto" ) );
     add_command( commands, new FollowCommand( "trace" ) );
 }
 
