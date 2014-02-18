@@ -79,7 +79,11 @@ static void enable_trace( NetworkConnection &conn, Symbol *symbol )
     TraceData *data = find_trace_data( symbol );
     data->add_listener( &conn );
 
-    conn.send_reply( "enabled" );
+    stringstream out;
+    out << "enabled" << endl;
+    Value_P v = symbol->get_value();
+    v->print( out );
+    conn.send_reply( out.str() );
 }
 
 static void disable_trace( NetworkConnection &conn, Symbol *symbol )
