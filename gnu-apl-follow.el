@@ -73,9 +73,11 @@
       (let ((b (if traced
                    (cadr traced)
                  (let ((result (gnu-apl--send-network-command-and-read (format "trace:%s:on" varname))))
-                   (cond ((and result (string= (car result) "undefined"))
+                   (cond ((null result)
+                          (error "No result"))
+                         ((string= (car result) "undefined")
                           (user-error "No such variable"))
-                         ((and result (string= (car result) "enabled"))
+                         ((string= (car result) "enabled")
                           (let ((buffer (generate-new-buffer (gnu-apl--make-trace-buffer-name varname))))
                             (with-current-buffer buffer
                               (gnu-apl-trace-mode)
