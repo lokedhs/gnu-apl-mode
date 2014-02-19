@@ -42,7 +42,7 @@ void TraceData::send_update( Symbol_Event ev )
 
     stringstream out;
     if( ev == SEV_ERASED ) {
-        out << "symbol_erased" << endl;
+        out << "sev_erased" << endl;
     }
     else {
         out << "symbol_update" << endl

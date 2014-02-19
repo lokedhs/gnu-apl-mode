@@ -52,7 +52,7 @@
   (let ((type (car lines)))
     (cond ((string= type "symbol_update")
            (gnu-apl--trace-symbol-updated (cdr lines)))
-          ((string= type "symbol_erased")
+          ((string= type "sev_erased")
            (gnu-apl--trace-symbol-erased (car lines)))
           (t
            (error "Unexpected notificationt type: %s" type)))))
