@@ -41,14 +41,14 @@ void TraceData::send_update( Symbol_Event ev )
     Value_P v = symbol->get_value();
 
     stringstream out;
-    out << "symbol_update" << endl
-        << symbol->get_name() << endl;
-//    Quad_PW &quad_pw = Workspace::get_v_Quad_PW();
-//    Symbol *s = &quad_pw;
-//    APL_Integer pw = quad_pw.current();
-//    s->assign( make_value( MAX_QUAD_PW ), LOC );
-    v->print( out );
-//    s->assign( make_value( pw ), LOC );
+    if( ev == SEV_ERASED ) {
+        out << "symbol_erased" << endl;
+    }
+    else {
+        out << "symbol_update" << endl
+            << symbol->get_name() << endl;
+        v->print( out );
+    }
 
     string str = out.str();
     for( set<NetworkConnection *>::iterator it = active_listeners.begin() ; it != active_listeners.end() ; it++ ) {
