@@ -53,7 +53,7 @@
     (cond ((string= type "symbol_update")
            (gnu-apl--trace-symbol-updated (cdr lines)))
           ((string= type "sev_erased")
-           (gnu-apl--trace-symbol-erased (car lines)))
+           (gnu-apl--trace-symbol-erased (cadr lines)))
           (t
            (error "Unexpected notificationt type: %s" type)))))
 

@@ -66,12 +66,17 @@
               (goto-char (point-min))
               (forward-line (1- pos)))))))))
 
-(defun gnu-apl--trace-sumbol-erased (varname)
+(defun gnu-apl--trace-symbol-erased (varname)
+  (llog "erased: %S" varname)
   (let ((traced (gnu-apl--find-traced-symbol varname)))
+    (llog "  traced: %S" traced)
     (when traced
       (with-current-buffer (cadr traced)
+        (llog "  clearing variable")
         (setq gnu-apl-trace-variable nil))
-      (setq gnu-apl-trace-symbols (cl-remove (car traced) gnu-apl-trace-symbols :key #'car :test #'string=))))
+      (setq gnu-apl-trace-symbols (cl-remove (car traced) gnu-apl-trace-symbols :key #'car :test #'string=))
+      (llog "  killing buffer")
+      (kill-buffer (cadr traced))))
   (message "Symbol erased: %S" varname))
 
 (defun gnu-apl-trace (varname)
