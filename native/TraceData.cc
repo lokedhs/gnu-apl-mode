@@ -28,14 +28,6 @@ void TraceData::remove_listener( NetworkConnection *connection )
     }
 }
 
-// static Value_P make_value( APL_Integer v )
-// {
-//     Value_P value( new Value( LOC ) );
-//     value->get_ravel( 0 ) = IntCell( v );
-//     value->check_value( LOC );
-//     return value;
-// }
-
 void TraceData::send_update( Symbol_Event ev )
 {
     Value_P v = symbol->get_value();
