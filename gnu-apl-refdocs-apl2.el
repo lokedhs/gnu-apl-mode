@@ -126,7 +126,7 @@ Functions:
 
     ("?"
      (("Monadic" "Roll" "Selects an integer at random from the population ⍳R"
-"Z←?R
+       "Z←?R
 
 R: Positive integer
 Z: Integer in the set ιR
@@ -155,7 +155,7 @@ Z: Simple vector
  ⍴Z ←→ Number of simple scalars in R
 ⍴⍴Z ←→ ,1")
       ("Dyadic" "Member" "1 for elements of L present in R; 0 where not."
-"Z←L∊R
+       "Z←L∊R
 
 Yields a Boolean array Z with the same shape as L. An item of Z is
 1 if the corresponding item of L can be found anywhere in R. An
@@ -173,7 +173,7 @@ Implicit argument: ⎕CT
 
     ("⌈"
      (("Monadic" "Ceiling" "Least integer greater than or equal to R"
-"Z←⌈R
+       "Z←⌈R
 For real numbers, yields the smallest integer that is not
 less than R (within the comparison tolerance).
 For complex numbers, depends on the relationship of the real
@@ -183,7 +183,7 @@ R and Z: Numeric
 
 Implicit argument: ⎕CT")
       ("Dyadic" "Maximum" "The greater value of L or R"
-"Z←L⌈R
+       "Z←L⌈R
 Returns the larger of L and R.
 
 L, R, and Z: Numeric, real"))
@@ -484,8 +484,8 @@ Implicit arguments: ⎕IO, ⎕CT
     ;; ========================================
 
     ("."
-     ("Axis operator" "Inner product" "Compute inner product of from LO and RO"
-      "Z←L LO.RO R
+     (("Axis operator" "Inner product" "Compute inner product of from LO and RO"
+       "Z←L LO.RO R
 Combines the subarrays along the last axis of L with subarrays
 along the first axis of R by applying an RO outer product. An
 LO-reduction is then applied to each item of that result.
@@ -493,7 +493,7 @@ LO-reduction is then applied to each item of that result.
 LO: Dyadic function
 RO: Dyadic function
  ⍴Z ←→ (¯1↓⍴L),1↓⍴R
-⍴⍴Z ←→ ,0⌈¯2+(⍴⍴L)+⍴⍴R")
+⍴⍴Z ←→ ,0⌈¯2+(⍴⍴L)+⍴⍴R"))
      t)
 
     ;; ========================================
@@ -1091,8 +1091,8 @@ L, R, and Z: Simple numeric array
 ⍴⍴Z ←→ (⍴⍴L)+⍴⍴R"))
      t)
     (("~" "∼")
-     (("Monadic" "Not" "Logical: ∼1 is 0, ∼0 is 1"))
-     (("Dyadic" "Without" "Yields the items in L that do not occur in R"
+     (("Monadic" "Not" "Logical: ∼1 is 0, ∼0 is 1")
+      ("Dyadic" "Without" "Yields the items in L that do not occur in R"
        "Z←L~R
 Yields the items in L that do not occur in R
 
@@ -1107,9 +1107,9 @@ Implicit argument: ⎕CT
     ;; ========================================
 
     ("⊢"
-     ("Dyadic" "Right" "Returns R"
-      "Z←L⊢R
-Returns R (discarding L)")
+     (("Dyadic" "Right" "Returns R"
+       "Z←L⊢R
+Returns R (discarding L)"))
      nil)
 
     ;; ========================================
@@ -1124,7 +1124,7 @@ Returns L (discarding R)"))
 
     ("¨"
      (("Monadic axis" "Each" "Applies the function LO to each item of R"
-        "Z←LO¨ R
+       "Z←LO¨ R
 Applies the function LO to each item of R
 
  ⍴Z ←→ ⍴R
