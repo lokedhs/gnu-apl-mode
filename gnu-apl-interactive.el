@@ -290,5 +290,5 @@ function or nil if the function could not be parsed."
                 (error "Unexpected tag format: %S" reference))
               (let ((file (match-string 1 reference))
                     (line-num (string-to-number (match-string 2 reference))))
-                (find-file file)
+                (find-file-existing file)
                 (goto-line line-num)))))))))
