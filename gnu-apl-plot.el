@@ -98,9 +98,9 @@ dimension of the exported data as a list of the form (ROWS COLS)"
   (gnu-apl--with-temp-files ((script-file "script")
                              (data-file "data"))
     (let ((size (with-temp-buffer
-                     (prog1
-                         (gnu-apl--write-array-content-to-csv result)
-                       (write-file data-file)))))
+                  (prog1
+                      (gnu-apl--write-array-content-to-csv result)
+                    (write-file data-file)))))
       (with-temp-buffer
         (insert "plot ")
         (let ((numcols (cadr size)))
