@@ -45,3 +45,7 @@
 (unless (fboundp 'cl-defmacro)
   (defmacro cl-defmacro (&rest args)
     `(defmacro* ,@args)))
+
+(unless (fboundp 'cl-remove-if-not)
+  (defun cl-remove-if-not (&rest args)
+    (apply #'remove-if-not args)))
