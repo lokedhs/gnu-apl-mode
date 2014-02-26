@@ -253,6 +253,7 @@ documentation will not be loaded.")
         (define-key map (kbd "C-c C-a") 'gnu-apl-apropos-symbol)
         (define-key map (kbd "M-.") 'gnu-apl-find-function-at-point)
         (define-key map (kbd "C-c C-.") 'gnu-apl-trace)
+        (define-key map (kbd "TAB") 'gnu-apl-expand-symbol)
         (define-key map [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
         (define-key map [menu-bar gnu-apl toggle-keyboard] '("Toggle keyboard" . gnu-apl-show-keyboard))
         (define-key map [menu-bar gnu-apl show-help-for-symbol] '("Documentation for symbol" . gnu-apl-show-help-for-symbol))
@@ -299,6 +300,35 @@ documentation will not be loaded.")
 (defun gnu-apl--symbol-at-point ()
   (let ((symbol (thing-at-point 'symbol)))
     symbol))
+
+(defun gnu-apl--find-largest-backward-match (regex)
+  (save-excursion
+    (loop with old-pos = nil
+          for pos = (save-excursion (search-backward-regexp regex nil t))
+          while pos
+          do (progn
+               (backward-char 1)
+               (setq old-pos pos))
+          finally (return old-pos))))
+
+(defun gnu-apl-expand-symbol ()
+  (interactive)
+  (let ((pos (gnu-apl--find-largest-backward-match "[a-zA-Z_∆⍙][a-zA-Z0-9_∆⍙¯]*\\=")))
+    (let* ((s (if pos (buffer-substring pos (point)) ""))
+           (results (gnu-apl--send-network-command-and-read "variables"))
+           (filtered-variables (cl-remove-if-not #'(lambda (v)
+                                                     (and (>= (length v) (length s))
+                                                          (string= (subseq v 0 (length s)) s)))
+                                                 results)))
+      (labels ((insert-selected (selected)
+                 (delete-region pos (point))
+                 (insert-string selected)))
+        (cond ((null filtered-variables)
+               (message "No match"))
+              ((null (cdr filtered-variables))
+               (insert-selected (car filtered-variables)))
+              (t
+               (message "%d results: %S" (length filtered-variables) filtered-variables)))))))
 
 ;;;
 ;;;  Load the other source files
