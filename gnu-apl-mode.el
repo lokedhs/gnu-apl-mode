@@ -283,7 +283,7 @@ documentation will not be loaded.")
 
 (defun gnu-apl--init-mode-common ()
   (set (make-local-variable 'eldoc-documentation-function) 'gnu-apl--eldoc-data)
-  (add-to-list (make-local-variable 'completion-at-point-functions) 'gnu-apl-expand-symbol)
+  (set (make-local-variable 'completion-at-point-functions) '(gnu-apl-expand-symbol))
   (set (make-local-variable 'tab-always-indent) 'complete)
   (set (make-local-variable 'indent-line-function) 'gnu-apl-indent)
   ;; TODO: It's an open question as to whether the below is a good idea
