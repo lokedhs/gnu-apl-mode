@@ -29,6 +29,10 @@
       (kill-buffer buffer))
     (get-buffer-create name)))
 
+(defun gnu-apl--string-match-start (string key)
+  (and (>= (length string) (length key))
+       (string= (subseq string 0 (length key)) key)))
+
 (defun gnu-apl--kbd (definition)
   (if (functionp #'kbd)
       (kbd definition)
