@@ -316,17 +316,28 @@ documentation will not be loaded.")
 (defun gnu-apl-indent ()
   'noindent)
 
+(defun gnu-apl--load-commands (prefix)
+  (let ((results (gnu-apl--send-network-command-and-read "systemcommands")))
+    (cl-remove-if-not #'(lambda (v)
+                          (gnu-apl--string-match-start v prefix))
+                      results)))
+
 (defun gnu-apl-expand-symbol ()
   (interactive)
-  (let ((pos (gnu-apl--find-largest-backward-match "[a-zA-Z_∆⍙][a-zA-Z0-9_∆⍙¯]*\\=")))
-    (when pos
-      (let* ((s (buffer-substring pos (point)))
-             (results (gnu-apl--send-network-command-and-read "variables"))
-             (filtered-variables (cl-remove-if-not #'(lambda (v)
-                                                       (gnu-apl--string-match-start v s))
-                                                   results)))
-        (when filtered-variables
-          (list pos (point) filtered-variables))))))
+  (let* ((row (buffer-substring (save-excursion (beginning-of-line) (point)) (point))))
+    (if (string-match "^[ \t]*\\([])][a-zA-Z0-9]*\\)$" row)
+        (let* ((cmdname (match-string 1 row))
+               (command-start-index (- (point) (length cmdname))))
+          (list command-start-index (point) (gnu-apl--load-commands cmdname)))
+      (let ((pos (gnu-apl--find-largest-backward-match "[a-zA-Z_∆⍙][a-zA-Z0-9_∆⍙¯]*\\=")))
+        (when pos
+          (let* ((s (buffer-substring pos (point)))
+                 (results (gnu-apl--send-network-command-and-read "variables"))
+                 (filtered-variables (cl-remove-if-not #'(lambda (v)
+                                                           (gnu-apl--string-match-start v s))
+                                                       results)))
+            (when filtered-variables
+              (list pos (point) filtered-variables))))))))
 
 ;;;
 ;;;  Load the other source files
