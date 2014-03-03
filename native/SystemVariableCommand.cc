@@ -19,15 +19,16 @@
 */
 
 #include "NetworkConnection.hh"
-#include "SystemFnCommand.hh"
+#include "SystemVariableCommand.hh"
 #include "emacs.hh"
 
-void SystemFnCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
+void SystemVariableCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
     stringstream out;
 
-#define cmd_def(NAME, CMD, ARG) out << NAME << "\n";
-#include "Command.def"
+#define ro_sv_def(VAR) out << id_name( ID_ ## VAR ) << "\n";
+#define rw_sv_def(VAR) out << id_name( ID_ ## VAR ) << "\n";
+#include "SystemVariable.def"
 
     out << END_TAG << "\n";
     conn.write_string_to_fd( out.str() );

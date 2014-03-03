@@ -18,17 +18,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "NetworkConnection.hh"
-#include "SystemFnCommand.hh"
-#include "emacs.hh"
+#ifndef SYSTEM_VARIABLE_COMMAND_HH
+#define SYSTEM_VARIABLE_COMMAND_HH
 
-void SystemFnCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
-{
-    stringstream out;
+#include "NetworkCommand.hh"
 
-#define cmd_def(NAME, CMD, ARG) out << NAME << "\n";
-#include "Command.def"
+class SystemVariableCommand : public NetworkCommand {
+public:
+    SystemVariableCommand( std::string name_in ) : NetworkCommand( name_in ) {};
+    virtual void run_command( NetworkConnection &conn, const std::vector<std::string> &args );
+};
 
-    out << END_TAG << "\n";
-    conn.write_string_to_fd( out.str() );
-}
+#endif

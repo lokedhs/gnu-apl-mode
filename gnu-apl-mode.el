@@ -325,19 +325,33 @@ documentation will not be loaded.")
 (defun gnu-apl-expand-symbol ()
   (interactive)
   (let* ((row (buffer-substring (save-excursion (beginning-of-line) (point)) (point))))
+    ;; Check for system commands
     (if (string-match "^[ \t]*\\([])][a-zA-Z0-9]*\\)$" row)
         (let* ((cmdname (match-string 1 row))
                (command-start-index (- (point) (length cmdname))))
           (list command-start-index (point) (gnu-apl--load-commands cmdname)))
-      (let ((pos (gnu-apl--find-largest-backward-match "[a-zA-Z_∆⍙][a-zA-Z0-9_∆⍙¯]*\\=")))
-        (when pos
-          (let* ((s (buffer-substring pos (point)))
-                 (results (gnu-apl--send-network-command-and-read "variables"))
-                 (filtered-variables (cl-remove-if-not #'(lambda (v)
-                                                           (gnu-apl--string-match-start v s))
-                                                       results)))
-            (when filtered-variables
-              (list pos (point) filtered-variables))))))))
+
+      ;; Check for quad-commands
+      (let ((svar-pos (gnu-apl--find-largest-backward-match "⎕[a-zA-Z0-9]*\\=")))
+        (if svar-pos
+            (let* ((svar (buffer-substring svar-pos (point)))
+                   (results (gnu-apl--send-network-command-and-read "systemvariables"))
+                   (filtered-variables (cl-remove-if-not #'(lambda (v)
+                                                             (gnu-apl--string-match-start v svar))
+                                                         results)))
+              (when filtered-variables
+                (list svar-pos (point) filtered-variables)))
+
+          ;; Check for user-defines symbols
+          (let ((pos (gnu-apl--find-largest-backward-match "[a-zA-Z_∆⍙][a-zA-Z0-9_∆⍙¯]*\\=")))
+            (when pos
+              (let* ((s (buffer-substring pos (point)))
+                     (results (gnu-apl--send-network-command-and-read "variables"))
+                     (filtered-variables (cl-remove-if-not #'(lambda (v)
+                                                               (gnu-apl--string-match-start v s))
+                                                           results)))
+                (when filtered-variables
+                  (list pos (point) filtered-variables))))))))))
 
 ;;;
 ;;;  Load the other source files
