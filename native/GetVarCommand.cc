@@ -166,6 +166,7 @@ void GetVarCommand::run_command( NetworkConnection &conn, const std::vector<std:
     Value_P value = symbol->get_value();
     try {
         stringstream out;
+        out.precision( 20 );
         out << "content\n";
         apl_value_to_el( out, value );
         conn.send_reply( out.str() );
