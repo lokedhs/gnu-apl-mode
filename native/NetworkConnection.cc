@@ -34,6 +34,7 @@
 #include "FnTagCommand.hh"
 #include "VersionCommand.hh"
 #include "FollowCommand.hh"
+#include "SystemFnCommand.hh"
 
 #include <iostream>
 #include <sstream>
@@ -65,6 +66,7 @@ NetworkConnection::NetworkConnection( int socket_in )
     add_command( commands, new FnTagCommand( "functiontag" ) );
     add_command( commands, new VersionCommand( "proto" ) );
     add_command( commands, new FollowCommand( "trace" ) );
+    add_command( commands, new SystemFnCommand( "systemcommands" ) );
 }
 
 NetworkConnection::~NetworkConnection()
