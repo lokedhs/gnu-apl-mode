@@ -2,6 +2,7 @@
 
 (require 'cl)
 (require 'thingatpt)
+(require 'comint)
 
 (load "gnu-apl-util")
 
