@@ -36,7 +36,6 @@ extern "C" {
 
 void set_active( bool v )
 {
-    return;
     pthread_mutex_lock( &apl_main_lock );
     if( !apl_active && !v ) {
         std::cerr << "Unlocking while the lock is unlocked" << std::endl;
