@@ -76,9 +76,9 @@ void skalar_value_to_el( ostream &out, Value_P value )
     }
 }
 
-void apl_value_to_el( ostream &out, Value_P value );
+static void apl_value_to_el( ostream &out, Value_P value );
 
-void output_onelevel( ostream &out, Value_P value, int level, int start, int end )
+static void output_onelevel( ostream &out, Value_P value, int level, int start, int end )
 {
     const Shape &shape = value->get_shape();
     int size = shape.get_shape_item( level );
@@ -99,7 +99,7 @@ void output_onelevel( ostream &out, Value_P value, int level, int start, int end
     out << ")\n";
 }
 
-void apl_value_to_el( ostream &out, Value_P value )
+static void apl_value_to_el( ostream &out, Value_P value )
 {
     const Shape &shape = value->get_shape();
     if( value->is_empty() ) {
