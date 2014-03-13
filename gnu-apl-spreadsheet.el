@@ -23,7 +23,7 @@ non-printable means CR or NL characters."
 (defun gnu-apl-edit-variable (name)
   "Open the variable editor for the APL variable NAME.
 Currently only two-dimensional arrays of depth 1 are supported.
-These variables will be edited in a spreadsheet. After eidting,
+These variables will be edited in a spreadsheet. After editing,
 press C-c C-c to update the variable in the active interpreter."
   (interactive (list (gnu-apl--choose-variable "Variable" :variable (gnu-apl--symbol-at-point))))
   (gnu-apl--send-network-command (concat "getvar:" name))
