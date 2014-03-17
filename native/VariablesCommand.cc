@@ -54,7 +54,7 @@ void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<s
         Symbol *symbol = symbols[i];
         if( !symbol->is_erased() ) {
             NameClass symbol_nc = symbol->top_of_stack()->name_class;
-            if( cls == ALL
+            if( (cls == ALL && (symbol_nc == NC_VARIABLE || symbol_nc == NC_FUNCTION || symbol_nc == NC_OPERATOR))
                 || (cls == VARIABLE && symbol_nc == NC_VARIABLE)
                 || (cls == FUNCTION && (symbol_nc == NC_FUNCTION || symbol_nc == NC_OPERATOR)) ) {
                 out << symbol->get_name() << "\n";
