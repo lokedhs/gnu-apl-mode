@@ -1,1 +1,3 @@
-((c++-mode . ((eval . (setq ac-clang-flags (append ac-clang-flags (list (concat "-I" (expand-file-name "~/src/apl/src")))))))))
+((c++-mode . ((eval . (progn
+                        (em-append-include-dirs (list (expand-file-name "~/src/apl/src")))
+                        (flycheck-mode 1))))))

@@ -23,12 +23,15 @@
 
 #include "NetworkCommand.hh"
 #include "Symbol.hh"
+#include "TraceData.hh"
 
 class FollowCommand : public NetworkCommand {
 public:
     FollowCommand( std::string name_in ) : NetworkCommand( name_in ) {};
     virtual void run_command( NetworkConnection &conn, const std::vector<std::string> &args );
 };
+
+typedef map<const Symbol *, TraceData *> SymbolTraceMap;
 
 void symbol_assignment( const Symbol &symbol, Symbol_Event ev );
 

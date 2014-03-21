@@ -27,6 +27,10 @@
 #include "LockWrapper.hh"
 
 #include <map>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+#include <errno.h>
 
 typedef map<const Symbol *, TraceData *> SymbolTraceMap;
 
@@ -72,17 +76,17 @@ static TraceData *find_trace_data( Symbol *symbol )
     return data;
 }
 
-static void enable_trace( NetworkConnection &conn, Symbol *symbol )
+static void enable_trace( NetworkConnection &conn, Symbol *symbol, int cr_level = -1 )
 {
     LockWrapper lock_wrapper( &trace_data_lock );
 
     TraceData *data = find_trace_data( symbol );
-    data->add_listener( &conn );
+    data->add_listener( &conn, cr_level );
 
     stringstream out;
     out << "enabled" << endl;
     Value_P v = symbol->get_value();
-    v->print( out );
+    TraceData::display_value_for_trace( out, v, cr_level );
     conn.send_reply( out.str() );
 }
 
@@ -98,7 +102,8 @@ static void disable_trace( NetworkConnection &conn, Symbol *symbol )
 
 void FollowCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
-    if( args.size() != 3 ) {
+    int num_args = args.size();
+    if( num_args < 3 || num_args > 4 ) {
         throw ConnectionError( "Wrong number of arguments to trace" );
     }
 
@@ -115,7 +120,18 @@ void FollowCommand::run_command( NetworkConnection &conn, const std::vector<std:
 
     bool enable = parse_boolean( args[2] );
     if( enable ) {
-        enable_trace( conn, symbol );
+        int cr_level = -1;
+        if( num_args > 3 ) {
+            string cr_arg = args[3];
+            if( cr_arg != "off" ) {
+                long v = strtol( cr_arg.c_str(), NULL, 10 );
+                if( v == LONG_MAX && errno == ERANGE ) {
+                    throw ConnectionError( "Illegal CR level argument to follow command" );
+                }
+                cr_level = v;
+            }
+        }
+        enable_trace( conn, symbol, cr_level );
     }
     else {
         disable_trace( conn, symbol );

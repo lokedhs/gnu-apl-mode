@@ -27,18 +27,29 @@
 #include "Symbol.hh"
 
 #include <set>
+#include <map>
+
+class TraceDataEntry {
+public:
+    TraceDataEntry( int cr_level_in ) : cr_level( cr_level_in ) {}
+    int get_cr_level( void ) { return cr_level; }
+
+private:
+    int cr_level;
+};
 
 class TraceData {
 public:
     TraceData( Symbol *symbol_in );
     virtual ~TraceData() {};
-    void add_listener( NetworkConnection *connection );
+    void add_listener( NetworkConnection *connection, int cr_level = -1 );
     void remove_listener( NetworkConnection *connection );
     void send_update( Symbol_Event ev );
+    static void display_value_for_trace( ostream &out, const Value_P &value, int cr_level );
 
 private:
     Symbol *symbol;
-    set<NetworkConnection *> active_listeners;
+    map<NetworkConnection *, TraceDataEntry> active_listeners;
 };
 
 #endif
