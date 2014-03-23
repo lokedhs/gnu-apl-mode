@@ -41,7 +41,7 @@ development of the native code.")
     (cond ((and gnu-apl-auto-function-editor-popup
                 (plusp (length trimmed))
                 (string= (subseq trimmed 0 1) "∇"))
-           ;; The command is a functiond definition command
+           ;; The command is a function definition command
            (unless (gnu-apl--parse-function-header (subseq trimmed 1))
              (user-error "Error when parsing function definition command"))
            (unwind-protect
