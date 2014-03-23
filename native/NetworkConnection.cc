@@ -30,7 +30,6 @@
 #include "DefCommand.hh"
 #include "GetVarCommand.hh"
 #include "VariablesCommand.hh"
-#include "RunCommand.hh"
 #include "FnTagCommand.hh"
 #include "VersionCommand.hh"
 #include "FollowCommand.hh"
