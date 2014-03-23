@@ -6,7 +6,7 @@ or NIL if there is no active session.")
 
 (defvar gnu-apl-libemacs-location "libemacs"
   "The location of the native code library from the interpreter.
-This shouldn't nor mally need to be changed except when doing
+This shouldn't normally need to be changed except when doing
 development of the native code.")
 
 (defun gnu-apl-interactive-send-string (string)
