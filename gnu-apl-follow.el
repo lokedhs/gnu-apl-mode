@@ -75,13 +75,21 @@
       (kill-buffer (cadr traced))))
   (message "Symbol erased: %S" varname))
 
-(defun gnu-apl-trace (varname)
-  (interactive (list (gnu-apl--choose-variable "Variable" :variable (gnu-apl--symbol-at-point))))
+(defun gnu-apl-trace (varname &optional cr-level)
+  (interactive (list (gnu-apl--choose-variable "Variable" :variable (gnu-apl--symbol-at-point))
+                     (when current-prefix-arg
+                       (let ((level (read-from-minibuffer "CR level: ")))
+                         (if (string= level "")
+                             nil
+                           (string-to-int level))))))
   (with-current-buffer (gnu-apl--get-interactive-session)
     (let ((traced (gnu-apl--find-traced-symbol varname)))
       (let ((b (if traced
                    (cadr traced)
-                 (let ((result (gnu-apl--send-network-command-and-read (format "trace:%s:on" varname))))
+                 (let ((result (gnu-apl--send-network-command-and-read (format "trace:%s:on%s" varname
+                                                                               (if cr-level
+                                                                                   (format ":%d" cr-level)
+                                                                                 "")))))
                    (cond ((null result)
                           (error "No result"))
                          ((string= (car result) "undefined")
