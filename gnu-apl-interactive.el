@@ -247,7 +247,7 @@ the path to the apl program (defaults to `gnu-apl-executable')."
 (defun gnu-apl--parse-function-header (string)
   "Parse a function definition string. Returns the name of the
 function or nil if the function could not be parsed."
-  (let* ((s "[a-zA-Z_∆⍙][a-zA-Z0-9_∆⍙¯]*")
+  (let* ((s "[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]*")
          (f (format "\\(?: *\\[ *%s *\\]\\)?" s))
          (line (gnu-apl--trim-spaces string)))
     ;; Patterns that cover the following variations:
