@@ -30,6 +30,12 @@
 (defun gnu-apl--find-traced-symbol (varname)
   (cl-find varname gnu-apl-trace-symbols :key #'car :test #'string=))
 
+(defun gnu-apl--insert-traced-variable-value (content)
+  (let ((start (point)))
+    (dolist (row content)
+      (insert row "\n"))
+    (add-text-properties start (point) '(face gnu-apl-help))))
+
 (defun gnu-apl--cleanup-trace-symbol (buffer)
   (with-current-buffer buffer
     (when (boundp 'gnu-apl-trace-symbols)
@@ -61,8 +67,7 @@
             (widen)
             (let ((pos (line-number-at-pos (point))))
               (delete-region (point-min) (point-max))
-              (dolist (row (cdr content))
-                (insert row "\n"))
+              (gnu-apl--insert-traced-variable-value (cdr content))
               (goto-char (point-min))
               (forward-line (1- pos)))))))))
 
@@ -102,8 +107,7 @@
                                 (set (make-local-variable 'gnu-apl-trace-variable) varname)
                                 (set (make-local-variable 'gnu-apl-trace-buffer) t)
                                 (add-hook 'kill-buffer-hook 'gnu-apl--trace-buffer-closed nil t)
-                                (dolist (row (cdr result))
-                                  (insert row "\n"))
+                                (gnu-apl--insert-traced-variable-value (cdr result))
                                 (goto-char (point-min))))
                             (push (list varname buffer) gnu-apl-trace-symbols)
                             buffer))
