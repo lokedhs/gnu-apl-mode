@@ -36,15 +36,20 @@
 
 void set_active( bool v );
 
-#define END_TAG "APL_NATIVE_END_TAG"
+#define PROTOCOL_VERSION "1.3"
 
-class LockWrapper
+#define END_TAG "APL_NATIVE_END_TAG"
+#define NOTIFICATION_START_TAG "APL_NATIVE_NOTIFICATION_START"
+#define NOTIFICATION_END_TAG "APL_NATIVE_NOTIFICATION_END"
+
+class ActiveWrapper
 {
 public:
-    LockWrapper() { set_active( true ); };
-    virtual ~LockWrapper() { set_active( false ); };
+    ActiveWrapper() { set_active( true ); };
+    virtual ~ActiveWrapper() { set_active( false ); };
 };
 
 const UCS_string ucs_string_from_string( const std::string &string );
+Value_P make_string_cell( const std::string &string, const char *loc );
 
 #endif

@@ -36,7 +36,6 @@ extern "C" {
 
 void set_active( bool v )
 {
-    return;
     pthread_mutex_lock( &apl_main_lock );
     if( !apl_active && !v ) {
         std::cerr << "Unlocking while the lock is unlocked" << std::endl;
@@ -100,7 +99,7 @@ Token eval_XB(Value_P X, Value_P B)
     {
         int port;
         if( B->is_empty() ) {
-            port = 7293;
+            port = 0;
         }
         else {
             port = B->get_ravel( 0 ).get_near_int( qct );
@@ -122,13 +121,19 @@ Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
     return Token(TOK_APL_VALUE1, Value::Str0_P);
 }
 
+void close_fun( Cause cause )
+{
+    close_listeners();
+}
+
 void *get_function_mux( const char *function_name )
 {
-    if (!strcmp(function_name, "get_signature"))   return (void *)&get_signature;
-    if (!strcmp(function_name, "eval_B"))          return (void *)&eval_B;
-    if (!strcmp(function_name, "eval_AB"))         return (void *)&eval_AB;
-    if (!strcmp(function_name, "eval_XB"))         return (void *)&eval_XB;
-    if (!strcmp(function_name, "eval_AXB"))        return (void *)&eval_AXB;
+    if( strcmp( function_name, "get_signature" ) == 0 ) return (void *)&get_signature;
+    if( strcmp( function_name, "eval_B" ) == 0 )        return (void *)&eval_B;
+    if( strcmp( function_name, "eval_AB" ) == 0 )       return (void *)&eval_AB;
+    if( strcmp( function_name, "eval_XB" ) == 0 )       return (void *)&eval_XB;
+    if( strcmp( function_name, "eval_AXB" ) == 0 )      return (void *)&eval_AXB;
+    if( strcmp( function_name, "close_fun" ) == 0 )     return (void *)&close_fun;
     return 0;
 }
 
@@ -138,4 +143,16 @@ const UCS_string ucs_string_from_string( const std::string &string )
     const char *buf = string.c_str();
     UTF8_string utf( (const UTF8 *)buf, length );
     return UCS_string( utf );
+}
+
+Value_P make_string_cell( const std::string &string, const char *loc )
+{
+    UCS_string s = ucs_string_from_string( string );
+    Shape shape( s.size() );
+    Value_P cell( new Value( shape, loc ) );
+    for( int i = 0 ; i < s.size() ; i++ ) {
+        new (cell->next_ravel()) CharCell( s[i] );
+    }
+    cell->check_value( loc );
+    return cell;
 }

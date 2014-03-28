@@ -20,15 +20,20 @@ APL_DIST = $(HOME)/src/apl
 CXX = c++
 CXXFLAGS = -Wall -fPIC -g -I$(APL_DIST)/src
 LIBS = -lpthread
-LIBNAME = libemacs.so
-OBJS = emacs.o network.o util.o NetworkConnection.o SiCommand.o SicCommand.o \
-	FnCommand.o DefCommand.o GetVarCommand.o VariablesCommand.o
+OBJS = emacs.o network.o util.o Listener.o TcpListener.o UnixSocketListener.o NetworkConnection.o \
+	SiCommand.o SicCommand.o FnCommand.o DefCommand.o GetVarCommand.o \
+	VariablesCommand.o FnTagCommand.o VersionCommand.o FollowCommand.o \
+	SystemFnCommand.o SystemVariableCommand.o LockWrapper.o TraceData.o
+
 UNAME = $(shell uname)
 ifeq ($(UNAME),Darwin)
 SHARED_FLAGS = -dynamiclib -Wl,-undefined,dynamic_lookup
+LIBRARY_EXT = dylib
 else
 SHARED_FLAGS = -shared
+LIBRARY_EXT = so
 endif
+LIBNAME = libemacs.$(LIBRARY_EXT)
 
 all:		$(LIBNAME)
 

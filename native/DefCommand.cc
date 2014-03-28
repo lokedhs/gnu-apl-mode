@@ -24,25 +24,75 @@
 
 #include "Quad_FX.hh"
 
+static void log_error( Error &error, ostream &out )
+{
+    UCS_string l1 = error.get_error_line_1();
+    UCS_string l2 = error.get_error_line_2();
+    UCS_string l3 = error.get_error_line_3();
+    out << l1 << endl << l2 << endl << l3;
+}
+
 void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
     vector<string> content = conn.load_block();
 
-    Shape shape( content.size() );
-    Value_P function_list_value( new Value( shape, LOC ) );
-    for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
-        UCS_string s = ucs_string_from_string( *i );
-        Shape row_shape( s.size() );
-        Value_P row_cell( new Value( row_shape, LOC ) );
-        for( int i2 = 0 ; i2 < s.size() ; i2++ ) {
-            new (row_cell->next_ravel()) CharCell( s[i2] );
-        }
-        new (function_list_value->next_ravel()) PointerCell( row_cell );
-    }
-    function_list_value->check_value( LOC );
+    try {
+        stringstream out;
 
-    Quad_FX quad_fx;
-    Token result = quad_fx.eval_B( function_list_value );
-    conn.write_string_to_fd( result.canonical( PST_CS_NONE ).to_string() );
-    conn.write_string_to_fd( "\n" END_TAG "\n" );
+        Shape shape( content.size() );
+        Value_P function_list_value( new Value( shape, LOC ) );
+        for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
+            new (function_list_value->next_ravel()) PointerCell( make_string_cell( *i, LOC ) );
+        }
+        function_list_value->check_value( LOC );
+
+        Quad_FX quad_fx;
+
+        if( args.size() > 1 ) {
+            Shape tag_shape( 2 );
+            Value_P tag( new Value( tag_shape, LOC ) );
+            new (tag->next_ravel()) IntCell( 0 );
+            new (tag->next_ravel()) PointerCell( make_string_cell( args[1], LOC ) );
+            function_list_value->check_value( LOC );
+            Token result = quad_fx.eval_AB( tag, function_list_value );
+            out << "function defined\n" << result.canonical( PST_CS_NONE ).to_string();
+        }
+        else {
+            Token result = quad_fx.eval_B( function_list_value );
+            if( result.is_apl_val() ) {
+                Value_P value = result.get_apl_val();
+                if( value->is_int_skalar( 0 ) ) {
+                    out << "error\n"
+                        << "parse error\n"
+                        << "Error parsing expression\n"
+                        << value->get_ravel( 0 ).get_int_value();
+                }
+                else if( value->is_char_string() ) {
+                    out << "function defined\n"
+                        << value->get_UCS_ravel();
+                }
+                else {
+                    out << "error\n"
+                        << "illegal result type";
+                }
+            }
+            else {
+                out << "error\n"
+                    << "unknown error";
+            }
+        }
+        out << "\n"
+            << END_TAG << "\n";
+        conn.write_string_to_fd( out.str() );
+    }
+    catch( Error &error ) {
+        stringstream out;
+        out << "error\n";
+
+        log_error( error, out );
+
+        out << "\n"
+            << END_TAG << "\n";
+        conn.write_string_to_fd( out.str() );
+    }
 }

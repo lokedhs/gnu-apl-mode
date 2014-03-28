@@ -29,6 +29,10 @@
       (kill-buffer buffer))
     (get-buffer-create name)))
 
+(defun gnu-apl--string-match-start (string key)
+  (and (>= (length string) (length key))
+       (string= (subseq string 0 (length key)) key)))
+
 (defun gnu-apl--kbd (definition)
   (if (functionp #'kbd)
       (kbd definition)
@@ -45,3 +49,7 @@
 (unless (fboundp 'cl-defmacro)
   (defmacro cl-defmacro (&rest args)
     `(defmacro* ,@args)))
+
+(unless (fboundp 'cl-remove-if-not)
+  (defun cl-remove-if-not (&rest args)
+    (apply #'remove-if-not args)))

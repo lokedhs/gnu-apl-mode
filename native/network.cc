@@ -20,29 +20,16 @@
 
 #include "emacs.hh"
 #include "NetworkConnection.hh"
+#include "Listener.hh"
 
 #include <memory>
 #include <pthread.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <errno.h>
-#include <netdb.h>
 
-class AddrWrapper {
-public:
-    AddrWrapper(struct addrinfo *addr_in) : addr(addr_in) {}
-    virtual ~AddrWrapper() { freeaddrinfo( addr ); }
+static std::vector<Listener *> registered_listeners;
+static pthread_mutex_t registered_listeners_lock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t registered_listeners_cond = PTHREAD_COND_INITIALIZER;
 
-private:
-    struct addrinfo *addr;
-};
-
-struct ListenerLoopData {
-    ListenerLoopData( int server_socket_in ) : server_socket( server_socket_in ) {}
-    int server_socket;
-};
-
-static void *connection_loop( void *arg )
+void *connection_loop( void *arg )
 {
     std::auto_ptr<NetworkConnection> connection( (NetworkConnection *)arg );
     try {
@@ -62,28 +49,10 @@ static void *connection_loop( void *arg )
 
 static void *listener_loop( void *arg )
 {
-    ListenerLoopData *data = (ListenerLoopData *)arg;
-    int server_socket = data->server_socket;
-    delete data;
+    Listener *listener( (Listener *)arg );
 
-    while( 1 ) {
-        struct sockaddr addr;
-        socklen_t length;
-        int socket = accept( server_socket, &addr, &length );
-        if( socket == -1 ) {
-            CERR << "Error accepting network connection: " << strerror( errno ) << endl;
-            break;
-        }
-        else {
-            NetworkConnection *conn = new NetworkConnection( socket );
-            pthread_t thread_id;
-            int ret = pthread_create( &thread_id, NULL, connection_loop, conn );
-            if( ret != 0 ) {
-                CERR << "Error creating thread" << endl;
-                delete conn;
-            }
-        }
-    }
+    ListenerWrapper listener_wrapper( listener );
+    listener->wait_for_connection();
 
     return NULL;
 }
@@ -91,69 +60,73 @@ static void *listener_loop( void *arg )
 Token start_listener( int port )
 {
     pthread_t thread_id;
-    int server_socket;
-    struct addrinfo *addr;
-    int ret;
 
-    stringstream serv_name;
-    serv_name << port;
+    auto_ptr<Listener> listener( Listener::create_listener( port ) );
 
-    struct addrinfo hints;
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = 0;
-    hints.ai_flags = 0;
-    hints.ai_addrlen = 0;
-    hints.ai_addr = NULL;
-    hints.ai_canonname = NULL;
-    hints.ai_next = NULL;
-
-    ret = getaddrinfo( "127.0.0.1", serv_name.str().c_str(), &hints, &addr );
-    if( ret != 0 ) {
-        stringstream errmsg;
-        errmsg << "Error looking up listener host: " << gai_strerror( ret );
-        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-        DOMAIN_ERROR;
-    }
-
-    AddrWrapper addrWrapper( addr );
-
-    server_socket = socket( AF_INET, SOCK_STREAM, 0 );
-    if( server_socket == -1 ) {
-        stringstream errmsg;
-        errmsg << "Error creating socket: " << strerror( errno );
-        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-        DOMAIN_ERROR;
-    }
-
-    int v = 1;
-    setsockopt( server_socket, SOL_SOCKET, SO_REUSEADDR, (void *)&v, sizeof( v ) );
-
-    if( bind( server_socket, addr->ai_addr, addr->ai_addrlen ) == -1 ) {
-        stringstream errmsg;
-        errmsg << "Unable to bind to port " << port << ": " << strerror( errno );
-        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-        DOMAIN_ERROR;
-    }
-
-    if( listen( server_socket, 2 ) == -1 ) {
-        close( server_socket );
-        stringstream errmsg;
-        errmsg << "Error calling accept: " << strerror( errno ) << endl;
-        Workspace::more_error() = UCS_string( errmsg.str().c_str() );
-        DOMAIN_ERROR;
-    }
-
-    ListenerLoopData *listener_loop_data = new ListenerLoopData( server_socket );
-    int res = pthread_create( &thread_id, NULL, listener_loop, listener_loop_data );
+    string conninfo = listener->start();
+    
+    int res = pthread_create( &thread_id, NULL, listener_loop, listener.get() );
     if( res != 0 ) {
-        delete listener_loop_data;
-        close( server_socket );
         Workspace::more_error() = UCS_string( "Unable to start network connection thread" );
         DOMAIN_ERROR;
     }
 
-    COUT << "Network listener started. Connection information: mode:tcp addr:" << port << endl;
+    listener->set_thread( thread_id );
+    listener.release();
+
+    COUT << "Network listener started. Connection information: " << conninfo << endl;
 
     return Token(TOK_APL_VALUE1, Value::Str0_P);
+}
+
+void register_listener( Listener *listener )
+{
+    pthread_mutex_lock( &registered_listeners_lock );
+    registered_listeners.push_back( listener );
+    pthread_cond_broadcast( &registered_listeners_cond );
+    pthread_mutex_unlock( &registered_listeners_lock );
+}
+
+void unregister_listener( Listener *listener )
+{
+    pthread_mutex_lock( &registered_listeners_lock );
+    bool found = false;
+    for( vector<Listener *>::iterator i  = registered_listeners.begin() ; i != registered_listeners.end() ; i++ ) {
+        if( *i == listener ) {
+            registered_listeners.erase( i );            
+            found = true;
+            break;
+        }
+    }
+
+    Assert( found );
+
+    pthread_mutex_unlock( &registered_listeners_lock );
+
+    pthread_cond_broadcast( &registered_listeners_cond );
+//    listener->close_connection();
+}
+
+void close_listeners( void )
+{
+    vector<Listener *> to_be_closed;
+    pthread_mutex_lock( &registered_listeners_lock );
+    for( vector<Listener *>::iterator i = registered_listeners.begin() ; i != registered_listeners.end() ; i++ ) {
+        to_be_closed.push_back( *i );
+    }
+//    registered_listeners.clear();
+    pthread_mutex_unlock( &registered_listeners_lock );
+
+    for( vector<Listener *>::iterator i = to_be_closed.begin() ; i != to_be_closed.end() ; i ++ ) {
+        (*i)->close_connection();
+//        delete *i;
+    }
+
+#if 0
+    pthread_mutex_lock( &registered_listeners_lock );
+    while( registered_listeners.size() > 0 ) {
+        pthread_cond_wait( &registered_listeners_cond, &registered_listeners_lock );
+    }
+    pthread_mutex_unlock( &registered_listeners_lock );
+#endif
 }

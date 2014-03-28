@@ -18,33 +18,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef NETWORK_HH
-#define NETWORK_HH
+#ifndef LOCK_WRAPPER_HH
+#define LOCK_WRAPPER_HH
 
-#include "emacs.hh"
+#include <pthread.h>
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <errno.h>
-#include <netdb.h>
-
-class Listener;
-
-class AddrWrapper {
+class LockWrapper {
 public:
-    AddrWrapper(struct addrinfo *addr_in) : addr(addr_in) {}
-    virtual ~AddrWrapper() { freeaddrinfo( addr ); }
+    LockWrapper( pthread_mutex_t *lock_in );
+    virtual ~LockWrapper();
 
 private:
-    struct addrinfo *addr;
+    pthread_mutex_t *lock;
 };
-
-
-Token start_listener( int port );
-void *connection_loop( void *arg );
-void register_listener( Listener *listener );
-void unregister_listener( Listener *listener );
-void close_listeners( void );
 
 #endif

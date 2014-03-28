@@ -4,6 +4,11 @@
   "The buffer that holds the currently active GNU APL session,
 or NIL if there is no active session.")
 
+(defvar gnu-apl-libemacs-location "libemacs"
+  "The location of the native code library from the interpreter.
+This shouldn't normally need to be changed except when doing
+development of the native code.")
+
 (defun gnu-apl-interactive-send-string (string)
   (let ((p (get-buffer-process (gnu-apl--get-interactive-session)))
         (string-with-ret (if (and (plusp (length string))
@@ -12,13 +17,17 @@ or NIL if there is no active session.")
                            (concat string "\n"))))
     (comint-send-string p string-with-ret)))
 
+(defun gnu-apl--get-interactive-session-with-nocheck ()
+  (when gnu-apl-current-session
+    (let ((proc-status (comint-check-proc gnu-apl-current-session)))
+      (when (eq (car proc-status) 'run)
+        gnu-apl-current-session))))
+
 (defun gnu-apl--get-interactive-session ()
-  (unless gnu-apl-current-session
-    (user-error "No active GNU APL session"))
-  (let ((proc-status (comint-check-proc gnu-apl-current-session)))
-    (unless (eq (car proc-status) 'run)
-      (user-error "GNU APL session has exited"))
-    gnu-apl-current-session))
+  (let ((session (gnu-apl--get-interactive-session-with-nocheck)))
+    (unless session
+      (user-error "No active GNU APL session"))
+    session))
 
 (defvar *gnu-apl-native-lib* "EMACS_NATIVE")
 (defvar *gnu-apl-ignore-start* "IGNORE-START")
@@ -32,7 +41,7 @@ or NIL if there is no active session.")
     (cond ((and gnu-apl-auto-function-editor-popup
                 (plusp (length trimmed))
                 (string= (subseq trimmed 0 1) "∇"))
-           ;; The command is a functiond definition command
+           ;; The command is a function definition command
            (unless (gnu-apl--parse-function-header (subseq trimmed 1))
              (user-error "Error when parsing function definition command"))
            (unwind-protect
@@ -145,7 +154,7 @@ function editor.
                     (setq gnu-apl-preoutput-filter-state 'normal))
                    ((string-match (concat "Network listener started.*"
                                           "mode:\\([a-z]+\\) "
-                                          "addr:\\([a-zA-Z0-9/]+\\)")
+                                          "addr:\\([a-zA-Z0-9_/]+\\)")
                                   command)
                     (let ((mode (match-string 1 command))
                           (addr (match-string 2 command)))
@@ -177,11 +186,13 @@ function editor.
   (set (make-local-variable 'gnu-apl-preoutput-filter-state) 'normal)
   (set (make-local-variable 'gnu-apl-input-display-type) 'cout)
   (set (make-local-variable 'comint-input-sender) 'gnu-apl--send)
+  (set (make-local-variable 'gnu-apl-trace-symbols) nil)
   (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
 
   (setq font-lock-defaults '(nil t)))
 
 (defun gnu-apl-open-customise ()
+  "Open the customisation editor for the gnu-apl customisation group."
   (interactive)
   (customize-group 'gnu-apl t))
 
@@ -214,6 +225,7 @@ the path to the apl program (defaults to `gnu-apl-executable')."
       (user-error "GNU APL Executable was not set"))
     (pop-to-buffer-same-window buffer)
     (unless (comint-check-proc buffer)
+      (gnu-apl--cleanup-trace-symbol buffer)
       (when gnu-apl-show-tips-on-start
         (gnu-apl--insert-tips))
       (apply #'make-comint-in-buffer
@@ -225,9 +237,9 @@ the path to the apl program (defaults to `gnu-apl-executable')."
       (set-buffer-process-coding-system 'utf-8 'utf-8)
       (when gnu-apl-native-communication
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-start* "'"))
-        (gnu-apl--send buffer (concat "'libemacs' ⎕FX "
+        (gnu-apl--send buffer (concat "'" gnu-apl-libemacs-location "' ⎕FX "
                                       "'" *gnu-apl-native-lib* "'"))
-        (gnu-apl--send buffer (format "%s[1] %d" *gnu-apl-native-lib* 7293))
+        (gnu-apl--send buffer (format "%s[1] %d" *gnu-apl-native-lib* gnu-apl-native-listener-port))
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-end* "'"))))
     (when gnu-apl-show-keymap-on-startup
       (run-at-time "0 sec" nil #'(lambda () (gnu-apl-show-keyboard 1))))))
@@ -235,27 +247,48 @@ the path to the apl program (defaults to `gnu-apl-executable')."
 (defun gnu-apl--parse-function-header (string)
   "Parse a function definition string. Returns the name of the
 function or nil if the function could not be parsed."
-  (let ((line (gnu-apl--trim-spaces string)))
-    (cond ((string-match (concat "^\\(?:[a-z0-9∆_]+ *← *\\)?" ; result variable
-                                 "\\([a-za-z0-9∆_ ]+\\)" ; function and arguments
-                                 "\\(?:;.*\\)?$" ; local variables
-                                 )
-                         line)
-           ;; Plain function definition
-           (let ((parts (split-string (match-string 1 line))))
-             (ecase (length parts)
-               (1 (car parts))
-               (2 (car parts))
-               (3 (cadr parts)))))
-          
-          ((string-match (concat "^\\(?:[a-z0-9∆_]+ *← *\\)?" ; result variable
-                                 "\\(?: *[a-z0-9∆_]+ *\\)?" ; optional left argument
-                                 "(\\([a-za-z0-9∆_ ]+\\))" ; left argument and function name
-                                 ".*$" ; don't care about what comes after
-                                 )
-                         line)
-           ;; Axis operator definition
-           (let ((parts (split-string (match-string 1 line))))
-             (case (length parts)
-               (2 (cadr parts))
-               (3 (cadr parts))))))))
+  (let* ((s "[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]*")
+         (f (format "\\(?: *\\[ *%s *\\]\\)?" s))
+         (line (gnu-apl--trim-spaces string)))
+    ;; Patterns that cover the following variations:
+    ;;    FN
+    ;;    FN R
+    ;;    L FN R
+    ;;    (LO FN)
+    ;;    (LO FN) R
+    ;;    (LO FN RO)
+    ;;    (LO FN RO) R
+    ;;    L (LO FN) R
+    ;;    L (LO FN RO) R
+    (let ((patterns (list (format "\\(%s\\)" s)
+                          (format "\\(?:%s +\\)?\\(%s\\)%s +%s" s s f s)
+                          (format "( *%s +\\(%s\\) *)" s s)
+                          (format "\\(?:%s +\\)?( *%s +\\(%s\\) *)%s +%s" s s s f s)
+                          (format "( *%s +\\(%s\\) +%s)" s s s)
+                          (format "\\(?:%s +\\)?( *%s +\\(%s\\) +%s) +%s" s s s s s))))
+      (loop for pattern in patterns
+            when (string-match (concat (format "^\\(?:%s *← *\\)?" s) ; result variable
+                                       pattern
+                                       " *\\(?:;.*\\)?$" ; local variables
+                                       )
+                               line)
+            return (match-string 1 line)))))
+
+(defun gnu-apl-find-function-at-point ()
+  "Jump to the definition of the function at point."
+  (interactive)
+  (let ((name (thing-at-point 'symbol)))
+    (let ((resolved-name (if (and name (string-match "[a-zA-Z_∆⍙][a-zA-Z0-9_∆⍙¯]*" name))
+                             name
+                           (gnu-apl--choose-variable "Function" :function))))
+      (gnu-apl--send-network-command (concat "functiontag:" resolved-name))
+      (let ((result (gnu-apl--read-network-reply-block)))
+        (if (not (string= (car result) "tag"))
+            (message "No function definition found")
+          (let ((reference (cadr result)))
+            (unless (string-match "^\\(.*\\)!\\([0-9]+\\)$" reference)
+              (error "Unexpected tag format: %S" reference))
+            (let ((file (match-string 1 reference))
+                  (line-num (string-to-number (match-string 2 reference))))
+              (find-file-existing file)
+              (goto-line line-num))))))))

@@ -22,28 +22,29 @@
 #include "VariablesCommand.hh"
 #include "emacs.hh"
 
+enum TypeSpec {
+    ALL,
+    VARIABLE,
+    FUNCTION
+};
+
 void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
     stringstream out;
 
-    bool all_types = false;
-    NameClass cls;
-    if( args.size() < 2 ) {
-        all_types = true;
-    }
-    else {
+    TypeSpec cls = ALL;
+    if( args.size() >= 2 ) {
         string typespec = args[1];
         if( typespec == "variable" ) {
-            cls = NC_VARIABLE;
+            cls = VARIABLE;
         }
         else if( typespec == "function" ) {
-            cls = NC_FUNCTION;
+            cls = FUNCTION;
         }
         else {
             CERR << "Illegal variable type: " << typespec << endl;
             throw DisconnectedError( "Illegal variable type" );
         }
-        all_types = false;
     }
 
     int num_symbols = Workspace::symbols_allocated();
@@ -51,11 +52,15 @@ void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<s
     Workspace::get_all_symbols( symbols, num_symbols );
     for( int i = 0 ; i < num_symbols ; i++ ) {
         Symbol *symbol = symbols[i];
-        if( !symbol->is_erased() && (all_types || symbol->top_of_stack()->name_class == cls) ) {
-            out << symbol->get_name() << "\n";
+        if( !symbol->is_erased() ) {
+            NameClass symbol_nc = symbol->top_of_stack()->name_class;
+            if( (cls == ALL && (symbol_nc == NC_VARIABLE || symbol_nc == NC_FUNCTION || symbol_nc == NC_OPERATOR))
+                || (cls == VARIABLE && symbol_nc == NC_VARIABLE)
+                || (cls == FUNCTION && (symbol_nc == NC_FUNCTION || symbol_nc == NC_OPERATOR)) ) {
+                out << symbol->get_name() << "\n";
+            }
         }
     }
 
-    conn.write_string_to_fd( out.str() );
-    conn.write_string_to_fd( END_TAG "\n" );
+    conn.send_reply( out.str() );
 }

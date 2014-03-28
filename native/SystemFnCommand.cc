@@ -18,33 +18,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef NETWORK_HH
-#define NETWORK_HH
-
+#include "NetworkConnection.hh"
+#include "SystemFnCommand.hh"
 #include "emacs.hh"
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <errno.h>
-#include <netdb.h>
+void SystemFnCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
+{
+    stringstream out;
 
-class Listener;
+#define cmd_def(NAME, CMD, ARG) out << NAME << "\n";
+#include "Command.def"
 
-class AddrWrapper {
-public:
-    AddrWrapper(struct addrinfo *addr_in) : addr(addr_in) {}
-    virtual ~AddrWrapper() { freeaddrinfo( addr ); }
-
-private:
-    struct addrinfo *addr;
-};
-
-
-Token start_listener( int port );
-void *connection_loop( void *arg );
-void register_listener( Listener *listener );
-void unregister_listener( Listener *listener );
-void close_listeners( void );
-
-#endif
+    out << END_TAG << "\n";
+    conn.write_string_to_fd( out.str() );
+}

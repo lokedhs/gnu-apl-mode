@@ -126,7 +126,7 @@ Functions:
 
     ("?"
      (("Monadic" "Roll" "Selects an integer at random from the population ⍳R"
-"Z←?R
+       "Z←?R
 
 R: Positive integer
 Z: Integer in the set ιR
@@ -155,7 +155,7 @@ Z: Simple vector
  ⍴Z ←→ Number of simple scalars in R
 ⍴⍴Z ←→ ,1")
       ("Dyadic" "Member" "1 for elements of L present in R; 0 where not."
-"Z←L∊R
+       "Z←L∊R
 
 Yields a Boolean array Z with the same shape as L. An item of Z is
 1 if the corresponding item of L can be found anywhere in R. An
@@ -173,7 +173,7 @@ Implicit argument: ⎕CT
 
     ("⌈"
      (("Monadic" "Ceiling" "Least integer greater than or equal to R"
-"Z←⌈R
+       "Z←⌈R
 For real numbers, yields the smallest integer that is not
 less than R (within the comparison tolerance).
 For complex numbers, depends on the relationship of the real
@@ -183,7 +183,7 @@ R and Z: Numeric
 
 Implicit argument: ⎕CT")
       ("Dyadic" "Maximum" "The greater value of L or R"
-"Z←L⌈R
+       "Z←L⌈R
 Returns the larger of L and R.
 
 L, R, and Z: Numeric, real"))
@@ -479,6 +479,21 @@ Implicit arguments: ⎕IO, ⎕CT
 
  ⍴Z ←→ ⍴R
 ⍴⍴Z ←→ ⍴⍴R"))
+     t)
+
+    ;; ========================================
+
+    ("."
+     (("Axis operator" "Inner product" "Compute inner product of from LO and RO"
+       "Z←L LO.RO R
+Combines the subarrays along the last axis of L with subarrays
+along the first axis of R by applying an RO outer product. An
+LO-reduction is then applied to each item of that result.
+
+LO: Dyadic function
+RO: Dyadic function
+ ⍴Z ←→ (¯1↓⍴L),1↓⍴R
+⍴⍴Z ←→ ,0⌈¯2+(⍴⍴L)+⍴⍴R"))
      t)
 
     ;; ========================================
@@ -831,7 +846,7 @@ Implicit argument: ⎕IO
 
  ⍴Z ←→ 1↑⍴R
 ⍴⍴Z ←→ ,1")
-      ("Grade up" "Indices or R which will arrange R in ascending order based on collating sequence specified as L"
+      ("Dyadic" "Grade up" "Indices of R which will arrange R in ascending order based on collating sequence specified as L"
        "Z←L⍋R
 Yields a vector of integers (a permutation of ⍳1↑⍴R) that puts the
 subarrays along the first axis of R in ascending order according to
@@ -862,7 +877,7 @@ Implicit argument: ⎕IO
 
  ⍴Z ←→ 1↑⍴R
 ⍴⍴Z ←→ ,1")
-      ("Dyadic" "Grade down" "Indices or R which will arrange R in descending order based on collating sequence specified as L"
+      ("Dyadic" "Grade down" "Indices of R which will arrange R in descending order based on collating sequence specified as L"
        "Z←L⍒R
 Yields a vector of integers (a permutation of ⍳1↑⍴R) that puts the
 subarrays along the first axis of R in descending order according to
@@ -942,7 +957,7 @@ Implicit argument: ⎕IO
 ⍴↑Z ←→ (⍴R)[,X] 
 ⍴⍴Z ←→ (⍴⍴R)-⍴,X")
       ("Dyadic" "Partition" "Partitions R into an array of vectors specified by L"
-       "Z←L≡R
+       "Z←L⊂R
 Partitions R into an array of vectors specified by L.
 
 L: Simple scalar or vector of nonnegative integers
@@ -978,8 +993,8 @@ X⊃⍴Z ←→ +/2</0,L
 Structures the items of R into an array, whose rightmost axes come
 from the axes of the items of R.
 
-  (⍴Z) ←→ (⍴R),↑⌈/(⍴¨̈(,R),⊂↑R)~⊂⍳0
- (⍴⍴Z) ←→ (⍴⍴R)+↑⌈/⍴¨̈⍴¨̈(,R),⊂↑R")
+  (⍴Z) ←→ (⍴R),↑⌈/(⍴¨(,R),⊂↑R)~⊂⍳0
+ (⍴⍴Z) ←→ (⍴⍴R)+↑⌈/⍴¨⍴¨(,R),⊂↑R")
       ("Monadic with axis" "Disclose with axis" "Structures the items of R into an array. X defines the axes of Z, into which items of R are structured"
        "Z←⊃[X]R
 Structures the items of R into an array. X defines the axes of Z,
@@ -988,8 +1003,8 @@ into which items of R are structured.
 X: Simple scalar or vector, nonnegative integers
 
 Implicit argument: ⎕IO
- (⍴Z)[,X] ←→ ↑⌈/(⍴¨̈(,R),⊂↑R)~⊂ι0
-      ⍴⍴Z ←→ (⍴⍴R)+⌈/∊⍴¨̈⍴¨̈(,R),⊂↑R")
+ (⍴Z)[,X] ←→ ↑⌈/(⍴¨¨(,R),⊂↑R)~⊂ι0
+      ⍴⍴Z ←→ (⍴⍴R)+⌈/∊⍴¨⍴¨(,R),⊂↑R")
       ("Dyadic" "Pick" "Selects an item of R as specified by the path indexes L"
        "Z←L⊃R
 Selects an item of R as specified by the path indexes L.
@@ -1059,7 +1074,8 @@ radices L.
 L, R, and Z: Simple numeric array
 
 ⍴Z ←→ (1↓L),1↓⍴R
-⍴⍴Z ←→ (0 1+⍴⍴L)+(0⌈¯1+⍴⍴R)")) t)
+⍴⍴Z ←→ (0 1+⍴⍴L)+(0⌈¯1+⍴⍴R)"))
+     t)
 
     ;; ========================================
 
@@ -1075,8 +1091,8 @@ L, R, and Z: Simple numeric array
 ⍴⍴Z ←→ (⍴⍴L)+⍴⍴R"))
      t)
     (("~" "∼")
-     (("Monadic" "Not" "Logical: ∼1 is 0, ∼0 is 1"))
-     (("Dyadic" "Without" "Yields the items in L that do not occur in R"
+     (("Monadic" "Not" "Logical: ∼1 is 0, ∼0 is 1")
+      ("Dyadic" "Without" "Yields the items in L that do not occur in R"
        "Z←L~R
 Yields the items in L that do not occur in R
 
@@ -1086,5 +1102,41 @@ Z: Vector
 Implicit argument: ⎕CT
  ⍴Z ←→ Depends on the contents of L and R
 ⍴⍴Z ←→ ,1"))
+     t)
+
+    ;; ========================================
+
+    ("⊢"
+     (("Dyadic" "Right" "Returns R"
+       "Z←L⊢R
+Returns R (discarding L)"))
+     nil)
+
+    ;; ========================================
+
+    ("⊣"
+     (("Dyadic" "Left" "Returns L"
+       "Z←L⊢R
+Returns L (discarding R)"))
+     nil)
+
+    ;; ========================================
+
+    ("¨"
+     (("Monadic axis" "Each" "Applies the function LO to each item of R"
+       "Z←LO¨ R
+Applies the function LO to each item of R
+
+ ⍴Z ←→ ⍴R
+⍴⍴Z ←→ ⍴⍴R")
+      ("Dyadic axis" "Each" "Applies the function LO between corresponding pairs of items of L and R"
+       "Z←L LO¨ R
+Applies the function LO between corresponding pairs of items of L
+and R
+
+LO: Dyadic function
+
+ ⍴Z ←→ ⍴R or ⍴L
+⍴⍴Z ←→ ⍴⍴R or ⍴⍴L"))
      t))
   "Documentation for APL symbols.")

@@ -18,33 +18,38 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef NETWORK_HH
-#define NETWORK_HH
+#ifndef TRACE_DATA_HH
+#define TRACE_DATA_HH
 
 #include "emacs.hh"
+#include "NetworkConnection.hh"
+#include "pthread.h"
+#include "Symbol.hh"
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <errno.h>
-#include <netdb.h>
+#include <set>
+#include <map>
 
-class Listener;
-
-class AddrWrapper {
+class TraceDataEntry {
 public:
-    AddrWrapper(struct addrinfo *addr_in) : addr(addr_in) {}
-    virtual ~AddrWrapper() { freeaddrinfo( addr ); }
+    TraceDataEntry( int cr_level_in ) : cr_level( cr_level_in ) {}
+    int get_cr_level( void ) { return cr_level; }
 
 private:
-    struct addrinfo *addr;
+    int cr_level;
 };
 
+class TraceData {
+public:
+    TraceData( Symbol *symbol_in );
+    virtual ~TraceData() {};
+    void add_listener( NetworkConnection *connection, int cr_level = -1 );
+    void remove_listener( NetworkConnection *connection );
+    void send_update( Symbol_Event ev );
+    static void display_value_for_trace( ostream &out, const Value_P &value, int cr_level );
 
-Token start_listener( int port );
-void *connection_loop( void *arg );
-void register_listener( Listener *listener );
-void unregister_listener( Listener *listener );
-void close_listeners( void );
+private:
+    Symbol *symbol;
+    map<NetworkConnection *, TraceDataEntry> active_listeners;
+};
 
 #endif

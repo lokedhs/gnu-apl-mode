@@ -13,6 +13,7 @@
 dervived from the APL2 documentation.")
 
 (defun gnu-apl-keymap-mode-kill-buffer ()
+  "Close the buffer displaying the keymap."
   (interactive)
   (let ((buffer (get-buffer *gnu-apl-keymap-buffer-name*)))
     (when buffer
@@ -28,7 +29,7 @@ dervived from the APL2 documentation.")
 (define-derived-mode gnu-apl-keymap-mode fundamental-mode "GNU APL Keymap"
   "Major mode for displaying the keymap help"
   (use-local-map gnu-apl-keymap-mode-map)
-  (read-only-mode))
+  (read-only-mode 1))
 
 (defun gnu-apl--get-doc-for-symbol (string)
   (loop for e in gnu-apl--symbol-doc
@@ -127,6 +128,7 @@ dervived from the APL2 documentation.")
         (insert string)))))
 
 (defun gnu-apl-symbol-insert-from-keymap ()
+  "Send a symbol from the keymap buffer to the current GNU APL interpreter."
   (interactive)
   (let ((string (get-text-property (point) 'gnu-apl-insert))
         (session (gnu-apl--get-interactive-session)))
@@ -251,6 +253,7 @@ it is open."
   (use-local-map gnu-apl-documentation-mode-map))
 
 (defun gnu-apl-documentation-search-kill-buffer ()
+  "Close the current active documentation buffer."
   (interactive)
   (let ((buffer (get-buffer *gnu-apl-apropos-symbol-buffer-name*)))
     (when buffer
@@ -274,6 +277,7 @@ it is open."
     (pop-to-buffer buffer)))
 
 (defun gnu-apl-apropos-symbol (regexp)
+  "Search for documentation symbols where the documentation matches REGEX."
   (interactive "MApropos symbol: ")
   (let ((result (loop for doc-entry in gnu-apl--symbol-doc
                       append (loop for e in (second doc-entry)

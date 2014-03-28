@@ -21,6 +21,7 @@
 #ifndef NETWORK_CONNECTION_HH
 #define NETWORK_CONNECTION_HH
 
+#include <pthread.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -35,6 +36,8 @@ public:
     std::string read_line_from_fd( void );
     void write_string_to_fd( const std::string &s );
     std::vector<std::string> load_block( void );
+    void send_reply( const std::string &message );
+    void send_notification( const std::string &message );
 
 private:
     int socket_fd;
@@ -42,6 +45,7 @@ private:
     int buffer_pos;
     int buffer_length;
     std::map<std::string, NetworkCommand *> commands;
+    pthread_mutex_t connection_lock;
 
     int process_command( const std::string &command );
     void show_si( void );

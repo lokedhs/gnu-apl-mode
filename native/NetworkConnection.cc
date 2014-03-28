@@ -21,6 +21,7 @@
 #include "emacs.hh"
 #include "util.hh"
 #include "NetworkConnection.hh"
+#include "LockWrapper.hh"
 #include "UserFunction.hh"
 #include "Quad_FX.hh"
 #include "SiCommand.hh"
@@ -29,7 +30,11 @@
 #include "DefCommand.hh"
 #include "GetVarCommand.hh"
 #include "VariablesCommand.hh"
-#include "RunCommand.hh"
+#include "FnTagCommand.hh"
+#include "VersionCommand.hh"
+#include "FollowCommand.hh"
+#include "SystemFnCommand.hh"
+#include "SystemVariableCommand.hh"
 
 #include <iostream>
 #include <sstream>
@@ -42,7 +47,6 @@
 #include <errno.h>
 #include <string.h>
 
-
 static void add_command( std::map<std::string, NetworkCommand *> &commands, NetworkCommand *command )
 {
     commands.insert( std::pair<std::string, NetworkCommand *>( command->get_name(), command ) );
@@ -51,12 +55,19 @@ static void add_command( std::map<std::string, NetworkCommand *> &commands, Netw
 NetworkConnection::NetworkConnection( int socket_in )
     : socket_fd(socket_in), buffer_pos(0), buffer_length(0)
 {
+    pthread_mutex_init( &connection_lock, NULL );
+
     add_command( commands, new SiCommand( "si" ) );
     add_command( commands, new SicCommand( "sic" ) );
     add_command( commands, new FnCommand( "fn" ) );
     add_command( commands, new DefCommand( "def" ) );
     add_command( commands, new GetVarCommand( "getvar" ) );
     add_command( commands, new VariablesCommand( "variables" ) );
+    add_command( commands, new FnTagCommand( "functiontag" ) );
+    add_command( commands, new VersionCommand( "proto" ) );
+    add_command( commands, new FollowCommand( "trace" ) );
+    add_command( commands, new SystemFnCommand( "systemcommands" ) );
+    add_command( commands, new SystemVariableCommand( "systemvariables" ) );
 }
 
 NetworkConnection::~NetworkConnection()
@@ -107,6 +118,8 @@ std::string NetworkConnection::read_line_from_fd()
 
 void NetworkConnection::write_string_to_fd( const std::string &s )
 {
+    LockWrapper lock_wrapper( &connection_lock );
+
     const char *buf = s.c_str();
     int n = strlen( buf );
     int pos = 0;
@@ -134,7 +147,7 @@ std::vector<std::string> NetworkConnection::load_block( void )
 
 int NetworkConnection::process_command( const std::string &command )
 {
-    LockWrapper lock;
+    ActiveWrapper lock;
     std::vector<std::string> elements = split( command, ':' );
     if( elements.size() > 0 ) {
         std::string operation = elements[0];
@@ -164,4 +177,21 @@ void NetworkConnection::run( void )
         std::string command = read_line_from_fd();
         end = process_command( command );
     }
+}
+
+void NetworkConnection::send_reply( const std::string &str )
+{
+    std::stringstream out;
+    out << str << "\n"
+        << END_TAG << "\n";
+    write_string_to_fd( out.str() );
+}
+
+void NetworkConnection::send_notification( const std::string &str )
+{
+    std::stringstream out;
+    out << NOTIFICATION_START_TAG << "\n"
+        << str << "\n"
+        << NOTIFICATION_END_TAG << "\n";
+    write_string_to_fd( out.str() );
 }

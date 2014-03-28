@@ -18,33 +18,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "RunCommand.hh"
-#include "emacs.hh"
-#include "NetworkConnection.hh"
+#ifndef VERSION_COMMAND_HH
+#define VERSION_COMMAND_HH
 
-void RunCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
-{
-    stringstream out;
-    while( 1 ) {
-        std::string line = conn.read_line_from_fd();
-        if( line == END_TAG ) {
-            break;
-        }
-        out << line << "\n";
-    }
+#include "NetworkCommand.hh"
 
-    Token result = Bif_F1_EXECUTE::execute_statement( ucs_string_from_string( out.str() ) );
-    TokenTag tag = result.get_tag();
+class VersionCommand : public NetworkCommand {
+public:
+    VersionCommand( std::string name_in ) : NetworkCommand( name_in ) {};
+    virtual void run_command( NetworkConnection &conn, const std::vector<std::string> &args );
+};
 
-    stringstream result_stream;
-    if( tag == TOK_ERROR ) {
-        result_stream << "error:" << result.get_int_val();
-    }
-    else {
-        result_stream << "result:NOT-IMPL";
-    }
-
-    result_stream << "\n" << END_TAG << "\n";
-
-    conn.write_string_to_fd( result_stream.str() );
-}
+#endif

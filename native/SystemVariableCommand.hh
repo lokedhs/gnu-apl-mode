@@ -18,14 +18,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef RUN_COMMAND_HH
-#define RUN_COMMAND_HH
+#ifndef SYSTEM_VARIABLE_COMMAND_HH
+#define SYSTEM_VARIABLE_COMMAND_HH
 
-#include "Command.hh"
+#include "NetworkCommand.hh"
 
-class RunCommand : public NetworkCommand {
+class SystemVariableCommand : public NetworkCommand {
 public:
-    RunCommand( std::string name_in ) : NetworkCommand( name_in ) {};
+    SystemVariableCommand( std::string name_in ) : NetworkCommand( name_in ) {};
     virtual void run_command( NetworkConnection &conn, const std::vector<std::string> &args );
 };
 

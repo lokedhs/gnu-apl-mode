@@ -17,7 +17,7 @@
   (declare (indent 1))
   (let ((result-sym (gensym "result-")))
     `(defun ,fun-name (,varname)
-       (interactive (list (gnu-apl--choose-variable "Variable: " :variable)))
+       (interactive (list (gnu-apl--choose-variable "Variable" :variable)))
        (gnu-apl--send-network-command (concat "getvar:" ,varname))
        (let ((,result-sym (gnu-apl--read-network-reply-block)))
          (unless (string= (car ,result-sym) "content")
@@ -37,7 +37,7 @@ from the APL runtime"
     (integer (insert (format "%d" entry)))
     (number (insert (format "%f" entry)))
     (string (insert (format "\"%s\"" entry)))
-    (list (cond ((listp entry)
+    (list (cond ((listp (car entry))
                  (error "Cell contains array"))
                 ((eq (car entry) :unicode)
                  (insert (char-to-string (cadr entry))))
@@ -82,7 +82,7 @@ from the APL runtime"
   "Exports the array stored in the APL variable named by VARNAME
 to CSV format and save it to the file name FILENAME. Returns the
 dimension of the exported data as a list of the form (ROWS COLS)"
-  (interactive (list (gnu-apl--choose-variable "Variable: " :variable)
+  (interactive (list (gnu-apl--choose-variable "Variable" :variable (gnu-apl--symbol-at-point))
                      (read-file-name "Output filename: ")))
   (gnu-apl--send-network-command (concat "getvar:" varname))
   (let ((result (gnu-apl--read-network-reply-block)))
@@ -98,9 +98,9 @@ dimension of the exported data as a list of the form (ROWS COLS)"
   (gnu-apl--with-temp-files ((script-file "script")
                              (data-file "data"))
     (let ((size (with-temp-buffer
-                     (prog1
-                         (gnu-apl--write-array-content-to-csv result)
-                       (write-file data-file)))))
+                  (prog1
+                      (gnu-apl--write-array-content-to-csv result)
+                    (write-file data-file)))))
       (with-temp-buffer
         (insert "plot ")
         (let ((numcols (cadr size)))
@@ -110,4 +110,4 @@ dimension of the exported data as a list of the form (ROWS COLS)"
               (insert ",\\"))
             (insert "\n")))
         (write-file script-file)))
-    (shell-command (format "gnuplot -p %s" script-file))))
+    (shell-command (format "%s -p %s" gnu-apl-gnuplot-program script-file))))

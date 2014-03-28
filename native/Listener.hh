@@ -18,33 +18,40 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef NETWORK_HH
-#define NETWORK_HH
+#ifndef LISTENER_HH
+#define LISTENER_HH
 
-#include "emacs.hh"
+#include <string>
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <errno.h>
-#include <netdb.h>
+#include "network.hh"
 
-class Listener;
+typedef void *ThreadFunction( void * );
 
-class AddrWrapper {
+class Listener {
 public:
-    AddrWrapper(struct addrinfo *addr_in) : addr(addr_in) {}
-    virtual ~AddrWrapper() { freeaddrinfo( addr ); }
+    Listener() { register_listener( this ); }
+    virtual ~Listener() { unregister_listener( this ); }
+    virtual std::string start( void ) = 0;
+    virtual void wait_for_connection( void ) = 0;
+    virtual void close_connection( void ) = 0;
+    static Listener *create_listener( int port );
+    virtual void set_thread( pthread_t thread_id_in ) { thread_id = thread_id_in; }
+    virtual pthread_t get_thread( void ) { return thread_id; }
 
-private:
-    struct addrinfo *addr;
+protected:
+    pthread_t thread_id;
 };
 
+class ListenerWrapper {
+public:
+    ListenerWrapper( Listener *listener_in ) : listener( listener_in ) { }
 
-Token start_listener( int port );
-void *connection_loop( void *arg );
-void register_listener( Listener *listener );
-void unregister_listener( Listener *listener );
-void close_listeners( void );
+    virtual ~ListenerWrapper() {
+        listener->close_connection();
+    }
+
+private:
+    Listener *listener;
+};
 
 #endif

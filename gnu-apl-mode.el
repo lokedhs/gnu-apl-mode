@@ -2,6 +2,7 @@
 
 (require 'cl)
 (require 'thingatpt)
+(require 'comint)
 
 (load "gnu-apl-util")
 
@@ -44,6 +45,7 @@ buffer can also be toggled using the command
   :type 'boolean
   :group 'gnu-apl)
 
+;;;###autoload
 (defcustom gnu-apl-show-apl-welcome t
   "Choose if the GNU APL welcome screen should be displayed.
 When non-nil, display the GNU APL welcome screen. When this value
@@ -51,9 +53,24 @@ is nil, the apl binary is called with the --silent flag."
   :type 'boolean
   :group 'gnu-apl)
 
+;;;###autoload
 (defcustom gnu-apl-show-tips-on-start t
   "When non-nil, show some help when starting a new APL session."
   :type 'boolean
+  :group 'gnu-apl)
+
+;;;###autoload
+(defcustom gnu-apl-native-listener-port 0
+  "The port number that the native listener should listen to.
+If zero, randomly choose an available port.
+If -1, request the use of Unix domain sockets."
+  :type 'integer
+  :group 'gnu-apl)
+
+;;;###autoload
+(defcustom gnu-apl-gnuplot-program "gnuplot"
+  "The name of the gnuplot executable."
+  :type 'string
   :group 'gnu-apl)
 
 ;;; This parameter is not customisable since there are very few cases
@@ -235,10 +252,15 @@ documentation will not be loaded.")
         (define-key map (kbd "C-c C-k") 'gnu-apl-show-keyboard)
         (define-key map (kbd "C-c C-h") 'gnu-apl-show-help-for-symbol-point)
         (define-key map (kbd "C-c C-a") 'gnu-apl-apropos-symbol)
+        (define-key map (kbd "M-.") 'gnu-apl-find-function-at-point)
+        (define-key map (kbd "C-c C-.") 'gnu-apl-trace)
         (define-key map [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
         (define-key map [menu-bar gnu-apl toggle-keyboard] '("Toggle keyboard" . gnu-apl-show-keyboard))
         (define-key map [menu-bar gnu-apl show-help-for-symbol] '("Documentation for symbol" . gnu-apl-show-help-for-symbol))
-        (define-key map [menu-bar gnu-apl apropos-symbol] '("Search symbols" . gnu-apl-apropos-symbol))))
+        (define-key map [menu-bar gnu-apl apropos-symbol] '("Search symbols" . gnu-apl-apropos-symbol))
+        (define-key map [menu-bar gnu-apl find-symbol-at-point] '("Find symbol at point" . gnu-apl-find-function-at-point))
+        (define-key map [menu-bar gnu-apl trace] '("Trace variable" . gnu-apl-trace))
+))
     map))
 
 (defvar gnu-apl-mode-map
@@ -255,11 +277,16 @@ documentation will not be loaded.")
           do (modify-syntax-entry (aref char 0) "." table))
     (modify-syntax-entry (aref "⍝" 0) "<" table)
     (modify-syntax-entry ?\n ">" table)
+    (modify-syntax-entry (aref "∆" 0) "w" table)
+    (modify-syntax-entry (aref "⍙" 0) "w" table)
     table)
   "Syntax table for gnu-apl-mode")
 
 (defun gnu-apl--init-mode-common ()
   (set (make-local-variable 'eldoc-documentation-function) 'gnu-apl--eldoc-data)
+  (set (make-local-variable 'completion-at-point-functions) '(gnu-apl-expand-symbol))
+  (set (make-local-variable 'tab-always-indent) 'complete)
+  (set (make-local-variable 'indent-line-function) 'gnu-apl-indent)
   ;; TODO: It's an open question as to whether the below is a good idea
   ;; or if a user should manually set this from the hook
   ;;(setq buffer-face-mode-face 'gnu-apl-default)
@@ -273,6 +300,60 @@ documentation will not be loaded.")
   (use-local-map gnu-apl-mode-map)
   (gnu-apl--init-mode-common))
 
+(defun gnu-apl--symbol-at-point ()
+  (let ((symbol (thing-at-point 'symbol)))
+    symbol))
+
+(defun gnu-apl--find-largest-backward-match (regex)
+  (save-excursion
+    (loop with old-pos = nil
+          for pos = (save-excursion (search-backward-regexp regex nil t))
+          while pos
+          do (progn
+               (backward-char 1)
+               (setq old-pos pos))
+          finally (return old-pos))))
+
+(defun gnu-apl-indent ()
+  'noindent)
+
+(defun gnu-apl--load-commands (prefix)
+  (let ((results (gnu-apl--send-network-command-and-read "systemcommands")))
+    (cl-remove-if-not #'(lambda (v)
+                          (gnu-apl--string-match-start v prefix))
+                      results)))
+
+(defun gnu-apl-expand-symbol ()
+  (interactive)
+  (let* ((row (buffer-substring (save-excursion (beginning-of-line) (point)) (point))))
+    ;; Check for system commands
+    (if (string-match "^[ \t]*\\([])][a-zA-Z0-9]*\\)$" row)
+        (let* ((cmdname (match-string 1 row))
+               (command-start-index (- (point) (length cmdname))))
+          (list command-start-index (point) (gnu-apl--load-commands cmdname)))
+
+      ;; Check for quad-commands
+      (let ((svar-pos (gnu-apl--find-largest-backward-match "⎕[a-zA-Z0-9]*\\=")))
+        (if svar-pos
+            (let* ((svar (buffer-substring svar-pos (point)))
+                   (results (gnu-apl--send-network-command-and-read "systemvariables"))
+                   (filtered-variables (cl-remove-if-not #'(lambda (v)
+                                                             (gnu-apl--string-match-start v svar))
+                                                         results)))
+              (when filtered-variables
+                (list svar-pos (point) filtered-variables)))
+
+          ;; Check for user-defines symbols
+          (let ((pos (gnu-apl--find-largest-backward-match "[a-zA-Z_∆⍙][a-zA-Z0-9_∆⍙¯]*\\=")))
+            (when pos
+              (let* ((s (buffer-substring pos (point)))
+                     (results (gnu-apl--send-network-command-and-read "variables"))
+                     (filtered-variables (cl-remove-if-not #'(lambda (v)
+                                                               (gnu-apl--string-match-start v s))
+                                                           results)))
+                (when filtered-variables
+                  (list pos (point) filtered-variables))))))))))
+
 ;;;
 ;;;  Load the other source files
 ;;;
@@ -283,6 +364,7 @@ documentation will not be loaded.")
 (load "gnu-apl-network")
 (load "gnu-apl-spreadsheet")
 (load "gnu-apl-plot")
+(load "gnu-apl-follow")
 (if gnu-apl-use-free-documentation
     (load "gnu-apl-refdocs-bsd-license")
   (load "gnu-apl-refdocs-apl2"))

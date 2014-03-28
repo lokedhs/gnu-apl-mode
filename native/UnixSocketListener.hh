@@ -18,33 +18,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef NETWORK_HH
-#define NETWORK_HH
+#ifndef UNIX_SOCKET_LISTENER_HH
+#define UNIX_SOCKET_LISTENER_HH
 
-#include "emacs.hh"
+#include "Listener.hh"
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <errno.h>
-#include <netdb.h>
-
-class Listener;
-
-class AddrWrapper {
+class UnixSocketListener : public Listener {
 public:
-    AddrWrapper(struct addrinfo *addr_in) : addr(addr_in) {}
-    virtual ~AddrWrapper() { freeaddrinfo( addr ); }
+    UnixSocketListener() : server_socket( 0 ), initialised( false ), closing( false ) {};
+    virtual ~UnixSocketListener();
+    virtual std::string start( void );
+    virtual void wait_for_connection( void );
+    virtual void close_connection( void );
 
 private:
-    struct addrinfo *addr;
+    int server_socket;
+    std::string filename;
+    bool initialised;
+    bool closing;
+    int notification_fd;
 };
-
-
-Token start_listener( int port );
-void *connection_loop( void *arg );
-void register_listener( Listener *listener );
-void unregister_listener( Listener *listener );
-void close_listeners( void );
 
 #endif

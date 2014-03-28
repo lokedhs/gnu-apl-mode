@@ -18,33 +18,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef NETWORK_HH
-#define NETWORK_HH
+#ifndef FOLLOW_COMMAND_HH
+#define FOLLOW_COMMAND_HH
 
-#include "emacs.hh"
+#include "NetworkCommand.hh"
+#include "Symbol.hh"
+#include "TraceData.hh"
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <errno.h>
-#include <netdb.h>
-
-class Listener;
-
-class AddrWrapper {
+class FollowCommand : public NetworkCommand {
 public:
-    AddrWrapper(struct addrinfo *addr_in) : addr(addr_in) {}
-    virtual ~AddrWrapper() { freeaddrinfo( addr ); }
-
-private:
-    struct addrinfo *addr;
+    FollowCommand( std::string name_in ) : NetworkCommand( name_in ) {};
+    virtual void run_command( NetworkConnection &conn, const std::vector<std::string> &args );
 };
 
+typedef map<const Symbol *, TraceData *> SymbolTraceMap;
 
-Token start_listener( int port );
-void *connection_loop( void *arg );
-void register_listener( Listener *listener );
-void unregister_listener( Listener *listener );
-void close_listeners( void );
+void symbol_assignment( const Symbol &symbol, Symbol_Event ev );
 
 #endif
