@@ -5,7 +5,12 @@
 (defvar *gnu-apl-notification-end* "APL_NATIVE_NOTIFICATION_END")
 (defvar *gnu-apl-protocol* "1.3")
 
-(define-error 'gnu-apl-network-proto-error "Network connection error")
+;;; We really should be using define-error here, but that function is
+;;; new in 24.4 and thus is not generally available yet. This should
+;;; be changed once 24.4 is more common place.
+;;;(define-error 'gnu-apl-network-proto-error "Network connection error")
+(put 'gnu-apl-network-proto-error 'error-conditions '(error gnu-apl-network-proto-error))
+(put 'gnu-apl-network-proto-error 'error-message "Network common error")
 
 (defun gnu-apl--connect-to-remote (connect-mode addr)
   (cond ((string= connect-mode "tcp")
