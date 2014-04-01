@@ -46,7 +46,7 @@
         (let ((version (gnu-apl--send-network-command-and-read "proto")))
           (unless (gnu-apl--protocol-acceptable-p (car version))
             (error "GNU APL version too old (%s). Please upgrade to at least %s" (car version) *gnu-apl-protocol*)))
-      ('gnu-apl-network-proto-error (error "GNU APL version too old (<1.3). Please upgrade to at least %s" *gnu-apl-protocol*)))))
+      (gnu-apl-network-proto-error (error "GNU APL version too old (<1.3). Please upgrade to at least %s" *gnu-apl-protocol*)))))
 
 (defun gnu-apl--process-notification (lines)
   (let ((type (car lines)))
