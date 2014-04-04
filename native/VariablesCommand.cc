@@ -18,8 +18,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <alloca.h>
-
 #include "NetworkConnection.hh"
 #include "VariablesCommand.hh"
 #include "emacs.hh"
@@ -50,7 +48,7 @@ void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<s
     }
 
     int num_symbols = Workspace::symbols_allocated();
-    Symbol **symbols = (Symbol **)alloca( sizeof( Symbol * ) * num_symbols );
+    Symbol **symbols = new Symbol *[num_symbols];
     Workspace::get_all_symbols( symbols, num_symbols );
     for( int i = 0 ; i < num_symbols ; i++ ) {
         Symbol *symbol = symbols[i];
@@ -65,4 +63,6 @@ void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<s
     }
 
     conn.send_reply( out.str() );
+
+    delete[] symbols;
 }
