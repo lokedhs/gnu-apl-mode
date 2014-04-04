@@ -372,5 +372,6 @@ documentation will not be loaded.")
 (load "gnu-apl-osx-workaround")
 
 (add-to-list 'auto-mode-alist '("\\.apl\\'" . gnu-apl-mode))
+(add-to-list 'interpreter-mode-alist '("gnu-apl" . gnu-apl-mode))
 
 (provide 'gnu-apl-mode)
