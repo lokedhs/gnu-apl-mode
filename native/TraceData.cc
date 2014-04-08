@@ -23,6 +23,8 @@
 #include "FollowCommand.hh"
 #include "Workspace.hh"
 
+#include <sstream>
+
 TraceData::TraceData( Symbol *symbol_in ) : symbol( symbol_in )
 {
 }

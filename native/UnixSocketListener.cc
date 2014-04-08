@@ -23,6 +23,7 @@
 #include "UnixSocketListener.hh"
 #include "NetworkConnection.hh"
 
+#include <sstream>
 #include <memory>
 #include <pthread.h>
 #include <sys/types.h>

@@ -23,6 +23,7 @@
 #include "NetworkConnection.hh"
 #include "TcpListener.hh"
 
+#include <sstream>
 #include <memory>
 #include <pthread.h>
 #include <sys/types.h>

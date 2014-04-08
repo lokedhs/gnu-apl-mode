@@ -22,6 +22,8 @@
 #include "SystemFnCommand.hh"
 #include "emacs.hh"
 
+#include <sstream>
+
 void SystemFnCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
     stringstream out;

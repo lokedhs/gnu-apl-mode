@@ -22,6 +22,8 @@
 #include "VariablesCommand.hh"
 #include "emacs.hh"
 
+#include <sstream>
+
 enum TypeSpec {
     ALL,
     VARIABLE,

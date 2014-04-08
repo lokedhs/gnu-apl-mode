@@ -24,6 +24,8 @@
 
 #include "Quad_FX.hh"
 
+#include <sstream>
+
 static void log_error( Error &error, ostream &out )
 {
     UCS_string l1 = error.get_error_line_1();

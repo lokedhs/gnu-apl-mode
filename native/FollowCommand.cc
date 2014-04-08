@@ -26,6 +26,7 @@
 #include "Symbol.hh"
 #include "LockWrapper.hh"
 
+#include <sstream>
 #include <map>
 #include <stdlib.h>
 #include <string.h>

@@ -22,6 +22,8 @@
 #include "SystemVariableCommand.hh"
 #include "emacs.hh"
 
+#include <sstream>
+
 void SystemVariableCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
     stringstream out;

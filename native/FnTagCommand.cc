@@ -24,6 +24,8 @@
 
 #include "UserFunction.hh"
 
+#include <sstream>
+
 void FnTagCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
     std::string name = args[1];

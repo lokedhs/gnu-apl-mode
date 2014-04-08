@@ -22,6 +22,8 @@
 #include "SiCommand.hh"
 #include "emacs.hh"
 
+#include <sstream>
+
 void SiCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
     std::stringstream out;

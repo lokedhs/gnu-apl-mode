@@ -22,6 +22,8 @@
 #include "FnCommand.hh"
 #include "emacs.hh"
 
+#include <sstream>
+
 void FnCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
     std::string name = args[1];
