@@ -52,7 +52,7 @@ static void escape_char( ostream &out, Unicode unicode )
     }
     else {
         UCS_string ucs_string( unicode );
-        out << ucs_string.to_string();
+        out << to_string(ucs_string);
     }
 }
 

@@ -53,7 +53,7 @@ void FnCommand::run_command( NetworkConnection &conn, const std::vector<std::str
             ucs.to_vector( tlines );
 
             for( vector<UCS_string>::iterator i = tlines.begin() ; i != tlines.end() ; i++ ) {
-                out << i->to_string() << "\n";
+                out << to_string(*i) << "\n";
             }
         }
     }

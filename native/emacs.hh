@@ -52,4 +52,11 @@ public:
 const UCS_string ucs_string_from_string( const std::string &string );
 Value_P make_string_cell( const std::string &string, const char *loc );
 
+   /// return a UTF8 encoded std:string
+   inline std::string to_string(const UCS_string & ucs)
+      {
+       const UTF8_string utf(ucs);
+       return string((const char *)(utf.get_items()), utf.size());
+      }
+
 #endif

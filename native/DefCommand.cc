@@ -57,7 +57,7 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
             new (tag->next_ravel()) PointerCell( make_string_cell( args[1], LOC ) );
             function_list_value->check_value( LOC );
             Token result = quad_fx.eval_AB( tag, function_list_value );
-            out << "function defined\n" << result.canonical( PST_CS_NONE ).to_string();
+            out << "function defined\n" << to_string(result.canonical( PST_CS_NONE));
         }
         else {
             Token result = quad_fx.eval_B( function_list_value );
