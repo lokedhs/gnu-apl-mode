@@ -286,7 +286,7 @@ function or nil if the function could not be parsed."
         (if (not (string= (car result) "tag"))
             (message "No function definition found")
           (let ((reference (cadr result)))
-            (unless (string-match "^\\(.*\\)!\\([0-9]+\\)$" reference)
+            (unless (string-match "^\\(.*\\):\\([0-9]+\\)$" reference)
               (error "Unexpected tag format: %S" reference))
             (let ((file (match-string 1 reference))
                   (line-num (string-to-number (match-string 2 reference))))
