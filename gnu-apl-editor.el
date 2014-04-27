@@ -39,7 +39,7 @@ the function and set it in the running APL interpreter."
 (defun gnu-apl--make-tag (filename line)
   "Creates a tag appropriate for sending to the APL interpreter
 using the def command."
-  (format "%s:%d" filename line))
+  (format "%s&3A;%d" filename line))
 
 (defun gnu-apl-interactive-send-current-function ()
   "Send the function definition at point to the running GNU APL interpreter.
@@ -117,6 +117,7 @@ The block is bounded by a function definition of the form
   "Send an )SI request that should be checked against the current
 function being sent. Returns non-nil if the function was send
 successfully."
+  (llog "sending tag=%S" tag)
   (let* ((function-header (gnu-apl--trim-spaces (car parts)))
          (function-name (gnu-apl--parse-function-header function-header)))
     (unless function-name
