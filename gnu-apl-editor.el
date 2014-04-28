@@ -117,7 +117,6 @@ The block is bounded by a function definition of the form
   "Send an )SI request that should be checked against the current
 function being sent. Returns non-nil if the function was send
 successfully."
-  (llog "sending tag=%S" tag)
   (let* ((function-header (gnu-apl--trim-spaces (car parts)))
          (function-name (gnu-apl--parse-function-header function-header)))
     (unless function-name
