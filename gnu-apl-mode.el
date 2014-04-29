@@ -277,6 +277,7 @@ documentation will not be loaded.")
           do (modify-syntax-entry (aref char 0) "." table))
     (modify-syntax-entry (aref "⍝" 0) "<" table)
     (modify-syntax-entry ?\n ">" table)
+    (modify-syntax-entry ?\' "\"" table)
     (modify-syntax-entry (aref "∆" 0) "w" table)
     (modify-syntax-entry (aref "⍙" 0) "w" table)
     table)
@@ -288,7 +289,7 @@ documentation will not be loaded.")
   (set (make-local-variable 'tab-always-indent) 'complete)
   (set (make-local-variable 'indent-line-function) 'gnu-apl-indent)
   (set (make-local-variable 'comment-start) "⍝")
-  (set (make-local-variable 'comment-padding " "))
+  (set (make-local-variable 'comment-padding) " ")
   (set (make-local-variable 'comment-end) "")
   ;; TODO: It's an open question as to whether the below is a good idea
   ;; or if a user should manually set this from the hook
@@ -317,8 +318,31 @@ documentation will not be loaded.")
                (setq old-pos pos))
           finally (return old-pos))))
 
+(defun gnu-apl--indent-safely (pos)
+  (indent-line-to (max pos 0)))
+
+(defun gnu-apl--full-function-definition-p (line &optional error-on-incorrect-format)
+  (when (and (plusp (length line))
+             (string= (subseq line 0 1) "∇"))
+    (let ((parsed (gnu-apl--parse-function-header (subseq line 1))))
+      (when (and error-on-incorrect-format
+                 (null parsed))
+        (user-error "Incorrectly formatted function header"))
+      parsed)))
+
+(defun gnu-apl--indent-this ()
+  nil)
+
 (defun gnu-apl-indent ()
-  'noindent)
+  ;; The indentation rules are very simple. If we are in a function,
+  ;; indent by 2 characters unless we are on a label definition in
+  ;; which case the line should not be indented.
+  ;; Anything outside a function definition is not indented.
+  
+  ;; No indentation unless the cursor is at the beginning of the line
+  (if (save-excursion (search-backward-regexp "^[ \t]*\\=" nil t))
+      (gnu-apl--indent-this)
+    'noindent))
 
 (defun gnu-apl--load-commands (prefix)
   (let ((results (gnu-apl--send-network-command-and-read "systemcommands")))

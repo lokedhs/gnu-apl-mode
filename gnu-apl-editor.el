@@ -47,42 +47,34 @@ The block is bounded by a function definition of the form
 ∇definition on the top, and ending with a single ∇ character."
   (interactive)
 
-  (labels ((full-function-definition-p (line)
-                                       (when (and (plusp (length line))
-                                                  (string= (subseq line 0 1) "∇"))
-                                         (let ((parsed (gnu-apl--parse-function-header (subseq line 1))))
-                                           (unless parsed
-                                             (user-error "Function end marker above cursor"))
-                                           parsed))))
+  (save-excursion
+    (beginning-of-line)
+    (let ((start (loop for line = (gnu-apl--trim-spaces (thing-at-point 'line))
+                       when (gnu-apl--full-function-definition-p line t)
+                       return (point)
+                       when (plusp (forward-line -1))
+                       return nil)))
+      (unless start
+        (user-error "Can't find function definition above cursor"))
 
-    (save-excursion
-      (beginning-of-line)
-      (let ((start (loop for line = (gnu-apl--trim-spaces (thing-at-point 'line))
-                         when (full-function-definition-p line)
-                         return (point)
-                         when (plusp (forward-line -1))
-                         return nil)))
-        (unless start
-          (user-error "Can't find function definition above cursor"))
+      (unless (zerop (forward-line 1))
+        (user-error "No end marker found"))
 
-        (unless (zerop (forward-line 1))
+      (let ((end (loop for line = (gnu-apl--trim-trailing-newline
+                                   (gnu-apl--trim-spaces (thing-at-point 'line)))
+                       when (string= line "∇")
+                       return (progn (forward-line -1) (end-of-line) (point))
+                       when (plusp (forward-line 1))
+                       return nil)))
+        (unless end
           (user-error "No end marker found"))
-
-        (let ((end (loop for line = (gnu-apl--trim-trailing-newline
-                                     (gnu-apl--trim-spaces (thing-at-point 'line)))
-                         when (string= line "∇")
-                         return (progn (forward-line -1) (end-of-line) (point))
-                         when (plusp (forward-line 1))
-                         return nil)))
-          (unless end
-            (user-error "No end marker found"))
-          (let ((overlay (make-overlay start end)))
-            (overlay-put overlay 'face '(background-color . "green"))
-            (run-at-time "0.5 sec" nil #'(lambda () (delete-overlay overlay))))
-          (let ((function-lines (gnu-apl--function-definition-to-list (buffer-substring start end))))
-            (gnu-apl--send-si-and-send-new-function function-lines nil
-                                                    (gnu-apl--make-tag (buffer-file-name)
-                                                                       (line-number-at-pos start)))))))))
+        (let ((overlay (make-overlay start end)))
+          (overlay-put overlay 'face '(background-color . "green"))
+          (run-at-time "0.5 sec" nil #'(lambda () (delete-overlay overlay))))
+        (let ((function-lines (gnu-apl--function-definition-to-list (buffer-substring start end))))
+          (gnu-apl--send-si-and-send-new-function function-lines nil
+                                                  (gnu-apl--make-tag (buffer-file-name)
+                                                                     (line-number-at-pos start))))))))
 
 (defun gnu-apl--send-new-function (content &optional tag)
   (gnu-apl--send-network-command (concat "def" (if tag (concat ":" tag) "")))
