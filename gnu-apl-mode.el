@@ -287,6 +287,9 @@ documentation will not be loaded.")
   (set (make-local-variable 'completion-at-point-functions) '(gnu-apl-expand-symbol))
   (set (make-local-variable 'tab-always-indent) 'complete)
   (set (make-local-variable 'indent-line-function) 'gnu-apl-indent)
+  (set (make-local-variable 'comment-start) "⍝")
+  (set (make-local-variable 'comment-padding " "))
+  (set (make-local-variable 'comment-end) "")
   ;; TODO: It's an open question as to whether the below is a good idea
   ;; or if a user should manually set this from the hook
   ;;(setq buffer-face-mode-face 'gnu-apl-default)
