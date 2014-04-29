@@ -346,7 +346,7 @@ documentation will not be loaded.")
               (when filtered-variables
                 (list svar-pos (point) filtered-variables)))
 
-          ;; Check for user-defines symbols
+          ;; Check for user-defined symbols
           (let ((pos (gnu-apl--find-largest-backward-match "[a-zA-Z_∆⍙][a-zA-Z0-9_∆⍙¯]*\\=")))
             (when pos
               (let* ((s (buffer-substring pos (point)))
