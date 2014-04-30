@@ -44,7 +44,14 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
         Shape shape( content.size() );
         Value_P function_list_value( new Value( shape, LOC ) );
         for( vector<string>::const_iterator i = content.begin() ; i != content.end() ; i++ ) {
-            new (function_list_value->next_ravel()) PointerCell( make_string_cell( *i, LOC ) );
+            string v;
+            if( i->size() == 0 ) {
+                v = " ";
+            }
+            else {
+                v = *i;
+            }
+            new (function_list_value->next_ravel()) PointerCell( make_string_cell( v, LOC ) );
         }
         function_list_value->check_value( LOC );
 
