@@ -297,12 +297,16 @@ documentation will not be loaded.")
   ;;(buffer-face-mode)
   )
 
+(defvar gnu-apl-font-lock-keywords1
+  '("⎕[a-zA-Z0-9]+"))
+
 (define-derived-mode gnu-apl-mode prog-mode "GNU APL"
   "Major mode for editing GNU APL files."
   :syntax-table gnu-apl-mode-syntax-table
   :group 'gnu-apl
   (use-local-map gnu-apl-mode-map)
-  (gnu-apl--init-mode-common))
+  (gnu-apl--init-mode-common)
+  (set (make-local-variable 'font-lock-defaults) '((gnu-apl-font-lock-keywords1) nil nil nil)))
 
 (defun gnu-apl--symbol-at-point ()
   (let ((symbol (thing-at-point 'symbol)))
