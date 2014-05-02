@@ -306,7 +306,10 @@ documentation will not be loaded.")
   :group 'gnu-apl
   (use-local-map gnu-apl-mode-map)
   (gnu-apl--init-mode-common)
-  (set (make-local-variable 'font-lock-defaults) '((gnu-apl-font-lock-keywords1) nil nil nil)))
+  (set (make-local-variable 'font-lock-defaults)
+       '((("⎕[a-zA-Z0-9]+" . font-lock-keyword-face)
+          ("^[ \t]*[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]+:" . font-lock-builtin-face))
+         nil nil nil)))
 
 (defun gnu-apl--symbol-at-point ()
   (let ((symbol (thing-at-point 'symbol)))
