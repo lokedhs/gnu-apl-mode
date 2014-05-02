@@ -280,6 +280,7 @@ documentation will not be loaded.")
     (modify-syntax-entry ?\' "\"" table)
     (modify-syntax-entry (aref "∆" 0) "w" table)
     (modify-syntax-entry (aref "⍙" 0) "w" table)
+    (modify-syntax-entry ?\\ "." table)
     table)
   "Syntax table for gnu-apl-mode")
 
