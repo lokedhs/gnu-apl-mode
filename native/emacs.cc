@@ -36,6 +36,7 @@ extern "C" {
 
 void set_active( bool v )
 {
+    std::cerr << "start BLAP:" << v << std::endl;
     pthread_mutex_lock( &apl_main_lock );
     if( !apl_active && !v ) {
         std::cerr << "Unlocking while the lock is unlocked" << std::endl;
@@ -49,6 +50,7 @@ void set_active( bool v )
     apl_active = v;
     pthread_cond_broadcast( &apl_main_cond );
     pthread_mutex_unlock( &apl_main_lock );
+    std::cerr << "endblap:" << v << std::endl;
 }
 
 static void active_disable( void )
@@ -121,9 +123,15 @@ Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
     return Token(TOK_APL_VALUE1, Value::Str0_P);
 }
 
-void close_fun( Cause cause )
+bool close_fun( Cause cause )
 {
-    close_listeners();
+    if( cause == CAUSE_ERASED ) {
+        return false;
+    }
+    else {
+        close_listeners();
+        return true;
+    }
 }
 
 void *get_function_mux( const char *function_name )
