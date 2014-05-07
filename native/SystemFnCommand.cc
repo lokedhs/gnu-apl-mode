@@ -21,6 +21,7 @@
 #include "NetworkConnection.hh"
 #include "SystemFnCommand.hh"
 #include "emacs.hh"
+#include "Command.hh"
 
 #include <sstream>
 
@@ -30,6 +31,10 @@ void SystemFnCommand::run_command( NetworkConnection &conn, const std::vector<st
 
 #define cmd_def(NAME, CMD, ARG) out << NAME << "\n";
 #include "Command.def"
+
+    for( vector<Command::user_command>::iterator i = Command::user_commands.begin() ; i != Command::user_commands.end() ; i++ ) {
+        out << i->prefix << endl;
+    }
 
     out << END_TAG << "\n";
     conn.write_string_to_fd( out.str() );
