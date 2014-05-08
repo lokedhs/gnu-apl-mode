@@ -20,6 +20,7 @@
 
 #include "emacs.hh"
 #include "network.hh"
+#include "NativeFunction.hh"
 
 #include <pthread.h>
 
@@ -43,10 +44,10 @@ void set_active( bool v )
     }
     if( v ) {
         while( apl_active ) {
-            pthread_cond_wait( &apl_main_cond, &apl_main_lock );
+             pthread_cond_wait( &apl_main_cond, &apl_main_lock );
         }
     }
-    apl_active = v;
+     apl_active = v;
     pthread_cond_broadcast( &apl_main_cond );
     pthread_mutex_unlock( &apl_main_lock );
 }
@@ -121,7 +122,7 @@ Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
     return Token(TOK_APL_VALUE1, Value::Str0_P);
 }
 
-bool close_fun( Cause cause )
+bool close_fun( Cause cause, const NativeFunction *caller )
 {
     if( cause == CAUSE_ERASED ) {
         return false;
