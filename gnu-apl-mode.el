@@ -301,6 +301,37 @@ documentation will not be loaded.")
 (defvar gnu-apl-font-lock-keywords1
   '("⎕[a-zA-Z0-9]+"))
 
+(defvar gnu-apl--function-declaration-patterns
+  (let* ((s "[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]*")
+         (f (format "\\(?: *\\[ *%s *\\]\\)?" s)))
+
+    ;; Patterns that cover the following variations:
+    ;;    FN
+    ;;    FN R
+    ;;    L FN R
+    ;;    (LO FN)
+    ;;    (LO FN) R
+    ;;    (LO FN RO)
+    ;;    (LO FN RO) R
+    ;;    L (LO FN) R
+    ;;    L (LO FN RO) R
+    (labels ((add-assignment-syntax (regexp) (concat (format "\\(?:%s *← *\\)?" s)
+                                                     regexp
+                                                     " *\\(?:;.*\\)?$")))
+      (list (add-assignment-syntax (format "\\(%s\\)" s))
+            (add-assignment-syntax (format "\\(?:%s +\\)?\\(%s\\)%s +%s" s s f s))
+            (add-assignment-syntax (format "( *%s +\\(%s\\) *)" s s))
+            (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) *)%s +%s" s s s f s))
+            (add-assignment-syntax (format "( *%s +\\(%s\\) +%s)" s s s))
+            (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) +%s) +%s" s s s s s))))))
+
+(defun gnu-apl--match-function-head (limit)
+  (loop for pattern in gnu-apl--function-declaration-patterns
+        for result = (search-forward-regexp (format "^∇ *%s" pattern) limit t)
+        when result
+        return t
+        finally (return nil)))
+
 (define-derived-mode gnu-apl-mode prog-mode "GNU APL"
   "Major mode for editing GNU APL files."
   :syntax-table gnu-apl-mode-syntax-table
@@ -309,7 +340,8 @@ documentation will not be loaded.")
   (gnu-apl--init-mode-common)
   (set (make-local-variable 'font-lock-defaults)
        '((("⎕[a-zA-Z0-9]+" . font-lock-keyword-face)
-          ("^[ \t]*[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]+:" . font-lock-builtin-face))
+          ("^[ \t]*[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]+:" . font-lock-builtin-face)
+          (gnu-apl--match-function-head . (1 font-lock-function-name-face)))
          nil nil nil)))
 
 (defun gnu-apl--symbol-at-point ()
