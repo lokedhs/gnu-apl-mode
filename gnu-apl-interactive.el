@@ -247,32 +247,10 @@ the path to the apl program (defaults to `gnu-apl-executable')."
 (defun gnu-apl--parse-function-header (string)
   "Parse a function definition string. Returns the name of the
 function or nil if the function could not be parsed."
-  (let* ((s "[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]*")
-         (f (format "\\(?: *\\[ *%s *\\]\\)?" s))
-         (line (gnu-apl--trim-spaces string)))
-    ;; Patterns that cover the following variations:
-    ;;    FN
-    ;;    FN R
-    ;;    L FN R
-    ;;    (LO FN)
-    ;;    (LO FN) R
-    ;;    (LO FN RO)
-    ;;    (LO FN RO) R
-    ;;    L (LO FN) R
-    ;;    L (LO FN RO) R
-    (let ((patterns (list (format "\\(%s\\)" s)
-                          (format "\\(?:%s +\\)?\\(%s\\)%s +%s" s s f s)
-                          (format "( *%s +\\(%s\\) *)" s s)
-                          (format "\\(?:%s +\\)?( *%s +\\(%s\\) *)%s +%s" s s s f s)
-                          (format "( *%s +\\(%s\\) +%s)" s s s)
-                          (format "\\(?:%s +\\)?( *%s +\\(%s\\) +%s) +%s" s s s s s))))
-      (loop for pattern in patterns
-            when (string-match (concat (format "^\\(?:%s *← *\\)?" s) ; result variable
-                                       pattern
-                                       " *\\(?:;.*\\)?$" ; local variables
-                                       )
-                               line)
-            return (match-string 1 line)))))
+  (let* ((line (gnu-apl--trim-spaces string)))
+    (loop for pattern in gnu-apl--function-declaration-patterns
+          when (string-match (concat "^" pattern) line)
+          return (match-string 1 line))))
 
 (defun gnu-apl-find-function-at-point ()
   "Jump to the definition of the function at point."
