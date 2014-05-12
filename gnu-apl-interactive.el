@@ -66,7 +66,7 @@ development of the native code.")
     (cerr (add-text-properties start end '(font-lock-face gnu-apl-error) string))
     (uerr (add-text-properties start end '(font-lock-face gnu-apl-user-status-text) string))))
 
-(defun gnu-apl--parse-text (string)  
+(defun gnu-apl--parse-text (string)
   (let ((tags nil))
     (let ((result (with-output-to-string
                     (loop with current-mode = gnu-apl-input-display-type
