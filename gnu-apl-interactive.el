@@ -215,8 +215,9 @@ function editor.
           "To disable this message, set gnu-apl-show-tips-on-start to nil.\n\n"))
 
 (defun gnu-apl (apl-executable)
-  "Start the GNU APL interpreter in a buffer. APL-EXECUTABLE is
-the path to the apl program (defaults to `gnu-apl-executable')."
+  "Start the GNU APL interpreter in a buffer.
+APL-EXECUTABLE is the path to the apl program (defaults
+to `gnu-apl-executable')."
   (interactive (list (when current-prefix-arg
                        (read-file-name "Location of GNU APL Executable: " nil nil t))))
   (let ((buffer (get-buffer-create "*gnu-apl*"))

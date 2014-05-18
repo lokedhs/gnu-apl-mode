@@ -391,7 +391,6 @@ documentation will not be loaded.")
                       results)))
 
 (defun gnu-apl-expand-symbol ()
-  (interactive)
   (let* ((row (buffer-substring (save-excursion (beginning-of-line) (point)) (point))))
     ;; Check for system commands
     (if (string-match "^[ \t]*\\([])][a-zA-Z0-9]*\\)$" row)
