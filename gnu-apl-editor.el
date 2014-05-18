@@ -153,7 +153,7 @@ successfully."
               (set-window-configuration window-configuration))))))))
 
 (define-minor-mode gnu-apl-interactive-edit-mode
-  "Minor mode for editing functions in the GNU APL function editor"
+  "Minor mode for editing functions in the GNU APL function editor."
   nil
   " APLFunction"
   (list (cons (kbd "C-c C-c") 'gnu-apl-save-function))

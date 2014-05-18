@@ -81,6 +81,10 @@
   (message "Symbol erased: %S" varname))
 
 (defun gnu-apl-trace (varname &optional cr-level)
+  "Display the content of VARNAME in a buffer.
+Any changes to the variable will cause the buffer to be updated.
+With prefix arg, ask for the cr-level to use when displaying the
+content."
   (interactive (list (gnu-apl--choose-variable "Variable" :variable (gnu-apl--symbol-at-point))
                      (when current-prefix-arg
                        (let ((level (read-from-minibuffer "CR level: ")))
