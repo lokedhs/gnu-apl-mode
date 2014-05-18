@@ -231,7 +231,7 @@ to `gnu-apl-executable')."
         (gnu-apl--insert-tips))
       (apply #'make-comint-in-buffer
              "apl" buffer resolved-binary nil
-             "--rawCIN" "--emacs" (append (if (not gnu-apl-show-apl-welcome) (list "--silent"))))
+             "--rawCIN" "--emacs" "--silent" (append (if (not gnu-apl-show-apl-welcome) (list "--silent"))))
       (setq gnu-apl-current-session buffer)
 
       (gnu-apl-interactive-mode)
