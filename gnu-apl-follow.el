@@ -25,7 +25,8 @@
 (define-derived-mode gnu-apl-trace-mode fundamental-mode "GNU APL Variable"
   "Major mode for live display of variable content"
   (use-local-map gnu-apl-trace-mode-map)
-  (read-only-mode 1))
+  (read-only-mode 1)
+  (toggle-truncate-lines 1))
 
 (defun gnu-apl--find-traced-symbol (varname)
   (cl-find varname gnu-apl-trace-symbols :key #'car :test #'string=))
