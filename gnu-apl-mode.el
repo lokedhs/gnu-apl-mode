@@ -84,6 +84,11 @@ functions will not work. If this option is set to t, and the
 library fails to load for some reason, the features will be
 automatically disabled anyway.")
 
+(defvar gnu-apl-use-new-native-library nil
+  "If non-nil, use the new-style native library.
+Enabling this option requires the use of at least GNU APL version 1.4
+or the latest version from the subversion repository.")
+
 ;;;###autoload
 (defface gnu-apl-default
   ()

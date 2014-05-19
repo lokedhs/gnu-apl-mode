@@ -120,10 +120,10 @@ function editor.
         (first t))
 
     (labels ((add-to-result (s)
-                              (if first
-                                  (setq first nil)
-                                (setq result (concat result "\n")))
-                              (setq result (concat result s))))
+                            (if first
+                                (setq first nil)
+                              (setq result (concat result "\n")))
+                            (setq result (concat result s))))
 
       (dolist (plain (split-string line "\n"))
         (let ((command (gnu-apl--parse-text plain)))
@@ -132,8 +132,24 @@ function editor.
             (normal
              (cond ((string-match (regexp-quote *gnu-apl-ignore-start*) command)
                     (setq gnu-apl-preoutput-filter-state 'ignore))
-                   ((string-match (regexp-quote *gnu-apl-network-start*) command)
+
+                   ((and (not gnu-apl-use-new-native-library) ; Backwards compatibility
+                         (string-match (regexp-quote *gnu-apl-network-start*) command))
                     (setq gnu-apl-preoutput-filter-state 'native))
+
+                   ((and gnu-apl-use-new-native-library
+                         (or (not (boundp 'gnu-apl--connection))
+                             (not (process-live-p gnu-apl--connection)))
+                         (string-match (concat "Network listener started.*"
+                                          "mode:\\([a-z]+\\) "
+                                          "addr:\\([a-zA-Z0-9_/]+\\)")
+                                  command))
+                    (let ((mode (match-string 1 command))
+                          (addr (match-string 2 command)))
+                      (gnu-apl--connect mode addr)
+                      (message "Connected to APL interpreter")
+                      (add-to-result command)))
+
                    (t
                     (add-to-result command))))
 
@@ -231,12 +247,16 @@ to `gnu-apl-executable')."
         (gnu-apl--insert-tips))
       (apply #'make-comint-in-buffer
              "apl" buffer resolved-binary nil
-             "--rawCIN" "--emacs" (append (if (not gnu-apl-show-apl-welcome) (list "--silent"))))
+             "--rawCIN" "--emacs" (append 
+                                   (if (and gnu-apl-native-communication gnu-apl-use-new-native-library)
+                                       (list "--emacs_arg" (int-to-string gnu-apl-native-listener-port)))
+                                   (if (not gnu-apl-show-apl-welcome)
+                                       (list "--silent"))))
       (setq gnu-apl-current-session buffer)
 
       (gnu-apl-interactive-mode)
       (set-buffer-process-coding-system 'utf-8 'utf-8)
-      (when gnu-apl-native-communication
+      (when (and gnu-apl-native-communication (not gnu-apl-use-new-native-library))
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-start* "'"))
         (gnu-apl--send buffer (concat "'" gnu-apl-libemacs-location "' ⎕FX "
                                       "'" *gnu-apl-native-lib* "'"))

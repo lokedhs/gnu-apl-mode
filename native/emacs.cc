@@ -33,6 +33,7 @@ extern void (*end_input)();
 
 extern "C" {
     void *get_function_mux( const char *function_name );
+    int emacs_start( const char *emacs_arg, const char *lib_path );
 }
 
 void set_active( bool v )
@@ -105,7 +106,15 @@ Token eval_XB(Value_P X, Value_P B)
         else {
             port = B->get_ravel( 0 ).get_near_int( qct );
         }
-        return start_listener( port );
+
+        try {
+            start_listener( port );
+        }
+        catch( InitProtocolError &error ) {
+            Workspace::more_error() = error.get_message().c_str();
+            DOMAIN_ERROR;
+        }
+        return Token(TOK_APL_VALUE1, Value::Str0_P);
     }
 
     default:
@@ -141,6 +150,13 @@ void *get_function_mux( const char *function_name )
     if( strcmp( function_name, "eval_XB" ) == 0 )       return (void *)&eval_XB;
     if( strcmp( function_name, "eval_AXB" ) == 0 )      return (void *)&eval_AXB;
     if( strcmp( function_name, "close_fun" ) == 0 )     return (void *)&close_fun;
+    return 0;
+}
+
+int emacs_start( const char *emacs_arg, const char *lib_path )
+{
+    int port = atoi( emacs_arg );
+    start_listener( port );
     return 0;
 }
 

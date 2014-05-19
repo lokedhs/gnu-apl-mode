@@ -40,8 +40,17 @@ private:
     struct addrinfo *addr;
 };
 
+class InitProtocolError {
+public:
+    InitProtocolError( const std::string &message_in ) : message( message_in ) {}
+    virtual ~InitProtocolError() {}
+    std::string get_message( void ) { return message; }
 
-Token start_listener( int port );
+protected:
+    std::string message;
+};
+
+void start_listener( int port );
 void *connection_loop( void *arg );
 void register_listener( Listener *listener );
 void unregister_listener( Listener *listener );

@@ -57,7 +57,7 @@ static void *listener_loop( void *arg )
     return NULL;
 }
 
-Token start_listener( int port )
+void start_listener( int port )
 {
     pthread_t thread_id;
 
@@ -67,16 +67,13 @@ Token start_listener( int port )
     
     int res = pthread_create( &thread_id, NULL, listener_loop, listener.get() );
     if( res != 0 ) {
-        Workspace::more_error() = UCS_string( "Unable to start network connection thread" );
-        DOMAIN_ERROR;
+        throw InitProtocolError( "Unable to start network connection thread" );
     }
 
     listener->set_thread( thread_id );
     listener.release();
 
     COUT << "Network listener started. Connection information: " << conninfo << endl;
-
-    return Token(TOK_APL_VALUE1, Value::Str0_P);
 }
 
 void register_listener( Listener *listener )

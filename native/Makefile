@@ -17,6 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 APL_DIST = $(HOME)/src/apl
+APL_INSTALL_PREFIX = $(HOME)/src/apl/dist
 CXX = c++
 CXXFLAGS = -Wall -fPIC -g -I$(APL_DIST)/src
 LIBS = -lpthread
@@ -36,6 +37,9 @@ endif
 LIBNAME = libemacs.$(LIBRARY_EXT)
 
 all:		$(LIBNAME)
+
+install:	$(LIBNAME)
+		cp $(LIBNAME) $(APL_INSTALL_PREFIX)/lib/apl/`basename $(LIBNAME)`
 
 $(LIBNAME):	$(OBJS)
 		$(CC) $(SHARED_FLAGS) $(CXXFLAGS) $(OBJS) -o $(LIBNAME) $(LIBS)
