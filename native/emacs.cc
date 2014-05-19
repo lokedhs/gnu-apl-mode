@@ -47,7 +47,7 @@ void set_active( bool v )
              pthread_cond_wait( &apl_main_cond, &apl_main_lock );
         }
     }
-     apl_active = v;
+    apl_active = v;
     pthread_cond_broadcast( &apl_main_cond );
     pthread_mutex_unlock( &apl_main_lock );
 }
