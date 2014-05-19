@@ -21,7 +21,7 @@
 #include "TraceData.hh"
 #include "LockWrapper.hh"
 #include "FollowCommand.hh"
-#include "Workspace.hh"
+#include "../Workspace.hh"
 
 #include <sstream>
 

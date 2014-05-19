@@ -20,7 +20,7 @@
 
 #include "emacs.hh"
 #include "network.hh"
-#include "NativeFunction.hh"
+#include "../NativeFunction.hh"
 
 #include <pthread.h>
 

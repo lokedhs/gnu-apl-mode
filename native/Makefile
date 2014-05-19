@@ -19,7 +19,7 @@
 APL_DIST = $(HOME)/src/apl
 APL_INSTALL_PREFIX = $(HOME)/src/apl/dist
 CXX = c++
-CXXFLAGS = -Wall -fPIC -g -I$(APL_DIST)/src
+CXXFLAGS = -Wall -fPIC -g -I$(APL_DIST)/src/native
 LIBS = -lpthread
 OBJS = emacs.o network.o util.o Listener.o TcpListener.o UnixSocketListener.o NetworkConnection.o \
 	SiCommand.o SicCommand.o FnCommand.o DefCommand.o GetVarCommand.o \

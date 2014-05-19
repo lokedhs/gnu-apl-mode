@@ -22,7 +22,7 @@
 #include "FnTagCommand.hh"
 #include "emacs.hh"
 
-#include "UserFunction.hh"
+#include "../UserFunction.hh"
 
 #include <sstream>
 

@@ -24,7 +24,7 @@
 #include "emacs.hh"
 #include "NetworkConnection.hh"
 #include "pthread.h"
-#include "Symbol.hh"
+#include "../Symbol.hh"
 
 #include <set>
 #include <map>
