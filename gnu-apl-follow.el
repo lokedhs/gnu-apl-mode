@@ -92,6 +92,8 @@ content."
                          (if (string= level "")
                              nil
                            (string-to-int level))))))
+  (when (and cr-level (not (<= 1 cr-level 9)))
+    (user-error "cr-level must be nil or between 1 and 9"))
   (with-current-buffer (gnu-apl--get-interactive-session)
     (let ((traced (gnu-apl--find-traced-symbol varname)))
       (let ((b (if traced
