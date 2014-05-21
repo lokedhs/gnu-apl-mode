@@ -26,7 +26,7 @@
   "Major mode for live display of variable content"
   (use-local-map gnu-apl-trace-mode-map)
   (read-only-mode 1)
-  (toggle-truncate-lines 1))
+  (setq truncate-lines t))
 
 (defun gnu-apl--find-traced-symbol (varname)
   (cl-find varname gnu-apl-trace-symbols :key #'car :test #'string=))
