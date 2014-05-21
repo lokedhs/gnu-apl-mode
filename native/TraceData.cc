@@ -59,7 +59,8 @@ void TraceData::display_value_for_trace( ostream &out, const Value_P &value, int
         if( cr_level < 1 || cr_level > 9 ) {
             throw new ConnectionError( "Illegal CR level" );
         }
-        Value_P cr_formatted = Quad_CR::do_CR( cr_level, *value );
+        const PrintContext pctx( PST_NONE, Workspace::get_PP(), 100000 );
+        Value_P cr_formatted = Quad_CR::do_CR( cr_level, *value, pctx );
         out << *cr_formatted;
     }
 }
