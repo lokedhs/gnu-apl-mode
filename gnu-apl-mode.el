@@ -378,6 +378,10 @@ documentation will not be loaded.")
       parsed)))
 
 (defun gnu-apl--indent-this ()
+  ;; The indentation rules are very simple. If we are in a function,
+  ;; indent by 2 characters unless we are on a label definition in
+  ;; which case the line should not be indented.
+  ;; Anything outside a function definition is not indented.
   (beginning-of-line)
   (save-excursion
     (when (re-search-forward "\\=[ \t]*" nil t)
@@ -400,11 +404,6 @@ documentation will not be loaded.")
   nil)
 
 (defun gnu-apl-indent ()
-  ;; The indentation rules are very simple. If we are in a function,
-  ;; indent by 2 characters unless we are on a label definition in
-  ;; which case the line should not be indented.
-  ;; Anything outside a function definition is not indented.
-  
   ;; No indentation unless the cursor is at the beginning of the line
   (if (save-excursion (search-backward-regexp "^[ \t]*\\=" nil t))
       (gnu-apl--indent-this)
