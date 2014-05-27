@@ -306,8 +306,10 @@ documentation will not be loaded.")
 (defvar gnu-apl-font-lock-keywords1
   '("⎕[a-zA-Z0-9]+"))
 
+(defvar gnu-apl--apl-symbol-pattern "[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]*")
+
 (defvar gnu-apl--function-declaration-patterns
-  (let* ((s "[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]*")
+  (let* ((s gnu-apl--apl-symbol-pattern)
          (f (format "\\(?: *\\[ *%s *\\]\\)?" s)))
 
     ;; Patterns that cover the following variations:
@@ -376,6 +378,25 @@ documentation will not be loaded.")
       parsed)))
 
 (defun gnu-apl--indent-this ()
+  (beginning-of-line)
+  (save-excursion
+    (when (re-search-forward "\\=[ \t]*" nil t)
+      (replace-match "" nil nil)))
+  (cond ((looking-at "∇")
+         (indent-to-column 0))
+        ((looking-at (format "%s:" gnu-apl--apl-symbol-pattern))
+         (indent-to-column 0))
+        (t
+         (let ((funtion-start (save-excursion
+                                (search-backward-regexp "^[ \t]*∇[ \t]*[^ \t]" nil t))))
+           (if (not funtion-start)
+               (indent-to-column 0)
+             (let ((function-end (save-excursion
+                                   (search-backward-regexp "^[ \t]*∇[ \t]$" nil t))))
+               (if (or (not function-end)
+                       (< function-start function-end))
+                   (indent-to-column 2)
+                 (indent-to-column 0)))))))
   nil)
 
 (defun gnu-apl-indent ()
