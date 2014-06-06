@@ -84,6 +84,11 @@ functions will not work. If this option is set to t, and the
 library fails to load for some reason, the features will be
 automatically disabled anyway.")
 
+(defvar gnu-apl-use-new-native-library nil
+  "If non-nil, use the new-style native library.
+Enabling this option requires the use of at least GNU APL version 1.4
+or the latest version from the subversion repository.")
+
 ;;;###autoload
 (defface gnu-apl-default
   ()
@@ -301,8 +306,10 @@ documentation will not be loaded.")
 (defvar gnu-apl-font-lock-keywords1
   '("⎕[a-zA-Z0-9]+"))
 
+(defvar gnu-apl--apl-symbol-pattern "[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]*")
+
 (defvar gnu-apl--function-declaration-patterns
-  (let* ((s "[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]*")
+  (let* ((s gnu-apl--apl-symbol-pattern)
          (f (format "\\(?: *\\[ *%s *\\]\\)?" s)))
 
     ;; Patterns that cover the following variations:
@@ -371,14 +378,32 @@ documentation will not be loaded.")
       parsed)))
 
 (defun gnu-apl--indent-this ()
-  nil)
-
-(defun gnu-apl-indent ()
   ;; The indentation rules are very simple. If we are in a function,
   ;; indent by 2 characters unless we are on a label definition in
   ;; which case the line should not be indented.
   ;; Anything outside a function definition is not indented.
-  
+  (beginning-of-line)
+  (save-excursion
+    (when (re-search-forward "\\=[ \t]*" nil t)
+      (replace-match "" nil nil)))
+  (cond ((looking-at "∇")
+         (indent-to-column 0))
+        ((looking-at (format "%s:" gnu-apl--apl-symbol-pattern))
+         (indent-to-column 0))
+        (t
+         (let ((funtion-start (save-excursion
+                                (search-backward-regexp "^[ \t]*∇[ \t]*[^ \t]" nil t))))
+           (if (not funtion-start)
+               (indent-to-column 0)
+             (let ((function-end (save-excursion
+                                   (search-backward-regexp "^[ \t]*∇[ \t]$" nil t))))
+               (if (or (not function-end)
+                       (< function-start function-end))
+                   (indent-to-column 2)
+                 (indent-to-column 0)))))))
+  nil)
+
+(defun gnu-apl-indent ()
   ;; No indentation unless the cursor is at the beginning of the line
   (if (save-excursion (search-backward-regexp "^[ \t]*\\=" nil t))
       (gnu-apl--indent-this)
@@ -391,7 +416,6 @@ documentation will not be loaded.")
                       results)))
 
 (defun gnu-apl-expand-symbol ()
-  (interactive)
   (let* ((row (buffer-substring (save-excursion (beginning-of-line) (point)) (point))))
     ;; Check for system commands
     (if (string-match "^[ \t]*\\([])][a-zA-Z0-9]*\\)$" row)

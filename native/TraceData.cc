@@ -21,7 +21,7 @@
 #include "TraceData.hh"
 #include "LockWrapper.hh"
 #include "FollowCommand.hh"
-#include "Workspace.hh"
+#include "../Workspace.hh"
 
 #include <sstream>
 
@@ -53,14 +53,18 @@ void TraceData::remove_listener( NetworkConnection *connection )
 void TraceData::display_value_for_trace( ostream &out, const Value_P &value, int cr_level )
 {
     if( cr_level < 0 ) {
-        value->print( out );
+        PrintContext context( PST_NONE, Workspace::get_PrintContext().get_PP(), 100000 );
+        value->print1( out, context );
     }
     else {
-        if( cr_level < 1 || cr_level > 8 ) {
+        if( cr_level < 1 || cr_level > 9 ) {
             throw new ConnectionError( "Illegal CR level" );
         }
-        Value_P cr_formatted = Quad_CR::do_CR( cr_level, *value );
-        out << *cr_formatted;
+        PrintContext context( PST_NONE, Workspace::get_PrintContext().get_PP(), 100000 );
+        Value_P cr_formatted = Quad_CR::do_CR( cr_level, *value, context );
+
+        PrintContext context2( PST_NONE, Workspace::get_PrintContext().get_PP(), 100000 );
+        cr_formatted->print1( out, context2 );
     }
 }
 

@@ -25,7 +25,8 @@
 (define-derived-mode gnu-apl-trace-mode fundamental-mode "GNU APL Variable"
   "Major mode for live display of variable content"
   (use-local-map gnu-apl-trace-mode-map)
-  (read-only-mode 1))
+  (read-only-mode 1)
+  (setq truncate-lines t))
 
 (defun gnu-apl--find-traced-symbol (varname)
   (cl-find varname gnu-apl-trace-symbols :key #'car :test #'string=))
@@ -81,12 +82,18 @@
   (message "Symbol erased: %S" varname))
 
 (defun gnu-apl-trace (varname &optional cr-level)
+  "Display the content of VARNAME in a buffer.
+Any changes to the variable will cause the buffer to be updated.
+With prefix arg, ask for the cr-level to use when displaying the
+content."
   (interactive (list (gnu-apl--choose-variable "Variable" :variable (gnu-apl--symbol-at-point))
                      (when current-prefix-arg
                        (let ((level (read-from-minibuffer "CR level: ")))
                          (if (string= level "")
                              nil
                            (string-to-int level))))))
+  (when (and cr-level (not (<= 1 cr-level 9)))
+    (user-error "cr-level must be nil or between 1 and 9"))
   (with-current-buffer (gnu-apl--get-interactive-session)
     (let ((traced (gnu-apl--find-traced-symbol varname)))
       (let ((b (if traced

@@ -107,7 +107,7 @@ The block is bounded by a function definition of the form
 
 (defun gnu-apl--send-si-and-send-new-function (parts edit-when-fail &optional tag)
   "Send an )SI request that should be checked against the current
-function being sent. Returns non-nil if the function was send
+function being sent. Returns non-nil if the function was sent
 successfully."
   (let* ((function-header (gnu-apl--trim-spaces (car parts)))
          (function-name (gnu-apl--parse-function-header function-header)))
@@ -153,7 +153,7 @@ successfully."
               (set-window-configuration window-configuration))))))))
 
 (define-minor-mode gnu-apl-interactive-edit-mode
-  "Minor mode for editing functions in the GNU APL function editor"
+  "Minor mode for editing functions in the GNU APL function editor."
   nil
   " APLFunction"
   (list (cons (kbd "C-c C-c") 'gnu-apl-save-function))

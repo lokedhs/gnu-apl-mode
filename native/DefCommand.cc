@@ -22,7 +22,7 @@
 #include "DefCommand.hh"
 #include "emacs.hh"
 
-#include "Quad_FX.hh"
+#include "../Quad_FX.hh"
 
 #include <sstream>
 

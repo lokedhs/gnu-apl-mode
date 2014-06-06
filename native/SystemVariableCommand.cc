@@ -31,7 +31,7 @@ void SystemVariableCommand::run_command( NetworkConnection &conn, const std::vec
 #define ro_sv_def(VAR) out << id_name( ID_ ## VAR ) << "\n";
 #define rw_sv_def(VAR) out << id_name( ID_ ## VAR ) << "\n";
 #define sf_def(VAR) out << id_name( ID_ ## VAR ) << "\n";
-#include "SystemVariable.def"
+#include "../SystemVariable.def"
 
     out << END_TAG << "\n";
     conn.write_string_to_fd( out.str() );

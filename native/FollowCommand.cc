@@ -23,7 +23,7 @@
 #include "FollowCommand.hh"
 
 #include "TraceData.hh"
-#include "Symbol.hh"
+#include "../Symbol.hh"
 #include "LockWrapper.hh"
 
 #include <sstream>

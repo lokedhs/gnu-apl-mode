@@ -31,7 +31,7 @@
 #pragma GCC diagnostic ignored "-Wreorder"
 #pragma GCC diagnostic ignored "-Wmismatched-tags"
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
-#include "Native_interface.hh"
+#include "../Native_interface.hh"
 #pragma GCC diagnostic pop
 
 void set_active( bool v );

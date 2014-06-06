@@ -56,9 +56,9 @@ private:
 
 class ConnectionError {
 public:
-    ConnectionError( const std::string &message_in ) : message( message_in ) {};
-    virtual ~ConnectionError() {};
-    std::string get_message( void ) { return message; };
+    ConnectionError( const std::string &message_in ) : message( message_in ) {}
+    virtual ~ConnectionError() {}
+    std::string get_message( void ) { return message; }
 
 protected:
     const std::string message;

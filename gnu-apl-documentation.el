@@ -27,7 +27,7 @@ dervived from the APL2 documentation.")
   "Keymap for keymap mode buffers")
 
 (define-derived-mode gnu-apl-keymap-mode fundamental-mode "GNU APL Keymap"
-  "Major mode for displaying the keymap help"
+  "Major mode for displaying the keymap help."
   (use-local-map gnu-apl-keymap-mode-map)
   (read-only-mode 1))
 
@@ -177,9 +177,9 @@ dervived from the APL2 documentation.")
       buffer)))
 
 (defun gnu-apl-show-keyboard (&optional arg)
-  "When arg is nil, toggle the display of the keyboard help. If
-positive, always show the buffer, if negative close the buffer if
-it is open."
+  "When arg is nil, toggle the display of the keyboard help.
+If positive, always show the buffer, if negative close the buffer
+if it is open."
   (interactive "P")
   (let ((keyboard-help (get-buffer *gnu-apl-keymap-buffer-name*)))
     (if (and keyboard-help (get-buffer-window keyboard-help))
@@ -249,7 +249,7 @@ it is open."
   "Keymap for keymap mode buffers")
 
 (define-derived-mode gnu-apl-documentation-search-mode fundamental-mode "GNU APL Documentation"
-  "Major mode for displaying GNU APL documentation search results"
+  "Major mode for displaying GNU APL documentation search results."
   (use-local-map gnu-apl-documentation-mode-map))
 
 (defun gnu-apl-documentation-search-kill-buffer ()
