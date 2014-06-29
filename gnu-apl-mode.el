@@ -145,95 +145,150 @@ documentation will not be loaded.")
 ;;; Keymap based on the image available at: http://www.sudleyplace.com/APL/Keyboard.ahtml
 ;;; GNU APL keyboard layout: http://commons.wikimedia.org/wiki/File:GNU_APL_keyboard_layout.png
 (defvar gnu-apl--symbols '(;; Top row
+                           ;; `
                            ("diamond" "◊" "`")
-                           ("tilde-diaeresis" "⍨" "~")
+                           ;; 1
                            ("diaeresis" "¨" "1")
-                           ("inverted-exclamation-mark" "¡" "!")
+                           ("i-beam" "⌶" "!")
+                           ;; 2
                            ("macron" "¯" "2")
-                           ("not-identical-to" "≢" "@")
+                           ("del-tilde" "⍫" "@")
+                           ;; 3
                            ("less-than" "<" "3")
-                           ("pound-sign" "£" "#")
+                           ("del-stile" "⍒" "#")
+                           ;; 4
                            ("less-than-or-equal-to" "≤" "4")
-                           ("left-shoe-stile" "⍧" "$")
+                           ("delta-stile" "⍋" "$")
+                           ;; 5
                            ("equals" "=" "5")
+                           ("circle-stile" "⌽" "%")
+                           ;; 6
                            ("greater-than-or-equal-to" "≥" "6")
+                           ("circle-backslash" "⍉" "^")
+                           ;; 7
                            ("greater-than" ">" "7")
+                           ("circled-minus" "⊖" "&")
+                           ;; 8
                            ("not-equal-to" "≠" "8")
-                           ("quad-backslash" "⍂" "*")
+                           ("circle-star" "⍟" "*")
+                           ;; 9
                            ("logical-or" "∨" "9")
                            ("down-caret-tilde" "⍱" "(")
+                           ;; 0
                            ("logical-and" "∧" "0")
                            ("up-caret-tilde" "⍲" ")")
+                           ;; -
                            ("multiplication-sign" "×" "-")
-                           ("identical-to" "≡" "_")
+                           ("exclamation-mark" "!" "_")
+                           ;; =
                            ("division-sign" "÷" "=")
                            ("quad-divide" "⌹" "+")
 
                            ;; First row
+                           ;; q
                            ("question-mark" "?" "q")
-                           ("inverted-question-mark" "¿" "Q")
-                           ("iota" "⍳" "i")
-                           ("iota-underbar" "⍸" "I")
+                           ;; w
                            ("omega" "⍵" "w")
-                           ("circle-stile" "⌽" "W")
+                           ("omega-underbar" "⍹" "W")
+                           ;; e
                            ("epsilon" "∊" "e")
                            ("epsilon-underbar" "⍷" "E")
+                           ;; r
+                           ("rho" "⍴" "r")
+                           ;; t
                            ("tilde" "∼" "t")
-                           ("circle-backslash" "⍉" "T")
+                           ("tilde-diaeresis" "⍨" "T")
+                           ;; y
                            ("uparrow" "↑" "y")
                            ("yen-sign" "¥" "Y")
+                           ;; u
                            ("downarrow" "↓" "u")
+                           ;; i
+                           ("iota" "⍳" "i")
+                           ("iota-underbar" "⍸" "I")
+                           ;; o
                            ("circle" "○" "o")
                            ("circle-diaeresis" "⍥" "O")
+                           ;; p
                            ("star-operator" "⋆" "p")
-                           ("circle-star" "⍟" "P")
+                           ("star-diaeresis" "⍣" "P")
+                           ;; [
                            ("leftarrow" "←" "[")
+                           ("quote-quad" "⍞" "{")
+                           ;; ]
                            ("rightarrow" "→" "]")
                            ("zilde" "⍬" "}")
-                           ("shoe-jot" "⍝" "\\")
-                           ("backslash-bar" "⍀" "|")
-                           ("rho" "⍴" "r")
+                           ;; \
+                           ("right-tack" "⊢" "\\")
+                           ("left-tack" "⊣" "|")
 
                            ;; Second row
+                           ;; a
                            ("alpha" "⍺" "a")
-                           ("circled-minus" "⊖" "A")
+                           ("alpha-underbar" "⍶" "A")
+                           ;; s
                            ("left-ceiling" "⌈" "s")
+                           ;; d
                            ("left-floor" "⌊" "d")
+                           ;; f
                            ("underscore" "_" "f")
                            ("del-tilde" "⍫" "F")
+                           ;; g
                            ("nabla" "∇" "g")
-                           ("del-stile" "⍒" "G")
+                           ;; h
                            ("increment" "∆" "h")
-                           ("delta-stile" "⍋" "H")
+                           ("delta-underbar" "⍙" "H")
+                           ;; j
                            ("ring-operator" "∘" "j")
                            ("jot-diaeresis" "⍤" "J")
+                           ;; k
                            ("apostrophe" "'" "k")
                            ("quad-diamond" "⌺" "K")
+                           ;; l
                            ("quad" "⎕" "l")
-                           ("quote-quad" "⍞" "L")
-                           ("right-tack" "⊢" ";")
-                           ("left-tack" "⊣" "'")
+                           ("squish-quad" "⌷" "L")
+                           ;; ;
+                           ("down-tack-jot" "⍎" ";")
+                           ("identical-to" "≡" ":")
+                           ;; '
+                           ("up-tack-jot" "⍕" "'")
+                           ("not-identical-to" "≢" "\"")
 
                            ;; Third row
+                           ;; z
                            ("subset-of" "⊂" "z")
+                           ;; x
                            ("superset-of" "⊃" "x")
+                           ("greek-letter-chi" "χ" "X")
+                           ;; c
                            ("intersection" "∩" "c")
+                           ("cent-sign" "¢" "C")
+                           ;; v
                            ("union" "∪" "v")
+                           ;; b
                            ("up-tack" "⊥" "b")
-                           ("down-tack-jot" "⍎" "B")
+                           ("pound-sign" "£" "B")
+                           ;; n
                            ("down-tack" "⊤" "n")
-                           ("up-tack-jot" "⍕" "N")
+                           ;; m
                            ("divides" "|" "m")
-                           ("i-beam" "⌶" "M")
-                           ("squish-quad" "⌷" ",")
+                           ;; ,
+                           ("shoe-jot" "⍝" ",")
                            ("comma-bar" "⍪" "<")
-                           ("delta-underbar" "⍙" ">")
-                           ("slash-bar" "⌿" "?")
-
+                           ;; .
+                           ("backslash-bar" "⍀" ">")
+                           ;; /
+                           ("slash-bar" "⌿" "/")
+                           ("quad-colon" "⍠" "?")
+                           
                            ;; Extras
                            ("pi" "π")
                            ("star-diaeresis" "⍣")
                            ("root" "√")
+                           ("inverted-exclamation-mark" "¡")
+                           ("left-shoe-stile" "⍧")
+                           ("quad-backslash" "⍂")
+                           ("inverted-question-mark" "¿")
                            ))
 
 (defun gnu-apl--make-key-command-sym (n)
