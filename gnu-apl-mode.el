@@ -283,7 +283,6 @@ documentation will not be loaded.")
                            
                            ;; Extras
                            ("pi" "π")
-                           ("star-diaeresis" "⍣")
                            ("root" "√")
                            ("inverted-exclamation-mark" "¡")
                            ("left-shoe-stile" "⍧")
@@ -361,7 +360,7 @@ documentation will not be loaded.")
 (defvar gnu-apl-font-lock-keywords1
   '("⎕[a-zA-Z0-9]+"))
 
-(defvar gnu-apl--apl-symbol-pattern "[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]*")
+(defvar gnu-apl--apl-symbol-pattern "[a-zA-Z_⍺⍵⍶⍹∆⍙λ][a-zA-Z0-9_⍺⍵⍶⍹∆⍙λ¯]*")
 
 (defvar gnu-apl--function-declaration-patterns
   (let* ((s gnu-apl--apl-symbol-pattern)
