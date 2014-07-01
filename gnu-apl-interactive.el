@@ -141,9 +141,9 @@ function editor.
                          (or (not (boundp 'gnu-apl--connection))
                              (not (process-live-p gnu-apl--connection)))
                          (string-match (concat "Network listener started.*"
-                                          "mode:\\([a-z]+\\) "
-                                          "addr:\\([a-zA-Z0-9_/]+\\)")
-                                  command))
+                                               "mode:\\([a-z]+\\) "
+                                               "addr:\\([a-zA-Z0-9_/]+\\)")
+                                       command))
                     (let ((mode (match-string 1 command))
                           (addr (match-string 2 command)))
                       (gnu-apl--connect mode addr)
