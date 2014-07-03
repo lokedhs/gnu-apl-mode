@@ -7,6 +7,12 @@
 (load "gnu-apl-util")
 
 ;;;###autoload
+(defgroup gnu-apl nil
+  "Major mode for interacting with the GNU APL interpreter."
+  :prefix 'gnu-apl
+  :group 'languages)
+
+;;;###autoload
 (defcustom gnu-apl-executable "apl"
   "Where the GNU APL implementaion is located."
   :type 'string
