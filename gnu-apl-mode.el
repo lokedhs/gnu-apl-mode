@@ -268,7 +268,7 @@ documentation will not be loaded.")
                            ("greek-letter-chi" "χ" "X")
                            ;; c
                            ("intersection" "∩" "c")
-                           ("cent-sign" "¢" "C")
+                           ("left-shoe-stile" "⍧" "C")
                            ;; v
                            ("union" "∪" "v")
                            ;; b
@@ -291,7 +291,6 @@ documentation will not be loaded.")
                            ("pi" "π")
                            ("root" "√")
                            ("inverted-exclamation-mark" "¡")
-                           ("left-shoe-stile" "⍧")
                            ("quad-backslash" "⍂")
                            ("inverted-question-mark" "¿")
                            ))
