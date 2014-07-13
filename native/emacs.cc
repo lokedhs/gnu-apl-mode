@@ -74,7 +74,7 @@ Fun_signature get_signature()
 static Token list_functions( ostream &out )
 {
     out << "Information about the functions" << endl;
-    return Token(TOK_APL_VALUE1, Value::Str0_P);
+    return Token(TOK_APL_VALUE1, Str0(LOC));
 }
 
 Token
@@ -114,7 +114,7 @@ Token eval_XB(Value_P X, Value_P B)
             Workspace::more_error() = error.get_message().c_str();
             DOMAIN_ERROR;
         }
-        return Token(TOK_APL_VALUE1, Value::Str0_P);
+        return Token(TOK_APL_VALUE1, Str0(LOC));
     }
 
     default:
@@ -122,13 +122,13 @@ Token eval_XB(Value_P X, Value_P B)
         DOMAIN_ERROR;
     }
 
-    return Token(TOK_APL_VALUE1, Value::Str0_P);
+    return Token(TOK_APL_VALUE1, Str0(LOC));
 }
 
 Token eval_AXB(const Value_P A, const Value_P X, const Value_P B)
 {
     COUT << "eval_AXB" << endl;
-    return Token(TOK_APL_VALUE1, Value::Str0_P);
+    return Token(TOK_APL_VALUE1, Str0(LOC));
 }
 
 bool close_fun( Cause cause, const NativeFunction *caller )

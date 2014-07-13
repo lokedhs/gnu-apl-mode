@@ -70,7 +70,7 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
             Token result = quad_fx.eval_B( function_list_value );
             if( result.is_apl_val() ) {
                 Value_P value = result.get_apl_val();
-                if( value->is_int_skalar( 0 ) ) {
+                if( value->is_int_scalar( 0 ) ) {
                     out << "error\n"
                         << "parse error\n"
                         << "Error parsing expression\n"

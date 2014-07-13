@@ -56,7 +56,7 @@ static void escape_char( ostream &out, Unicode unicode )
     }
 }
 
-void skalar_value_to_el( ostream &out, Value_P value )
+void scalar_value_to_el( ostream &out, Value_P value )
 {
     Cell &cell = value->get_ravel( 0 );
     if( cell.is_integer_cell() ) {
@@ -110,8 +110,8 @@ static void apl_value_to_el( ostream &out, Value_P value )
         }
         out << "))";
     }
-    else if( value->is_skalar() ) {
-        skalar_value_to_el( out, value );
+    else if( value->is_scalar() ) {
+        scalar_value_to_el( out, value );
     }
     else if( value->is_char_vector() ) {
         out << "\"";
