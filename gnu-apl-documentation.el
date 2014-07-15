@@ -32,6 +32,26 @@ dervived from the APL2 documentation.")
   (read-only-mode 1)
   (setq truncate-lines t))
 
+(defun gnu-apl--find-function-content (name)
+  (let* ((content (gnu-apl--send-network-command-and-read (format "fn:%s" name)))
+         (result (car content)))
+    (cond ((string= result "function-content")
+           (cdr content))
+          ((string= result "undefined")
+           nil)
+          (t
+           (error "Error getting function: %s" (car content))))))
+
+(defun gnu-apl--find-documentation-for-defined-function (name)
+  (let ((content (gnu-apl--find-function-content name)))
+    (when content
+      (let ((header (car content))
+            (lines (cdr content)))
+        (list header
+              (loop for row in lines
+                    while (and (plusp (length row)) (eql (aref row 0) (aref "⍝" 0)))
+                    collect (gnu-apl--trim-spaces (subseq row 1))))))))
+
 (defun gnu-apl--get-doc-for-symbol (string)
   (loop for e in gnu-apl--symbol-doc
         for name = (car e)
@@ -42,7 +62,7 @@ dervived from the APL2 documentation.")
         return e
         finally (return nil)))
 
-(defun gnu-apl--get-full-docstring-for-symbol (string)
+(defun gnu-apl--get-full-docstring-for-native-symbol (string)
   (let ((doc (gnu-apl--get-doc-for-symbol string)))
     (when doc
       (with-temp-buffer
@@ -59,15 +79,22 @@ dervived from the APL2 documentation.")
               do (insert "\n===================================\n"))
         (when (third doc)
           (insert (format "\n%s" gnu-apl--ibm-copyright-notice)))
-        (add-text-properties (point-min) (point-max) '(face gnu-apl-help))
         (buffer-string)))))
 
-(defun gnu-apl-show-help-for-symbol-point ()
-  "Open the help window for the symbol at point."
-  (interactive)
-  (let ((char (char-after (point))))
-    (when char
-      (gnu-apl-show-help-for-symbol (char-to-string char)))))
+(defun gnu-apl--get-full-docstring-for-function-symbol (string)
+  (let ((content (gnu-apl--find-documentation-for-defined-function string)))
+    (when content
+      (with-temp-buffer
+        (insert (format "Function: %s\n\n" (car content)) 'face 'bold-face)
+        (loop for row in (cadr content)
+              for first = t then nil
+              unless first do (insert "\n")
+              do (insert row))
+        (buffer-string)))))
+
+(defun gnu-apl--get-full-docstring-for-symbol (string)
+  (or (gnu-apl--get-full-docstring-for-native-symbol string)
+      (gnu-apl--get-full-docstring-for-function-symbol string)))
 
 (defvar *gnu-apl-documentation-buffer-name* "*gnu-apl documentation*")
 
@@ -89,8 +116,6 @@ dervived from the APL2 documentation.")
 (defun gnu-apl-show-help-for-symbol (symbol)
   "Open the help window for SYMBOL."
   (interactive "MSymbol: ")
-  (unless (= (length symbol) 1)
-    (error "Symbol must be a single character"))
   (let ((string (gnu-apl--get-full-docstring-for-symbol symbol)))
     (unless string
       (user-error "No documentation available for %s" symbol))
@@ -102,6 +127,7 @@ dervived from the APL2 documentation.")
         (delete-region (point-min) (point-max))
         (insert string)
         (goto-char (point-min))
+        (add-text-properties (point-min) (point-max) '(face gnu-apl-help))
         (gnu-apl-documentation-mode)
         (read-only-mode 1))
       (pop-to-buffer buffer))))
@@ -294,23 +320,3 @@ if it is open."
     (if result
         (gnu-apl--open-apropos-results result)
       (message "No match"))))
-
-(defun gnu-apl--find-function-content (name)
-  (let* ((content (gnu-apl--send-network-command-and-read (format "fn:%s" name)))
-         (result (car content)))
-    (cond ((string= result "function-content")
-           (cdr content))
-          ((string= result "undefined")
-           nil)
-          (t
-           (error "Error getting function: %s" (car content))))))
-
-(defun gnu-apl--find-documentation-for-symbol (name)
-  (let ((content (gnu-apl--find-function-content name)))
-    (when content
-      (let ((header (car content))
-            (lines (cdr content)))
-        (list header
-              (loop for row in lines
-                    while (and (plusp (length row)) (eql (aref row 0) (aref "⍝" 0)))
-                    collect (gnu-apl--trim-spaces (subseq row 1))))))))
