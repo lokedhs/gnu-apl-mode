@@ -113,9 +113,23 @@ dervived from the APL2 documentation.")
   "Major mode for displaying GNU APL documentation"
   (use-local-map gnu-apl-documentation-mode-map))
 
+(defun gnu-apl--name-at-point ()
+  (let ((s (thing-at-point 'sexp)))
+    (or s
+        (let ((ch (char-after (point))))
+          (when (and ch
+                     (member (char-to-string ch) (mapcar #'cadr gnu-apl--symbols)))
+            (char-to-string ch))))))
+
 (defun gnu-apl-show-help-for-symbol (symbol)
   "Open the help window for SYMBOL."
-  (interactive "MSymbol: ")
+  (interactive (list (let ((default-sym (gnu-apl--name-at-point)))
+                       (read-input (if default-sym
+                                       (format "Symbol (default '%s'): " default-sym)
+                                     "Symbol: ")
+                                   nil nil default-sym t))))
+  (when (or (null symbol) (string= symbol ""))
+    (error "Symbol is empty"))
   (let ((string (gnu-apl--get-full-docstring-for-symbol symbol)))
     (unless string
       (user-error "No documentation available for %s" symbol))
