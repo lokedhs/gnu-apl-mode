@@ -230,6 +230,7 @@ function editor.
           "Click the link or run M-x customize-group RET gnu-apl to set up.\n\n"
           "To disable this message, set gnu-apl-show-tips-on-start to nil.\n\n"))
 
+;;;###autoload
 (defun gnu-apl (apl-executable)
   "Start the GNU APL interpreter in a buffer.
 APL-EXECUTABLE is the path to the apl program (defaults

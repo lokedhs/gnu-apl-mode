@@ -521,7 +521,10 @@ documentation will not be loaded.")
 (load "gnu-apl-documentation")
 (load "gnu-apl-osx-workaround")
 
+;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.apl\\'" . gnu-apl-mode))
+
+;;;###autoload
 (add-to-list 'interpreter-mode-alist '("gnu-apl" . gnu-apl-mode))
 
 (provide 'gnu-apl-mode)
