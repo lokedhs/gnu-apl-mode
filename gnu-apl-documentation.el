@@ -85,7 +85,7 @@ dervived from the APL2 documentation.")
   (let ((content (gnu-apl--find-documentation-for-defined-function string)))
     (when content
       (with-temp-buffer
-        (insert (format "Function: %s\n\n" (car content)) 'face 'bold-face)
+        (insert (format "Function: %s\n\n" (car content)))
         (loop for row in (cadr content)
               for first = t then nil
               unless first do (insert "\n")
