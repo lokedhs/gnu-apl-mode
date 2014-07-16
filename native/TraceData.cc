@@ -59,7 +59,7 @@ void TraceData::display_value_for_trace( ostream &out, const Value_P &value, int
     }
     else {
         if( cr_level < 1 || cr_level > 9 ) {
-            throw new ConnectionError( "Illegal CR level" );
+            throw ConnectionError( "Illegal CR level" );
         }
         PrintContext context( PST_NONE, Workspace::get_PrintContext().get_PP(),
                               100000 );
