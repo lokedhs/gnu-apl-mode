@@ -81,11 +81,17 @@ dervived from the APL2 documentation.")
           (insert (format "\n%s" gnu-apl--ibm-copyright-notice)))
         (buffer-string)))))
 
+(defun gnu-apl--remove-local-variable-name (name)
+  (let ((pos (position ?\; name)))
+    (if pos
+        (gnu-apl--trim-spaces (subseq name 0 pos))
+      name)))
+
 (defun gnu-apl--get-full-docstring-for-function-symbol (string)
   (let ((content (gnu-apl--find-documentation-for-defined-function string)))
     (when content
       (with-temp-buffer
-        (insert (format "Function: %s\n\n" (car content)))
+        (insert (format "Function: %s\n\n" (gnu-apl--remove-local-variable-name (car content))))
         (loop for row in (cadr content)
               for first = t then nil
               unless first do (insert "\n")
