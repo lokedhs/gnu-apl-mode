@@ -114,12 +114,25 @@ dervived from the APL2 documentation.")
   (use-local-map gnu-apl-documentation-mode-map))
 
 (defun gnu-apl--name-at-point ()
-  (let ((s (thing-at-point 'sexp)))
-    (or s
-        (let ((ch (char-after (point))))
-          (when (and ch
-                     (member (char-to-string ch) (mapcar #'cadr gnu-apl--symbols)))
-            (char-to-string ch))))))
+  (let ((symbol-chars "[a-zA-Z0-9_∆⍙¯]"))
+    (if (looking-at symbol-chars)
+        (buffer-substring (save-excursion (loop while (and (> (point) (point-min))
+                                                           (string-match symbol-chars
+                                                                         (buffer-substring (1- (point))
+                                                                                           (point))))
+                                                do (backward-char 1)
+                                                finally (return (point))))
+                          (save-excursion (loop while (< (point) (point-max))
+                                                do (forward-char 1)
+                                                while (looking-at symbol-chars)
+                                                finally (return (point)))))
+      (let ((ch (char-after (point))))
+        (when (and ch
+                   (member (char-to-string ch)
+                           (mapcan #'(lambda (v) (let ((m (car v)))
+                                                   (if (listp m) (copy-seq m) (list m))))
+                                   gnu-apl--symbol-doc)))
+          (char-to-string ch))))))
 
 (defun gnu-apl-show-help-for-symbol (symbol)
   "Open the help window for SYMBOL."
