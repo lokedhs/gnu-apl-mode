@@ -331,7 +331,8 @@ documentation will not be loaded.")
   (let ((map (gnu-apl--make-mode-map "s-")))
     (define-key map (kbd "C-c r") 'gnu-apl-interactive-send-region)
     (define-key map (kbd "C-c C-c") 'gnu-apl-interactive-send-current-function)
-    map))
+    map)
+  "The keymap for gnu-apl-mode")
 
 (defvar gnu-apl-mode-syntax-table
   (let ((table (make-syntax-table)))
@@ -349,6 +350,7 @@ documentation will not be loaded.")
   "Syntax table for gnu-apl-mode")
 
 (defun gnu-apl--init-mode-common ()
+  "Genering initialisation code for all gnu-apl modes"
   (set (make-local-variable 'eldoc-documentation-function) 'gnu-apl--eldoc-data)
   (set (make-local-variable 'completion-at-point-functions) '(gnu-apl-expand-symbol))
   (set (make-local-variable 'tab-always-indent) 'complete)
