@@ -90,6 +90,13 @@ functions will not work. If this option is set to t, and the
 library fails to load for some reason, the features will be
 automatically disabled anyway.")
 
+;;;###autoload
+(defcustom gnu-apl-program-extra-args nil
+  "List of strings containing extra commandline arguments to pass
+  to the apl binary."
+  :type '(repeat string)
+  :group 'gnu-apl)
+
 (defvar gnu-apl-use-new-native-library nil
   "If non-nil, use the new-style native library.
 Enabling this option requires the use of at least GNU APL version 1.4
