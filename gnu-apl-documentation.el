@@ -169,7 +169,7 @@ dervived from the APL2 documentation.")
   (propertize string
               'mouse-face 'highlight
               'help-echo (concat "mouse-1: Show documentation for " string "\n"
-                                 "mouse-2: Insert " string " in GNU APL buffer")
+                                 "mouse-3: Insert " string " in GNU APL buffer")
               'gnu-apl-insert string
               'keymap keymap
               'follow-link t))
@@ -195,9 +195,28 @@ dervived from the APL2 documentation.")
     (with-current-buffer session
       (insert string))))
 
+(defun gnu-apl-mouse-help-from-keymap (event)
+  "In the keymap buffer, describe the symbol that was clicked."
+  (interactive "e")
+  (let ((window (posn-window (event-end event)))
+        (pos (posn-point (event-end event))))
+    (unless (windowp window)
+      (error "Can't find window"))
+    (let ((string (with-current-buffer (window-buffer window)
+                    (get-text-property pos 'gnu-apl-insert))))
+      (gnu-apl-show-help-for-symbol string))))
+
+(defun gnu-apl-symbol-help-from-keymap ()
+  "Describe a symbol in the keymap buffer."
+  (interactive)
+  (let ((string (get-text-property (point) 'gnu-apl-insert)))
+    (gnu-apl-show-help-for-symbol string)))
+
 (defun gnu-apl--make-help-property-keymap ()
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-2] 'gnu-apl-mouse-insert-from-keymap)
+    (define-key map [down-mouse-1] 'gnu-apl-mouse-help-from-keymap)
+    (define-key map [mouse-3] 'gnu-apl-mouse-insert-from-keymap)
+    (define-key map (kbd "?") 'gnu-apl-symbol-help-from-keymap)
     (define-key map (kbd "RET") 'gnu-apl-symbol-insert-from-keymap)
     map))
 
