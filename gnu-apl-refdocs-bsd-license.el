@@ -16,26 +16,42 @@ R with the imaginary part negated.")
     ;; ========================================
 
     ("×"
-     (("Monadic" "Signum" "¯1 if B<0; 0 if B=0; 1 if B>0")
-      ("Dyadic" "Multiply" "A multiplied by B")))
+     (("Monadic" "Signum" "¯1 if R<0; 0 if R=0; 1 if R>0")
+      ("Dyadic" "Multiply" "L multiplied by R")))
 
     ;; ========================================
 
     ("÷"
-     (("Monadic" "Reciprocal" "1 divided by B")
-      ("Dyadic" "Division (mathematics)" "A divided by B")))
+     (("Monadic" "Reciprocal" "1 divided by R")
+      ("Dyadic" "Division (mathematics)" "L divided by R")))
 
     ;; ========================================
 
     ("⋆"
-     (("Monadic" "Exponential" "e to the B power")
-      ("Dyadic" "Exponentiation]]" "A raised to the B power")))
+     (("Monadic" "Exponential" "e to the R power")
+      ("Dyadic" "Exponentiation]]" "L raised to the R power")))
 
     ;; ========================================
 
     ("○"
      (("Monadic" "Pi times" "Multiply by π")
-      ("Dyadic" "Circle" "Trigonometric functions of B selected by A. A=1: sin(B) A=2: cos(B) A=3: tan(B)")))
+      ("Dyadic" "Circle" "Trigonometric functions of R selected by L"
+       "The operation is chosen by the value of L from the
+following list of available operations:
+
+  0   (1-R⋆2)⋆0.5
+ ¯1   arcsin R               1   sin R
+ ¯2   arccos R               2   cosin R
+ ¯3   arctan R               3   tan R
+ ¯4   (R+1)×((R-1)÷R+1)⋆0.5  4   (1+R⋆2)⋆0.5
+ ¯5   arcsinh R              5   sinh R
+ ¯6   arccosh R              6   cosh R
+ ¯7   arctanh R              7   tanh R
+ ¯8   -(¯1-R×2)⋆0.5          8   (¯1-R⋆2)⋆0.5
+ ¯9   R                      9   Real part of R
+¯10   +R                    10   |R
+¯11   0J1×R                 11   Imaginary part of R
+¯12   ⋆0J1×R                12   Arc R")))
 
     ;; ========================================
 
