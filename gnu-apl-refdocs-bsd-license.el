@@ -4,14 +4,14 @@
   '(("+"
      (("Monadic" "Conjugate" "Returns the conjugate of R"
        "If R is a real number, return R. If R is complex, return
-R with its imaginary part negated.")
+R with the imaginary part negated.")
       ("Dyadic" "Addition" "Returns the sum of L and R")))
 
     ;; ========================================
 
     ("−"
-     (("Monadic" "Negation" "Changes sign of B")
-      ("Dyadic" "Subtraction" "A minus B")))
+     (("Monadic" "Negation" "Negate R")
+      ("Dyadic" "Subtraction" "Subtract R from L")))
     ("×"
      (("Monadic" "Signum" "¯1 if B<0; 0 if B=0; 1 if B>0")
       ("Dyadic" "Multiply" "A multiplied by B")))
