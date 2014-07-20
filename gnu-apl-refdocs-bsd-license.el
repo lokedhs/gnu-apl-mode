@@ -2,8 +2,13 @@
 
 (defvar gnu-apl--symbol-doc
   '(("+"
-     (("Monadic" "Identity" "No change to B")
-      ("Dyadic" "Addition" "Sum of A and B")))
+     (("Monadic" "Conjugate" "Returns the conjugate of R"
+       "If R is a real number, return R. If R is complex, return
+R with its imaginary part negated.")
+      ("Dyadic" "Addition" "Returns the sum of L and R")))
+
+    ;; ========================================
+
     ("−"
      (("Monadic" "Negation" "Changes sign of B")
       ("Dyadic" "Subtraction" "A minus B")))
