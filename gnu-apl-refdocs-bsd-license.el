@@ -56,14 +56,19 @@ following list of available operations:
     ;; ========================================
 
     ("?"
-     (("Monadic" "Roll" "One integer selected randomly from the first B integers")
-      ("Dyadic" "Deal" "A distinct integers selected randomly from the first B integers")))
+     (("Monadic" "Roll" "One integer selected randomly from the first R integers")
+      ("Dyadic" "Deal" "L distinct integers selected randomly from the first R integers")))
 
     ;; ========================================
 
     ("∊"
      (("Monadic" "Enlist" "Create a vector containing all scalars in B")
       ("Dyadic" "Membership" "1 for elements of A present in B; 0 where not.")))
+
+    ;; ========================================
+
+    ("⍷"
+     (("Find" "Find subsequence in array" "1 for position each position that contains the array L in R")))
 
     ;; ========================================
 
