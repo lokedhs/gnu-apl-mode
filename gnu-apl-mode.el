@@ -395,10 +395,10 @@ documentation will not be loaded.")
                                                      " *\\(?:;.*\\)?$")))
       (list (add-assignment-syntax (format "\\(%s\\)" s))
             (add-assignment-syntax (format "\\(?:%s +\\)?\\(%s\\)%s +%s" s s f s))
-            (add-assignment-syntax (format "( *%s +\\(%s\\) *)" s s))
+            (add-assignment-syntax (format "( *%s +\\(%s\\) *)%s" s s f))
             (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) *)%s +%s" s s s f s))
-            (add-assignment-syntax (format "( *%s +\\(%s\\) +%s)" s s s))
-            (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) +%s) +%s" s s s s s))))))
+            (add-assignment-syntax (format "( *%s +\\(%s\\) +%s)%s" s s s f))
+            (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) +%s)%s +%s" s s s s f s))))))
 
 (defun gnu-apl--match-function-head (limit)
   (loop for pattern in gnu-apl--function-declaration-patterns
@@ -406,6 +406,14 @@ documentation will not be loaded.")
         when result
         return t
         finally (return nil)))
+
+(defun gnu-apl--parse-function-header (string)
+  "Parse a function definition string. Returns the name of the
+function or nil if the function could not be parsed."
+  (let* ((line (gnu-apl--trim-spaces string)))
+    (loop for pattern in gnu-apl--function-declaration-patterns
+          when (string-match (concat "^" pattern) line)
+          return (match-string 1 line))))
 
 (define-derived-mode gnu-apl-mode prog-mode "GNU APL"
   "Major mode for editing GNU APL files."

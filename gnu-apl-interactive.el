@@ -267,14 +267,6 @@ to `gnu-apl-executable')."
     (when gnu-apl-show-keymap-on-startup
       (run-at-time "0 sec" nil #'(lambda () (gnu-apl-show-keyboard 1))))))
 
-(defun gnu-apl--parse-function-header (string)
-  "Parse a function definition string. Returns the name of the
-function or nil if the function could not be parsed."
-  (let* ((line (gnu-apl--trim-spaces string)))
-    (loop for pattern in gnu-apl--function-declaration-patterns
-          when (string-match (concat "^" pattern) line)
-          return (match-string 1 line))))
-
 (defun gnu-apl-find-function-at-point ()
   "Jump to the definition of the function at point."
   (interactive)
