@@ -421,6 +421,7 @@ function or nil if the function could not be parsed."
   :group 'gnu-apl
   (use-local-map gnu-apl-mode-map)
   (gnu-apl--init-mode-common)
+  (gnu-apl--set-imenu-pattern)
   (set (make-local-variable 'font-lock-defaults)
        '((("⎕[a-zA-Z0-9]+" . font-lock-keyword-face)
           ("^[ \t]*[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]+:" . font-lock-builtin-face)
@@ -440,6 +441,10 @@ function or nil if the function could not be parsed."
                (backward-char 1)
                (setq old-pos pos))
           finally (return old-pos))))
+
+;;;
+;;;  Indentation support
+;;;
 
 (defun gnu-apl--indent-safely (pos)
   (indent-line-to (max pos 0)))
@@ -491,6 +496,10 @@ function or nil if the function could not be parsed."
                           (gnu-apl--string-match-start v prefix))
                       results)))
 
+;;;
+;;;  Support for expansion
+;;;
+
 (defun gnu-apl-expand-symbol ()
   (let* ((row (buffer-substring (save-excursion (beginning-of-line) (point)) (point))))
     ;; Check for system commands
@@ -520,6 +529,15 @@ function or nil if the function could not be parsed."
                                                            results)))
                 (when filtered-variables
                   (list pos (point) filtered-variables))))))))))
+
+;;;
+;;;  imenu integration
+;;;
+
+(defun gnu-apl--set-imenu-pattern ()
+  (setq imenu-generic-expression
+        (mapcar #'(lambda (v) (list nil (concat "^∇ *" v) 1))
+                gnu-apl--function-declaration-patterns)))
 
 ;;;
 ;;;  Load the other source files
