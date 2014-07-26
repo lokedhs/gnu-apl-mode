@@ -62,8 +62,8 @@ following list of available operations:
     ;; ========================================
 
     ("∊"
-     (("Monadic" "Enlist" "Create a vector containing all scalars in B")
-      ("Dyadic" "Membership" "1 for elements of A present in B; 0 where not.")))
+     (("Monadic" "Enlist" "Create a vector containing all scalars in R")
+      ("Dyadic" "Membership" "1 for elements of L present in R; 0 where not.")))
 
     ;; ========================================
 
@@ -73,111 +73,111 @@ following list of available operations:
     ;; ========================================
 
     ("⌈"
-     (("Monadic" "Ceiling" "Least integer greater than or equal to B")
-      ("Dyadic" "Sample maximum and minimum" "The greater value of A or B")))
+     (("Monadic" "Ceiling" "Least integer greater than or equal to R")
+      ("Dyadic" "Sample maximum and minimum" "The greater value of L or R")))
 
     ;; ========================================
 
     ("⌊"
-     (("Monadic" "Floor" "Greatest integer less than or equal to B")
-      ("Dyadic" "Sample maximum and minimum" "The smaller value of A or B")))
+     (("Monadic" "Floor" "Greatest integer less than or equal to R")
+      ("Dyadic" "Sample maximum and minimum" "The smaller value of L or R")))
 
     ;; ========================================
 
     ("⍴"
-     (("Monadic" "Shape" "Number of components in each dimension of B")
-      ("Dyadic" "Reshape" "Array of shape A with data B")))
+     (("Monadic" "Shape" "Number of components in each dimension of R")
+      ("Dyadic" "Reshape" "Array of shape L with data R")))
 
     ;; ========================================
 
     ("↑"
-     (("Monadic" "Take" "Select the first element of B")
-      ("Dyadic" "Take" "Select the first (or last) A elements of B according to ×A")))
+     (("Monadic" "Take" "Select the first element of R")
+      ("Dyadic" "Take" "Select the first (or last) L elements of R according to ×L")))
 
     ;; ========================================
 
     ("↓"
-     (("Dyadic" "Drop " "Remove the first (or last) A elements of B according to ×A")))
+     (("Dyadic" "Drop " "Remove the first (or last) L elements of R according to ×L")))
 
     ;; ========================================
 
     ("⊥"
-     (("Dyadic" "Decode" "Value of a polynomial whose coefficients are B at A")))
+     (("Dyadic" "Decode" "Value of a polynomial whose coefficients are R at L")))
 
     ;; ========================================
 
     ("⊤"
-     (("Dyadic" "Encode" "Base-A representation of the value of B")))
+     (("Dyadic" "Encode" "Base-L representation of the value of R")))
 
     ;; ========================================
 
     ("∣"
-     (("Monadic" "Absolute value" "Magnitude of B")
-      ("Dyadic" "Modulo" "B modulo A")))
+     (("Monadic" "Absolute value" "Magnitude of R")
+      ("Dyadic" "Modulo" "R modulo L")))
 
     ;; ========================================
 
     (","
-     (("Monadic" "Ravel" "Reshapes B into a vector")
-      ("Dyadic" "Catenation" "Elements of B appended to the elements of A")))
+     (("Monadic" "Ravel" "Reshapes R into a vector")
+      ("Dyadic" "Catenation" "Elements of R appended to the elements of L")))
 
     ;; ========================================
 
     ("\\"
-     (("Dyadic" "Expansion" "Insert zeros (or blanks) in B corresponding to zeros in A")))
+     (("Dyadic" "Expansion" "Insert zeros (or blanks) in R corresponding to zeros in L")))
 
     ;; ========================================
 
     ("/"
-     (("Dyadic" "Compress" "Select elements in B corresponding to ones in A")))
+     (("Dyadic" "Compress" "Select elements in R corresponding to ones in L")))
 
     ;; ========================================
 
     ("⍳"
-     (("Monadic" "Index generator" "Vector of the first B integers")
-      ("Dyadic" "Index of" "The location (index) of B in A; 1+⌈/⍳⍴A if not found")))
+     (("Monadic" "Index generator" "Vector of the first R integers")
+      ("Dyadic" "Index of" "The location (index) of R in L; 1+⌈/⍳⍴L if not found")))
 
     ;; ========================================
 
     ("⌹"
-     (("Monadic" "Matrix inverse" "Inverse of matrix B")
-      ("Dyadic" "Matrix divide" "Solution to system of linear equations Ax = B")))
+     (("Monadic" "Matrix inverse" "Inverse of matrix R")
+      ("Dyadic" "Matrix divide" "Solution to system of linear equations Lx = R")))
 
     ;; ========================================
 
     ("⌽"
-     (("Monadic" "Reversal" "Reverse elements of B along last axis")
-      ("Dyadic" "Rotation" "The elements of B are rotated A positions")))
+     (("Monadic" "Reversal" "Reverse elements of R along last axis")
+      ("Dyadic" "Rotation" "The elements of R are rotated L positions")))
 
     ;; ========================================
 
     ("⊖"
-     (("Monadic" "Reversal" "Reverse elements of B along first axis")
-      ("Dyadic" "Rotation" "The elements of B are rotated A positions along the first axis")))
+     (("Monadic" "Reversal" "Reverse elements of R along first axis")
+      ("Dyadic" "Rotation" "The elements of R are rotated L positions along the first axis")))
 
     ;; ========================================
 
     ("⍟"
-     (("Monadic" "Logarithm" "Natural logarithm of B")
-      ("Dyadic" "Logarithm" "Logarithm of B to base A")))
+     (("Monadic" "Logarithm" "Natural logarithm of R")
+      ("Dyadic" "Logarithm" "Logarithm of R to base L")))
 
     ;; ========================================
 
     ("⍕"
-     (("Monadic" "Format" "A character representation of B")
-      ("Dyadic" "Format" "Format B into a character matrix according to A")))
+     (("Monadic" "Format" "A character representation of R")
+      ("Dyadic" "Format" "Format R into a character matrix according to L")))
 
     ;; ========================================
 
     ("⍉"
-     (("Monadic" "Transpose" "Reverse the axes of B")
-      ("Dyadic" "Transpose" "The axes of B are ordered by A")))
+     (("Monadic" "Transpose" "Reverse the axes of R")
+      ("Dyadic" "Transpose" "The axes of R are ordered by L")))
 
     ;; ========================================
 
     ("!"
-     (("Monadic" "Factorial" "Product of integers 1 to B")
-      ("Dyadic" "Combinations" "Number of combinations of B taken A at a time")))
+     (("Monadic" "Factorial" "Product of integers 1 to R")
+      ("Dyadic" "Combinations" "Number of combinations of R taken L at a time")))
 
     ;; ========================================
 
@@ -212,22 +212,22 @@ following list of available operations:
     ;; ========================================
 
     ("∨"
-     (("Dyadic" "Logical disjunction" "Logic: 0 if A and B are 0; 1 otherwise")))
+     (("Dyadic" "Logical disjunction" "Logic: 0 if L and R are 0; 1 otherwise")))
 
     ;; ========================================
 
     ("∧"
-     (("Dyadic" "Logical conjunction" "Logic: 1 if A and B are 1; 0 otherwise")))
+     (("Dyadic" "Logical conjunction" "Logic: 1 if L and R are 1; 0 otherwise")))
 
     ;; ========================================
 
     ("⍱"
-     (("Dyadic" "Logical Nor" "Logic: 1 if both A and B are 0; otherwise 0")))
+     (("Dyadic" "Logical Nor" "Logic: 1 if both L and R are 0; otherwise 0")))
 
     ;; ========================================
 
     ("⍲"
-     (("Dyadic" "Logical Nand" "Logic: 0 if both A and B are 1; otherwise 1")))
+     (("Dyadic" "Logical Nand" "Logic: 0 if both L and R are 1; otherwise 1")))
 
     ;; ========================================
 
@@ -237,12 +237,12 @@ following list of available operations:
     ;; ========================================
 
     ("⍋"
-     (("Monadic" "Grade up" "Indices of B which will arrange B in ascending order")))
+     (("Monadic" "Grade up" "Indices of R which will arrange R in ascending order")))
 
     ;; ========================================
 
     ("⍒"
-     (("Monadic" "Grade down" "Indices of B which will arrange B in descending order")))
+     (("Monadic" "Grade down" "Indices of R which will arrange R in descending order")))
 
     ;; ========================================
 
@@ -252,12 +252,12 @@ following list of available operations:
     ;; ========================================
 
     ("←"
-     (("Dyadic" "Assignment" "Assign the value of B to A")))
+     (("Dyadic" "Assignment" "Assign the value of R to L")))
 
     ;; ========================================
 
     ("→"
-     (("Monadic" "Goto" "Go to line B")))
+     (("Monadic" "Goto" "Go to line R")))
 
     ;; ========================================
 
@@ -267,29 +267,29 @@ following list of available operations:
     ;; ========================================
 
     ("⊂"
-     (("Monadic" "Enclose" "Produce a scalar from B")
-      ("Dyadic" "Partition" "Divide B into vectors based on A")))
+     (("Monadic" "Enclose" "Produce a scalar from R")
+      ("Dyadic" "Partition" "Divide R into vectors based on L")))
 
     ;; ========================================
 
     ("⊃"
-     (("Monadic" "Disclose" "Produce an array from B")
-      ("Dyadic" "Pick" "Select a value from B based on A")))
+     (("Monadic" "Disclose" "Produce an array from R")
+      ("Dyadic" "Pick" "Select a value from R based on L")))
 
     ;; ========================================
 
     ("∪"
-     (("Monadic" "Unique" "Return an array of all unique elements in B")))
+     (("Monadic" "Unique" "Return an array of all unique elements in R")))
 
     ;; ========================================
 
     ("⍷"
-     (("Dyadic" "Find" "Return a boolean array indicating the positions of the array A in B")))
+     (("Dyadic" "Find" "Return a boolean array indicating the positions of the array L in R")))
 
     ;; ========================================
 
     ("≡"
-     (("Monadic" "Depth" "Return the levels of nesting in B")
+     (("Monadic" "Depth" "Return the levels of nesting in R")
       ("Dyadic" "Match" "Returns true if L has the same structure as well as data as R")))
 
     ;; ========================================
@@ -301,12 +301,12 @@ following list of available operations:
     ;; ========================================
 
     ("⊥"
-     (("Dyadic" "Decode" "Yields the values of array A evaluated in a number system with radices B")))
+     (("Dyadic" "Decode" "Yields the values of array L evaluated in a number system with radices R")))
 
     ;; ========================================
 
     ("⊤"
-     (("Dyadic" "Encode" "Yields the representation of A in the number system whose radices are B"))))
+     (("Dyadic" "Encode" "Yields the representation of L in the number system whose radices are R"))))
   "Documentation for APL symbols. Each element is a list of six
 elements: The APL symbol, name of monadic operator, description
 of the monadic operator, name of the dyadic operator, description
