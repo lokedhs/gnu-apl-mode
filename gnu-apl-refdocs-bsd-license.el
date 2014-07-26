@@ -290,7 +290,13 @@ following list of available operations:
 
     ("≡"
      (("Monadic" "Depth" "Return the levels of nesting in B")
-      ("Dyadic" "Match" "Returns true if A has the same structure as well as data as B")))
+      ("Dyadic" "Match" "Returns true if L has the same structure as well as data as R")))
+
+    ;; ========================================
+
+    ("≢"
+     (("Monadic" "Returns the number of elements in the first dimension of R.")
+      ("Dyadic" "Not match" "Returns true if L has different structure or data as R.")))
 
     ;; ========================================
 
