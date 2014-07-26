@@ -550,9 +550,7 @@ function or nil if the function could not be parsed."
 (load "gnu-apl-spreadsheet")
 (load "gnu-apl-plot")
 (load "gnu-apl-follow")
-(if gnu-apl-use-free-documentation
-    (load "gnu-apl-refdocs-bsd-license")
-  (load "gnu-apl-refdocs-apl2"))
+(load "gnu-apl-refdocs-bsd-license")
 (load "gnu-apl-documentation")
 (load "gnu-apl-osx-workaround")
 
