@@ -330,8 +330,7 @@ documentation will not be loaded.")
         (define-key map [menu-bar gnu-apl show-help-for-symbol] '("Documentation for symbol" . gnu-apl-show-help-for-symbol))
         (define-key map [menu-bar gnu-apl apropos-symbol] '("Search symbols" . gnu-apl-apropos-symbol))
         (define-key map [menu-bar gnu-apl find-symbol-at-point] '("Find symbol at point" . gnu-apl-find-function-at-point))
-        (define-key map [menu-bar gnu-apl trace] '("Trace variable" . gnu-apl-trace))
-))
+        (define-key map [menu-bar gnu-apl trace] '("Trace variable" . gnu-apl-trace))))
     map))
 
 (defvar gnu-apl-mode-map
