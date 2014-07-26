@@ -80,7 +80,7 @@ If -1, request the use of Unix domain sockets."
   :group 'gnu-apl)
 
 ;;; This parameter is not customisable since there are very few cases
-;;; where it would beed to be changed.
+;;; where it would need to be changed.
 (defvar gnu-apl-native-communication t
   "Enable the use of the Emacs native library that is part of GNU
 APL. This library provides a communications channel that
