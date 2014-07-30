@@ -306,7 +306,16 @@ following list of available operations:
     ;; ========================================
 
     ("⊤"
-     (("Dyadic" "Encode" "Yields the representation of L in the number system whose radices are R"))))
+     (("Dyadic" "Encode" "Yields the representation of L in the number system whose radices are R")))
+
+    ;; ========================================
+
+    (("∼" "~")
+     (("Monadic" "Not" "Negates the binary values in R"
+       "Given a set of binary values in R, return a new array of the
+same dimension where each value has been negated. If any values
+are not of the value 0 or 1, a DOMAIN ERROR will be raised.")
+      ("Dyadic" "Without" "Returns L with the values from R removed."))))
   "Documentation for APL symbols. Each element is a list of six
 elements: The APL symbol, name of monadic operator, description
 of the monadic operator, name of the dyadic operator, description
