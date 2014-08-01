@@ -103,6 +103,16 @@ Enabling this option requires the use of at least GNU APL version 1.4
 or the latest version from the subversion repository.")
 
 ;;;###autoload
+(defcustom gnu-apl-indent-amounts '(0 2 0 2)
+  "The amounts by which to indent lines within APL functions.
+The ∇s are always flush-left, as are all lines outside of functions."
+  :type '(list (integer :tag "Number of spaces after ∇ on header line")
+               (integer :tag "Number of spaces before comment line   ")
+               (integer :tag "Number of spaces before label          ")
+               (integer :tag "Number of space before other lines     "))
+  :group 'gnu-apl)
+
+;;;###autoload
 (defface gnu-apl-default
   ()
   "Face used for APL buffers"
@@ -455,9 +465,6 @@ function or nil if the function could not be parsed."
         (user-error "Incorrectly formatted function header"))
       parsed)))
 
-(defvar gnu-apl--indent-amounts '(0 1 1 2)
-  "Ident amount for header, comment, label and other.")
-
 (defun gnu-apl--indent-this ()
   "Indent a function, controlled by `gnu-apl--indent-amounts'.
 Anything outside a function definition is not indented."
@@ -466,7 +473,7 @@ Anything outside a function definition is not indented."
     (when (re-search-forward "\\=[ \t]*" nil t)
       (replace-match "" nil nil)))
   (destructuring-bind (i-header i-comment i-label i-other)
-      gnu-apl--indent-amounts
+      gnu-apl-indent-amounts
     (cond ((looking-at "∇")
            (indent-to-column 0)
            (re-search-forward "∇[ \t]*" nil t)
