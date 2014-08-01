@@ -283,5 +283,6 @@ to `gnu-apl-executable')."
               (error "Unexpected tag format: %S" reference))
             (let ((file (match-string 1 reference))
                   (line-num (string-to-number (match-string 2 reference))))
+              (ring-insert find-tag-marker-ring (point-marker))
               (find-file-existing file)
               (goto-line line-num))))))))
