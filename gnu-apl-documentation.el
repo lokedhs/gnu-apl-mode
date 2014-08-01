@@ -42,6 +42,11 @@ dervived from the APL2 documentation.")
           (t
            (error "Error getting function: %s" (car content))))))
 
+(defun gnu-apl--remove-leading-space (string)
+  (if (and (plusp (length string)) (eql (aref string 0) (aref " " 0)))
+      (subseq string 1)
+    string))
+
 (defun gnu-apl--find-documentation-for-defined-function (name)
   (let ((content (gnu-apl--find-function-content name)))
     (when content
@@ -51,7 +56,7 @@ dervived from the APL2 documentation.")
               (loop for row in lines
                     for trim-row = (gnu-apl--trim-spaces row)
                     while (and (>= (length trim-row) 2) (string= (subseq trim-row 0 2) "⍝⍝"))
-                    collect (gnu-apl--trim-spaces (subseq trim-row 2))))))))
+                    collect (gnu-apl--remove-leading-space (subseq trim-row 2))))))))
 
 (defun gnu-apl--get-doc-for-symbol (string)
   (loop for e in gnu-apl--symbol-doc
