@@ -455,31 +455,45 @@ function or nil if the function could not be parsed."
         (user-error "Incorrectly formatted function header"))
       parsed)))
 
+(defvar gnu-apl--indent-amounts '(0 1 1 2)
+  "Ident amount for header, comment, label and other.")
+
 (defun gnu-apl--indent-this ()
-  ;; The indentation rules are very simple. If we are in a function,
-  ;; indent by 2 characters unless we are on a label definition in
-  ;; which case the line should not be indented.
-  ;; Anything outside a function definition is not indented.
+  "Indent a function, controlled by `gnu-apl--indent-amounts'.
+Anything outside a function definition is not indented."
   (beginning-of-line)
   (save-excursion
     (when (re-search-forward "\\=[ \t]*" nil t)
       (replace-match "" nil nil)))
-  (cond ((looking-at "∇")
-         (indent-to-column 0))
-        ((looking-at (format "%s:" gnu-apl--apl-symbol-pattern))
-         (indent-to-column 0))
-        (t
-         (let ((funtion-start (save-excursion
-                                (search-backward-regexp "^[ \t]*∇[ \t]*[^ \t]" nil t))))
-           (if (not funtion-start)
-               (indent-to-column 0)
-             (let ((function-end (save-excursion
-                                   (search-backward-regexp "^[ \t]*∇[ \t]$" nil t))))
-               (if (or (not function-end)
-                       (< function-start function-end))
-                   (indent-to-column 2)
-                 (indent-to-column 0)))))))
-  nil)
+  (destructuring-bind (i-header i-comment i-label i-other)
+      gnu-apl--indent-amounts
+    (cond ((looking-at "∇")
+           (indent-to-column 0)
+           (re-search-forward "∇[ \t]*" nil t)
+           (when (not (char-equal (char-after) ?\n))
+             (replace-match (format "∇%s" (make-string i-header 32)))))
+          ((looking-at (format "%s:" gnu-apl--apl-symbol-pattern))
+           (indent-to-column i-label))
+          (t
+           (let ((function-start (save-excursion
+                                   (search-backward-regexp
+                                    "^[ \t]*∇[ \t]*[^ \t]" nil t)))
+                 (function-end (save-excursion
+                                 (search-forward-regexp
+                                  "^[ \t]*∇[ \t]*$" nil t)))
+                 (prev-function-end (save-excursion
+                                      (search-backward-regexp
+                                       "^[ \t]*∇[ \t]*$" nil t))))
+             (if (and function-start
+                      function-end
+                      (or (not prev-function-end)
+                          (< prev-function-end function-start))
+                      (< function-start function-end))
+                 (if (looking-at "⍝")
+                     (indent-to-column i-comment)
+                   (indent-to-column i-other))
+               (indent-to-column 0))))))
+    nil)
 
 (defun gnu-apl-indent ()
   ;; No indentation unless the cursor is at the beginning of the line
