@@ -50,8 +50,8 @@ dervived from the APL2 documentation.")
         (list header
               (loop for row in lines
                     for trim-row = (gnu-apl--trim-spaces row)
-                    while (and (plusp (length trim-row)) (eql (aref trim-row 0) (aref "⍝" 0)))
-                    collect (gnu-apl--trim-spaces (subseq trim-row 1))))))))
+                    while (and (>= (length trim-row) 2) (string= (subseq trim-row 0 2) "⍝⍝"))
+                    collect (gnu-apl--trim-spaces (subseq trim-row 2))))))))
 
 (defun gnu-apl--get-doc-for-symbol (string)
   (loop for e in gnu-apl--symbol-doc
