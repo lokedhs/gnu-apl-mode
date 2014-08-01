@@ -49,8 +49,9 @@ dervived from the APL2 documentation.")
             (lines (cdr content)))
         (list header
               (loop for row in lines
-                    while (and (plusp (length row)) (eql (aref row 0) (aref "⍝" 0)))
-                    collect (gnu-apl--trim-spaces (subseq row 1))))))))
+                    for trim-row = (gnu-apl--trim-spaces row)
+                    while (and (plusp (length trim-row)) (eql (aref trim-row 0) (aref "⍝" 0)))
+                    collect (gnu-apl--trim-spaces (subseq trim-row 1))))))))
 
 (defun gnu-apl--get-doc-for-symbol (string)
   (loop for e in gnu-apl--symbol-doc
