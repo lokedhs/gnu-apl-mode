@@ -373,7 +373,7 @@ documentation will not be loaded.")
   "Syntax table for gnu-apl-mode")
 
 (defun gnu-apl--init-mode-common ()
-  "Genering initialisation code for all gnu-apl modes"
+  "Generic initialisation code for all gnu-apl modes"
   (set (make-local-variable 'eldoc-documentation-function) 'gnu-apl--eldoc-data)
   (set (make-local-variable 'completion-at-point-functions) '(gnu-apl-expand-symbol))
   (set (make-local-variable 'tab-always-indent) 'complete)
