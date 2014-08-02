@@ -442,10 +442,6 @@ function or nil if the function could not be parsed."
           (gnu-apl--match-function-head . (1 font-lock-function-name-face)))
          nil nil nil)))
 
-(defun gnu-apl--symbol-at-point ()
-  (let ((symbol (thing-at-point 'symbol)))
-    symbol))
-
 (defun gnu-apl--find-largest-backward-match (regex)
   (save-excursion
     (loop with old-pos = nil

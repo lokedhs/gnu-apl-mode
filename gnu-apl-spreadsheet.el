@@ -25,7 +25,7 @@ non-printable means CR or NL characters."
 Currently only two-dimensional arrays of depth 1 are supported.
 These variables will be edited in a spreadsheet. After editing,
 press C-c C-c to update the variable in the active interpreter."
-  (interactive (list (gnu-apl--choose-variable "Variable" :variable (gnu-apl--symbol-at-point))))
+  (interactive (list (gnu-apl--choose-variable "Variable" :variable (gnu-apl--name-at-point))))
   (gnu-apl--send-network-command (concat "getvar:" name))
   (let ((result (gnu-apl--read-network-reply-block)))
     (unless (string= (car result) "content")

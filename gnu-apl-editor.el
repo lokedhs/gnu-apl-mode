@@ -4,7 +4,7 @@
   "Open the function with the given name in a separate buffer.
 After editing the function, use `gnu-apl-save-function' to save
 the function and set it in the running APL interpreter."
-  (interactive (list (gnu-apl--choose-variable "Function name" :function (gnu-apl--symbol-at-point))))
+  (interactive (list (gnu-apl--choose-variable "Function name" :function (gnu-apl--name-at-point))))
   (gnu-apl--get-function name))
 
 (defun gnu-apl--get-function (function-definition)

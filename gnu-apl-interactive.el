@@ -270,7 +270,7 @@ to `gnu-apl-executable')."
 (defun gnu-apl-find-function-at-point ()
   "Jump to the definition of the function at point."
   (interactive)
-  (let ((name (thing-at-point 'symbol)))
+  (let ((name (gnu-apl--name-at-point)))
     (let ((resolved-name (if (and name (string-match "[a-zA-Z_∆⍙][a-zA-Z0-9_∆⍙¯]*" name))
                              name
                            (gnu-apl--choose-variable "Function" :function))))
