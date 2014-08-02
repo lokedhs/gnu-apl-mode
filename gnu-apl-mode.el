@@ -515,17 +515,19 @@ Anything outside a function definition is not indented."
       (gnu-apl--indent-this)
     'noindent))
 
+;;;
+;;;  Support for expansion
+;;;
+
 (defun gnu-apl--load-commands (prefix)
   (let ((results (gnu-apl--send-network-command-and-read "systemcommands")))
     (cl-remove-if-not #'(lambda (v)
                           (gnu-apl--string-match-start v prefix))
                       results)))
 
-;;;
-;;;  Support for expansion
-;;;
-
 (defun gnu-apl-expand-symbol ()
+  "Implementation of expansion. This function is designed to be
+used in `completion-at-point-functions'."
   (let* ((row (buffer-substring (save-excursion (beginning-of-line) (point)) (point))))
     ;; Check for system commands
     (if (string-match "^[ \t]*\\([])][a-zA-Z0-9]*\\)$" row)
@@ -560,6 +562,7 @@ Anything outside a function definition is not indented."
 ;;;
 
 (defun gnu-apl--set-imenu-pattern ()
+  "Set up the imeny expression patterns."
   (setq imenu-generic-expression
         (mapcar #'(lambda (v) (list nil (concat "^∇ *" v) 1))
                 gnu-apl--function-declaration-patterns)))
