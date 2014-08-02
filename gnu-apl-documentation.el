@@ -366,8 +366,8 @@ if it is open."
   (interactive "MApropos symbol: ")
   (let ((result (loop for doc-entry in gnu-apl--symbol-doc
                       append (loop for e in (second doc-entry)
-                                   when (or (string-match regexp (second e))
-                                            (string-match regexp (third e)))
+                                   when (or (and (second e) (string-match regexp (second e)))
+                                            (and (third e) (string-match regexp (third e))))
                                    collect (list doc-entry
                                                  (let ((symname-aliases (first doc-entry)))
                                                    (format "%s: %s: %s: %s"
