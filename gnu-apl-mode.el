@@ -110,6 +110,13 @@ The ∇s are always flush-left, as are all lines outside of functions."
                (integer :tag "Number of spaces before comment line   ")
                (integer :tag "Number of spaces before label          ")
                (integer :tag "Number of space before other lines     "))
+  :safe '(lambda (v)
+           (and (listp v)
+                (= 4 (length v))
+                (every 'integerp v)
+                (every '(lambda (n)
+                          (and (>= n 0) (<= n 6)))
+                       v)))
   :group 'gnu-apl)
 
 ;;;###autoload
