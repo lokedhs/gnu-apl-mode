@@ -38,6 +38,14 @@
       (kbd definition)
     (eval `(kbd ,definition))))
 
+(cl-defmacro gnu-apl--when-let ((var value) &rest body)
+  "Evaluate VALUE, if the result is non-nil bind it to VAR and eval BODY.
+
+\(fn (VAR VALUE) &rest BODY)"
+  (declare (indent 1))
+  `(let ((,var ,value))
+     (when ,var ,@body)))
+
 (unless (fboundp 'cl-find)
   (defun cl-find (&rest args)
     (apply #'find args)))
