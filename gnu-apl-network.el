@@ -24,7 +24,7 @@ connect mode in use."
                               :end-of-command "\n"))
         ((string= connect-mode "unix")
          (make-network-process :name "gnu-apl-native"
-                               :buffer "*gnu-apl-connection*"
+                               :buffer nil
                                :family 'local
                                :type nil
                                :service addr
