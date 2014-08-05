@@ -308,18 +308,25 @@ if it is open."
       nil)))
 
 (defun gnu-apl--eldoc-data ()
-  (when (looking-at (concat "\\(" gnu-apl--function-regexp "\\)"))
-    (let* ((symbol (match-string 1))
-           (doc (gnu-apl--get-doc-for-symbol symbol)))
-      (unless doc
-        (error "doc should not be null"))
-      ;; We have a documentation entry. Now we need to figure out if the call
-      ;; is monadic or dyadic. It can be done by searching backwards until we hit
-      ;; a non-space character or the beginning of the line.
-      (let ((p (cl-find (if (gnu-apl--is-point-on-argument-value) "Dyadic" "Monadic") (second doc)
-                        :key #'car :test #'string=)))
-        (when p
-          (format "%s: %s: %s" (first p) (second p) (third p)))))))
+  (if (looking-at (concat "\\(" gnu-apl--function-regexp "\\)"))
+      ;; The cursor is placed on a built-in function
+      (let* ((symbol (match-string 1))
+             (doc (gnu-apl--get-doc-for-symbol symbol)))
+        (unless doc
+          (error "doc should not be null"))
+        ;; We have a documentation entry. Now we need to figure out if the call
+        ;; is monadic or dyadic. It can be done by searching backwards until we hit
+        ;; a non-space character or the beginning of the line.
+        (let ((p (cl-find (if (gnu-apl--is-point-on-argument-value) "Dyadic" "Monadic") (second doc)
+                          :key #'car :test #'string=)))
+          (when p
+            (format "%s: %s: %s" (first p) (second p) (third p)))))
+    ;; ELSE: We're not on a built-in function, check if we're on a user-defined function
+    (gnu-apl--when-let (name (gnu-apl--name-at-point))
+      (gnu-apl--when-let (function-docs (gnu-apl--find-documentation-for-defined-function name))
+        (when (second function-docs)
+          (gnu-apl--when-let (header (gnu-apl--parse-function-header (car function-docs)))
+            (format "%s: %s" header (car (second function-docs)))))))))
 
 ;;;
 ;;;  Help search
