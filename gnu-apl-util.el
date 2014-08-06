@@ -46,10 +46,12 @@
   `(let ((,var ,value))
      (when ,var ,@body)))
 
-(defun gnu-apl--current-line-number ()
+(defun gnu-apl--current-line-number (&optional pos)
   (save-restriction
     (widen)
     (save-excursion
+      (when pos
+        (goto-char pos))
       (beginning-of-line)
       (1+ (count-lines 1 (point))))))
 

@@ -355,6 +355,7 @@ documentation will not be loaded.")
   (let ((map (gnu-apl--make-mode-map "s-")))
     (define-key map (kbd "C-c r") 'gnu-apl-interactive-send-region)
     (define-key map (kbd "C-c C-c") 'gnu-apl-interactive-send-current-function)
+    (define-key map (kbd "C-c C-l") 'gnu-apl-interactive-send-buffer)
     map)
   "The keymap for gnu-apl-mode")
 
