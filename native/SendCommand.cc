@@ -86,19 +86,10 @@ void SendCommand::run_command( NetworkConnection &conn, const vector<string> &ar
     fd.close();
 
     try {
-        int dump_fd = -1;
-        XML_Loading_Archive in( fd.get_name().c_str(), dump_fd );
-        if( dump_fd == -1 ) {
-            throw ConnectionError( "Failed to open temp file" );
-        }
-
-        Workspace::load_DUMP( COUT, UTF8_string( fd.get_name().c_str() ), dump_fd, true );
-        if( !in.is_open() ) {
-            throw ConnectionError( "Error loading dump file" );
-        }
-
-        in.read_vids();
-        in.read_Workspace();
+        vector<UCS_string> files;
+        UCS_string file_ucs( fd.get_name().c_str() );
+        files.push_back( file_ucs );
+        Workspace::copy_WS( COUT, files, false );
 
         stringstream out;
         out << "file loaded\n"
