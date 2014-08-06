@@ -21,6 +21,7 @@
 #include "SendCommand.hh"
 #include "NetworkConnection.hh"
 #include "TempFileWrapper.hh"
+#include "../Archive.hh"
 
 #include "emacs.hh"
 #include "util.hh"
@@ -84,14 +85,20 @@ void SendCommand::run_command( NetworkConnection &conn, const vector<string> &ar
     }
     fd.close();
 
-    int handle = open( fd.get_name().c_str(), O_RDONLY );
-    if( handle == -1 ) {
-        throw_with_error( "Failed to open content" );
-    }
-    FileWrapper filewrapper( handle );
-
     try {
-        Workspace::load_DUMP( COUT, UTF8_string( fd.get_name().c_str() ), handle, false );
+        int dump_fd = -1;
+        XML_Loading_Archive in( fd.get_name().c_str(), dump_fd );
+        if( dump_fd == -1 ) {
+            throw ConnectionError( "Failed to open temp file" );
+        }
+
+        Workspace::load_DUMP( COUT, UTF8_string( fd.get_name().c_str() ), dump_fd, true );
+        if( !in.is_open() ) {
+            throw ConnectionError( "Error loading dump file" );
+        }
+
+        in.read_vids();
+        in.read_Workspace();
 
         stringstream out;
         out << "file loaded\n"
