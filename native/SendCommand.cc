@@ -21,10 +21,10 @@
 #include "SendCommand.hh"
 #include "NetworkConnection.hh"
 #include "TempFileWrapper.hh"
-#include "../Archive.hh"
 
 #include "emacs.hh"
 #include "util.hh"
+#include "../InputFile.hh"
 
 #include <stdlib.h>
 #include <errno.h>
@@ -86,10 +86,13 @@ void SendCommand::run_command( NetworkConnection &conn, const vector<string> &ar
     fd.close();
 
     try {
-        vector<UCS_string> files;
-        UCS_string file_ucs( fd.get_name().c_str() );
-        files.push_back( file_ucs );
-        Workspace::copy_WS( COUT, files, false );
+        FILE *handle = fopen( fd.get_name().c_str(), "r" );
+        if( handle == NULL ) {
+            throw ConnectionError( "Unable to open generated temp file" );
+        }
+        const UTF8_string utfname( name.c_str() );
+        InputFile fam( utfname, handle, false, false, true, false );
+        InputFile::files_todo.insert( InputFile::files_todo.begin(), fam );
 
         stringstream out;
         out << "complete\n"
