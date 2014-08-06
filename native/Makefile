@@ -24,7 +24,8 @@ LIBS = -lpthread
 OBJS = emacs.o network.o util.o Listener.o TcpListener.o UnixSocketListener.o NetworkConnection.o \
 	SiCommand.o SicCommand.o FnCommand.o DefCommand.o GetVarCommand.o \
 	VariablesCommand.o FnTagCommand.o VersionCommand.o FollowCommand.o \
-	SystemFnCommand.o SystemVariableCommand.o LockWrapper.o TraceData.o
+	SystemFnCommand.o SystemVariableCommand.o SendCommand.o LockWrapper.o \
+	TraceData.o TempFileWrapper.o
 
 UNAME = $(shell uname)
 ifeq ($(UNAME),Darwin)

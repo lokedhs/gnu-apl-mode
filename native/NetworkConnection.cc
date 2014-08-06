@@ -35,6 +35,7 @@
 #include "FollowCommand.hh"
 #include "SystemFnCommand.hh"
 #include "SystemVariableCommand.hh"
+#include "SendCommand.hh"
 
 #include <iostream>
 #include <sstream>
@@ -68,6 +69,7 @@ NetworkConnection::NetworkConnection( int socket_in )
     add_command( commands, new FollowCommand( "trace" ) );
     add_command( commands, new SystemFnCommand( "systemcommands" ) );
     add_command( commands, new SystemVariableCommand( "systemvariables" ) );
+    add_command( commands, new SendCommand( "sendcontent" ) );
 }
 
 NetworkConnection::~NetworkConnection()
