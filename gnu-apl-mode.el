@@ -3,6 +3,7 @@
 (require 'cl)
 (require 'thingatpt)
 (require 'comint)
+(require 'etags)
 
 (load "gnu-apl-util")
 
