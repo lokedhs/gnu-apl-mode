@@ -92,7 +92,7 @@ void SendCommand::run_command( NetworkConnection &conn, const vector<string> &ar
         Workspace::copy_WS( COUT, files, false );
 
         stringstream out;
-        out << "file loaded\n"
+        out << "complete\n"
             << END_TAG << "\n";
         conn.write_string_to_fd( out.str() );
     }
