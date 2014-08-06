@@ -26,14 +26,12 @@ the function and set it in the running APL interpreter."
   "Send the entire content of the current buffer to the active
 GNU APL interpreter."
   (interactive)
-  (gnu-apl-interactive-send-string (buffer-string)
-                                   buffer-file-name (if buffer-file-name (count-lines 1 (point)))))
+  (gnu-apl-interactive-send-string (buffer-string) buffer-file-name (gnu-apl--current-line-number)))
 
 (defun gnu-apl-interactive-send-region (start end)
   "Send the region to the active GNU APL interpreter."
   (interactive "r")
-  (gnu-apl-interactive-send-string (buffer-substring start end)
-                                   buffer-file-name (if buffer-file-name (count-lines 1 (point))))
+  (gnu-apl-interactive-send-string (buffer-substring start end) buffer-file-name (gnu-apl--current-line-number))
   (message "Region sent to APL"))
 
 (defun gnu-apl--function-definition-to-list (content)

@@ -46,6 +46,13 @@
   `(let ((,var ,value))
      (when ,var ,@body)))
 
+(defun gnu-apl--current-line-number ()
+  (save-restriction
+    (widen)
+    (save-excursion
+      (beginning-of-line)
+      (1+ (count-lines 1 (point))))))
+
 (unless (fboundp 'cl-find)
   (defun cl-find (&rest args)
     (apply #'find args)))
