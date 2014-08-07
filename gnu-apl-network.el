@@ -3,7 +3,7 @@
 (defvar *gnu-apl-end-tag* "APL_NATIVE_END_TAG")
 (defvar *gnu-apl-notification-start* "APL_NATIVE_NOTIFICATION_START")
 (defvar *gnu-apl-notification-end* "APL_NATIVE_NOTIFICATION_END")
-(defvar *gnu-apl-protocol* "1.3")
+(defvar *gnu-apl-protocol* "1.5")
 
 ;;; We really should be using define-error here, but that function is
 ;;; new in 24.4 and thus is not generally available yet. This should

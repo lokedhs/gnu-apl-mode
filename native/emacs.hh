@@ -36,7 +36,7 @@
 
 void set_active( bool v );
 
-#define PROTOCOL_VERSION "1.4"
+#define PROTOCOL_VERSION "1.5"
 
 #define END_TAG "APL_NATIVE_END_TAG"
 #define NOTIFICATION_START_TAG "APL_NATIVE_NOTIFICATION_START"
