@@ -71,13 +71,6 @@ void SendCommand::run_command( NetworkConnection &conn, const vector<string> &ar
     }
 
     TempFileWrapper fd( "/tmp/apl_content" );
-    if( line > 0 ) {
-        stringstream buf;
-        for( int i = 0 ; i < line ; i++ ) {
-            buf << "\n";
-        }
-        write_string_to_fd( buf.str(), fd.get_fd() );
-    }
     for( vector<string>::iterator i = content.begin() ; i != content.end() ; i++ ) {
         stringstream s;
         s << *i << "\n";
@@ -92,6 +85,7 @@ void SendCommand::run_command( NetworkConnection &conn, const vector<string> &ar
         }
         const UTF8_string utfname( name.c_str() );
         InputFile fam( utfname, handle, false, false, true, false );
+        fam.set_line_no( line );
         InputFile::files_todo.insert( InputFile::files_todo.begin(), fam );
 
         stringstream out;
