@@ -95,7 +95,7 @@ void SendCommand::run_command( NetworkConnection &conn, const vector<string> &ar
         InputFile::files_todo.insert( InputFile::files_todo.begin(), fam );
 
         stringstream out;
-        out << "complete\n"
+        out << "content sent\n"
             << END_TAG << "\n";
         conn.write_string_to_fd( out.str() );
     }

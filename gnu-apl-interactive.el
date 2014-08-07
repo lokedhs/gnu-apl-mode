@@ -10,19 +10,18 @@ This shouldn't normally need to be changed except when doing
 development of the native code.")
 
 (defun gnu-apl-interactive-send-string (string &optional file line)
-  (labels ((make-command () (with-output-to-string
-                              (princ "sendcontent")
-                              (when file
-                                (princ (format ":%s" file))
-                                (when line
-                                  (princ (format ":%s" line)))))))
-    (let ((content (split-string string "\n")))
-      (gnu-apl--send-network-command (make-command))
-      (gnu-apl--send-block content)
-      (let ((reply (gnu-apl--read-network-reply-block)))
-        (if (string= (car reply) "complete")
-            (message "Content sent to APL interpreter")
-          (error "Error sending content to APL interpreter"))))))
+  (let ((content (split-string string "\n")))
+    (gnu-apl--send-network-command (concat "sendcontent"
+                                           (if (and file line)
+                                               (format ":%s:%d" file line)
+                                             "")))
+    (gnu-apl--send-block content)
+    (let ((reply (gnu-apl--read-network-reply-block)))
+      (if (string= (car reply) "content sent")
+          (progn
+            (gnu-apl--send (gnu-apl--get-interactive-session) "⊣⍬\n")
+            (message "Content sent to APL interpreter"))
+        (error "Error sending content to APL interpreter")))))
 
 (defun gnu-apl--get-interactive-session-with-nocheck ()
   (when gnu-apl-current-session
