@@ -289,7 +289,13 @@ to `gnu-apl-executable')."
                    (let ((file (match-string 1 reference))
                          (line-num (string-to-number (match-string 2 reference))))
                      (ring-insert find-tag-marker-ring (point-marker))
-                     (find-file-existing file)
+                     (let ((buffer (find-buffer-visiting file)))
+                       (if buffer
+                           (let ((window (get-buffer-window buffer)))
+                             (if window
+                                 (select-window window)
+                               (switch-to-buffer buffer)))
+                         (find-file-existing file)))
                      (goto-line line-num)))
                   ((string-match "^⎕FX$" reference)
                    (message "%s: No source information" resolved-name))
