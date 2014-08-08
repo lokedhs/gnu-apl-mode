@@ -378,8 +378,6 @@ documentation will not be loaded.")
   "Generic initialisation code for all gnu-apl modes"
   (set (make-local-variable 'eldoc-documentation-function) 'gnu-apl--eldoc-data)
   (set (make-local-variable 'completion-at-point-functions) '(gnu-apl-expand-symbol))
-  (set (make-local-variable 'tab-always-indent) 'complete)
-  (set (make-local-variable 'indent-line-function) 'gnu-apl-indent)
   (set (make-local-variable 'comment-start) "⍝")
   (set (make-local-variable 'comment-padding) " ")
   (set (make-local-variable 'comment-end) "")
@@ -442,7 +440,8 @@ function or nil if the function could not be parsed."
        '((("⎕[a-zA-Z0-9]+" . font-lock-keyword-face)
           ("^[ \t]*[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]+:" . font-lock-builtin-face)
           (gnu-apl--match-function-head . (1 font-lock-function-name-face)))
-         nil nil nil)))
+         nil nil nil))
+  (set (make-local-variable 'indent-line-function) 'gnu-apl-indent))
 
 (defun gnu-apl--find-largest-backward-match (regex)
   (save-excursion
@@ -473,45 +472,41 @@ function or nil if the function could not be parsed."
 (defun gnu-apl--indent-this ()
   "Indent a function, controlled by `gnu-apl--indent-amounts'.
 Anything outside a function definition is not indented."
-  (beginning-of-line)
   (save-excursion
-    (when (re-search-forward "\\=[ \t]*" nil t)
-      (replace-match "" nil nil)))
-  (destructuring-bind (i-header i-comment i-label i-other)
-      gnu-apl-indent-amounts
-    (cond ((looking-at "∇")
-           (indent-to-column 0)
-           (re-search-forward "∇[ \t]*" nil t)
-           (when (not (char-equal (char-after) ?\n))
-             (replace-match (format "∇%s" (make-string i-header 32)))))
-          ((looking-at (format "%s:" gnu-apl--apl-symbol-pattern))
-           (indent-to-column i-label))
-          (t
-           (let ((function-start (save-excursion
-                                   (search-backward-regexp
-                                    "^[ \t]*∇[ \t]*[^ \t]" nil t)))
-                 (function-end (save-excursion
-                                 (search-forward-regexp
-                                  "^[ \t]*∇[ \t]*$" nil t)))
-                 (prev-function-end (save-excursion
-                                      (search-backward-regexp
-                                       "^[ \t]*∇[ \t]*$" nil t))))
-             (if (and function-start
-                      function-end
-                      (or (not prev-function-end)
-                          (< prev-function-end function-start))
-                      (< function-start function-end))
-                 (if (looking-at "⍝")
-                     (indent-to-column i-comment)
-                   (indent-to-column i-other))
-               (indent-to-column 0))))))
-    nil)
+    (beginning-of-line)
+    (re-search-forward "\\=[ \t]*" nil t)
+    (destructuring-bind (i-header i-comment i-label i-other)
+        gnu-apl-indent-amounts
+      (cond ((looking-at "∇")
+             (indent-to-column 0)
+             (re-search-forward "∇[ \t]*" nil t)
+             (when (not (char-equal (char-after) ?\n))
+               (replace-match (format "∇%s" (make-string i-header 32)))))
+            ((looking-at (format "%s:" gnu-apl--apl-symbol-pattern))
+             (indent-to-column i-label))
+            (t
+             (let ((function-start (save-excursion
+                                     (search-backward-regexp
+                                      "^[ \t]*∇[ \t]*[^ \t]" nil t)))
+                   (function-end (save-excursion
+                                   (search-forward-regexp
+                                    "^[ \t]*∇[ \t]*$" nil t)))
+                   (prev-function-end (save-excursion
+                                        (search-backward-regexp
+                                         "^[ \t]*∇[ \t]*$" nil t))))
+               (if (and function-start
+                        function-end
+                        (or (not prev-function-end)
+                            (< prev-function-end function-start))
+                        (< function-start function-end))
+                   (if (looking-at "⍝")
+                       (indent-to-column i-comment)
+                     (indent-to-column i-other))
+                 (indent-to-column 0))))))
+    nil))
 
 (defun gnu-apl-indent ()
-  ;; No indentation unless the cursor is at the beginning of the line
-  (if (save-excursion (search-backward-regexp "^[ \t]*\\=" nil t))
-      (gnu-apl--indent-this)
-    'noindent))
+  (gnu-apl--indent-this))
 
 ;;;
 ;;;  Support for expansion
