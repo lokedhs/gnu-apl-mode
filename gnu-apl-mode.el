@@ -472,6 +472,7 @@ Anything outside a function definition is not indented."
   (save-excursion
     (beginning-of-line)
     (re-search-forward "\\=[ \t]*" nil t)
+    (replace-match "")
     (destructuring-bind (i-header i-comment i-label i-other)
         gnu-apl-indent-amounts
       (cond ((looking-at "∇")
