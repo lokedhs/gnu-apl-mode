@@ -457,9 +457,6 @@ function or nil if the function could not be parsed."
 ;;;  Indentation support
 ;;;
 
-(defun gnu-apl--indent-safely (pos)
-  (indent-line-to (max pos 0)))
-
 (defun gnu-apl--full-function-definition-p (line &optional error-on-incorrect-format)
   (when (and (plusp (length line))
              (string= (subseq line 0 1) "∇"))
