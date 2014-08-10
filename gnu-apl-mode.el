@@ -466,22 +466,28 @@ function or nil if the function could not be parsed."
         (user-error "Incorrectly formatted function header"))
       parsed)))
 
+(defun gnu-apl--indent-to-column-properly (col)
+  (unless (= (current-column) col)
+    (beginning-of-line)
+    (re-search-forward "\\=[ \t]*" nil t)
+    (replace-match "")
+    (indent-to-column col)))
+
 (defun gnu-apl--indent-this ()
   "Indent a function, controlled by `gnu-apl--indent-amounts'.
 Anything outside a function definition is not indented."
   (save-excursion
     (beginning-of-line)
     (re-search-forward "\\=[ \t]*" nil t)
-    (replace-match "")
     (destructuring-bind (i-header i-comment i-label i-other)
         gnu-apl-indent-amounts
       (cond ((looking-at "∇")
-             (indent-to-column 0)
+             (gnu-apl--indent-to-column-properly 0)
              (re-search-forward "∇[ \t]*" nil t)
              (when (not (char-equal (char-after) ?\n))
                (replace-match (format "∇%s" (make-string i-header 32)))))
             ((looking-at (format "%s:" gnu-apl--apl-symbol-pattern))
-             (indent-to-column i-label))
+             (gnu-apl--indent-to-column-properly i-label))
             (t
              (let ((function-start (save-excursion
                                      (search-backward-regexp
@@ -498,9 +504,9 @@ Anything outside a function definition is not indented."
                             (< prev-function-end function-start))
                         (< function-start function-end))
                    (if (looking-at "⍝")
-                       (indent-to-column i-comment)
-                     (indent-to-column i-other))
-                 (indent-to-column 0))))))
+                       (gnu-apl--indent-to-column-properly i-comment)
+                     (gnu-apl--indent-to-column-properly i-other))
+                 (gnu-apl--indent-to-column-properly 0))))))
     nil))
 
 (defun gnu-apl-indent ()
