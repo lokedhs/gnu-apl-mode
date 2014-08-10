@@ -583,7 +583,7 @@ used in `completion-at-point-functions'."
 (add-to-list 'auto-mode-alist '("\\.apl\\'" . gnu-apl-mode))
 
 ;;;###autoload
-(add-to-list 'interpreter-mode-alist '("gnu-apl" . gnu-apl-mode))
+(add-to-list 'interpreter-mode-alist '("apl" . gnu-apl-mode))
 
 (eval-after-load 'speedbar
   '(speedbar-add-supported-extension ".apl"))
