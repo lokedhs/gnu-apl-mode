@@ -262,7 +262,9 @@ documentation will not be loaded.")
       (list (add-assignment-syntax (format "\\(%s\\)" s))
             (add-assignment-syntax (format "\\(?:%s +\\)?\\(%s\\)%s +%s" s s f s))
             (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) *)%s +%s" s s s f s))
-            (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) +%s)%s +%s" s s s s f s))))))
+            (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) +%s)%s +%s" s s s s f s)))))
+  "List of regexps that matches a function declaration header.
+The first parenthised substring is the name of the function.")
 
 (defun gnu-apl--match-function-head (limit)
   (loop for pattern in gnu-apl--function-declaration-patterns
