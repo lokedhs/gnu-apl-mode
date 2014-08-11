@@ -36,6 +36,9 @@ GNU APL interpreter."
   (message "Region sent to APL"))
 
 (defun gnu-apl--function-definition-to-list (content)
+  "Given a function definition as returned by ⌷CR 'function',
+split the definition into lines, where the first line has
+normalised to a normal function definition form."
   (let ((rows (split-string content "\r?\n")))
     (let ((definition (gnu-apl--trim-spaces (car rows)))
           (body (cdr rows)))
@@ -170,6 +173,9 @@ successfully."
   (run-at-time "0 sec" nil #'(lambda () (gnu-apl-open-external-function-buffer lines))))
 
 (defun gnu-apl-open-external-function-buffer (lines)
+  "Open a buffer for editing the function whose is a list of
+strings in LINES. The input should not contain any nabla
+characters."
   (let ((window-configuration (current-window-configuration))
         (buffer (get-buffer-create "*gnu-apl edit function*")))
     (pop-to-buffer buffer)

@@ -319,13 +319,14 @@ function or nil if the function could not be parsed."
       parsed)))
 
 (defun gnu-apl--indent-to-column-properly (col)
+  "Ensure that the current line is indented to COL."
   (unless (= (current-column) col)
     (beginning-of-line)
     (re-search-forward "\\=[ \t]*" nil t)
     (replace-match "")
     (indent-to-column col)))
 
-(defun gnu-apl--indent-this ()
+(defun gnu-apl-indent ()
   "Indent a function, controlled by `gnu-apl--indent-amounts'.
 Anything outside a function definition is not indented."
   (save-excursion
@@ -361,14 +362,12 @@ Anything outside a function definition is not indented."
                  (gnu-apl--indent-to-column-properly 0))))))
     nil))
 
-(defun gnu-apl-indent ()
-  (gnu-apl--indent-this))
-
 ;;;
 ;;;  Support for expansion
 ;;;
 
 (defun gnu-apl--load-commands (prefix)
+  "Return a list of all system commands that start with PREFIX."
   (let ((results (gnu-apl--send-network-command-and-read "systemcommands")))
     (cl-remove-if-not #'(lambda (v)
                           (gnu-apl--string-match-start v prefix))
