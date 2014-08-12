@@ -115,9 +115,7 @@ The ∇s are always flush-left, as are all lines outside of functions."
            (and (listp v)
                 (= 4 (length v))
                 (every #'integerp v)
-                (every #'(lambda (n)
-                           (and (>= n 0) (<= n 6)))
-                       v)))
+                (every #'(lambda (n) (>= n 0)) v)))
   :group 'gnu-apl)
 
 ;;;###autoload
