@@ -189,15 +189,17 @@ function editor.
 
 (defvar gnu-apl-interactive-mode-map
   (let ((map (gnu-apl--make-mode-map "s-")))
+    (define-key map (kbd "TAB") 'completion-at-point)
     (define-key map (kbd "C-c C-f") 'gnu-apl-edit-function)
     (define-key map (kbd "C-c C-v") 'gnu-apl-edit-variable)
     (define-key map (kbd "C-c C-m") 'gnu-apl-plot-line)
     (define-key map [menu-bar gnu-apl edit-function] '("Edit function" . gnu-apl-edit-function))
     (define-key map [menu-bar gnu-apl edit-matrix] '("Edit variable" . gnu-apl-edit-variable))
     (define-key map [menu-bar gnu-apl plot-line] '("Plot line graph of variable content" . gnu-apl-plot-line))
-    map))
+    map)
+  "The keymap for gnu-apl-interactive-mode")
 
-(define-derived-mode gnu-apl-interactive-mode comint-mode "GNU APL/Comint"
+(define-derived-mode gnu-apl-interactive-mode comint-mode "GNU-APL/Comint"
   "Major mode for interacting with GNU APL."
   :syntax-table gnu-apl-mode-syntax-table
   :group 'gnu-apl

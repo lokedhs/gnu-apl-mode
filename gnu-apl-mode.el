@@ -162,161 +162,11 @@ The ∇s are always flush-left, as are all lines outside of functions."
   "If this value is set to true prior to loading, the non-free
 documentation will not be loaded.")
 
-;;; ' ( ) + , - . /  :  ; < = >  ? [ ]
-;;; \ _ ¨ ¯ × ÷ ← ↑ → ↓ ∆ ∇ ∘ ∣ ∧ ∨
-;;; ∩ ∪ ∼ ≠ ≤ ≥ ≬ ⊂ ⊃ ⌈ ⌊ ⊤ ⊥ ⋆ ⌶ ⌷
-;;; ⌸ ⌹ ⌺ ⌻ ⌼ ⌽ ⌾ ⌿ ⍀ ⍁ ⍂ ⍃ ⍄ ⍅ ⍆ ⍇
-;;; ⍈ ⍉ ⍊ ⍋ ⍌ ⍍ ⍎ ⍏ ⍐ ⍑ ⍒ ⍓ ⍔ ⍕ ⍖ ⍗
-;;; ⍘ ⍙ ⍚ ⍛ ⍜ ⍝ ⍞ ⍟ ⍠ ⍡ ⍢ ⍣ ⍤ ⍥ ⍦ ⍧
-;;; ⍨ ⍩ ⍪ ⍫ ⍬ ⍭ ⍮ ⍯ ⍰ ⍱ ⍲ ⍳ ⍴ ⍵ ⍶ ⍷
-;;; ⍸ ⍹ ⍺ ⎕ ○
+;;;
+;;;  Keymap functions
+;;;
 
-;;; Keymap based on the image available at: http://www.sudleyplace.com/APL/Keyboard.ahtml
-;;; GNU APL keyboard layout: http://commons.wikimedia.org/wiki/File:GNU_APL_keyboard_layout.png
-(defvar gnu-apl--symbols '(;; Top row
-                           ;; `
-                           ("diamond" "◊" "`")
-                           ;; 1
-                           ("diaeresis" "¨" "1")
-                           ("i-beam" "⌶" "!")
-                           ;; 2
-                           ("macron" "¯" "2")
-                           ("del-tilde" "⍫" "@")
-                           ;; 3
-                           ("less-than" "<" "3")
-                           ("del-stile" "⍒" "#")
-                           ;; 4
-                           ("less-than-or-equal-to" "≤" "4")
-                           ("delta-stile" "⍋" "$")
-                           ;; 5
-                           ("equals" "=" "5")
-                           ("circle-stile" "⌽" "%")
-                           ;; 6
-                           ("greater-than-or-equal-to" "≥" "6")
-                           ("circle-backslash" "⍉" "^")
-                           ;; 7
-                           ("greater-than" ">" "7")
-                           ("circled-minus" "⊖" "&")
-                           ;; 8
-                           ("not-equal-to" "≠" "8")
-                           ("circle-star" "⍟" "*")
-                           ;; 9
-                           ("logical-or" "∨" "9")
-                           ("down-caret-tilde" "⍱" "(")
-                           ;; 0
-                           ("logical-and" "∧" "0")
-                           ("up-caret-tilde" "⍲" ")")
-                           ;; -
-                           ("multiplication-sign" "×" "-")
-                           ("exclamation-mark" "!" "_")
-                           ;; =
-                           ("division-sign" "÷" "=")
-                           ("quad-divide" "⌹" "+")
-
-                           ;; First row
-                           ;; q
-                           ("question-mark" "?" "q")
-                           ;; w
-                           ("omega" "⍵" "w")
-                           ("omega-underbar" "⍹" "W")
-                           ;; e
-                           ("epsilon" "∊" "e")
-                           ("epsilon-underbar" "⍷" "E")
-                           ;; r
-                           ("rho" "⍴" "r")
-                           ;; t
-                           ("tilde" "∼" "t")
-                           ("tilde-diaeresis" "⍨" "T")
-                           ;; y
-                           ("uparrow" "↑" "y")
-                           ("yen-sign" "¥" "Y")
-                           ;; u
-                           ("downarrow" "↓" "u")
-                           ;; i
-                           ("iota" "⍳" "i")
-                           ("iota-underbar" "⍸" "I")
-                           ;; o
-                           ("circle" "○" "o")
-                           ("circle-diaeresis" "⍥" "O")
-                           ;; p
-                           ("star-operator" "⋆" "p")
-                           ("star-diaeresis" "⍣" "P")
-                           ;; [
-                           ("leftarrow" "←" "[")
-                           ("quote-quad" "⍞" "{")
-                           ;; ]
-                           ("rightarrow" "→" "]")
-                           ("zilde" "⍬" "}")
-                           ;; \
-                           ("right-tack" "⊢" "\\")
-                           ("left-tack" "⊣" "|")
-
-                           ;; Second row
-                           ;; a
-                           ("alpha" "⍺" "a")
-                           ("alpha-underbar" "⍶" "A")
-                           ;; s
-                           ("left-ceiling" "⌈" "s")
-                           ;; d
-                           ("left-floor" "⌊" "d")
-                           ;; f
-                           ("underscore" "_" "f")
-                           ("del-tilde" "⍫" "F")
-                           ;; g
-                           ("nabla" "∇" "g")
-                           ;; h
-                           ("increment" "∆" "h")
-                           ("delta-underbar" "⍙" "H")
-                           ;; j
-                           ("ring-operator" "∘" "j")
-                           ("jot-diaeresis" "⍤" "J")
-                           ;; k
-                           ("apostrophe" "'" "k")
-                           ("quad-diamond" "⌺" "K")
-                           ;; l
-                           ("quad" "⎕" "l")
-                           ("squish-quad" "⌷" "L")
-                           ;; ;
-                           ("down-tack-jot" "⍎" ";")
-                           ("identical-to" "≡" ":")
-                           ;; '
-                           ("up-tack-jot" "⍕" "'")
-                           ("not-identical-to" "≢" "\"")
-
-                           ;; Third row
-                           ;; z
-                           ("subset-of" "⊂" "z")
-                           ;; x
-                           ("superset-of" "⊃" "x")
-                           ("greek-letter-chi" "χ" "X")
-                           ;; c
-                           ("intersection" "∩" "c")
-                           ("left-shoe-stile" "⍧" "C")
-                           ;; v
-                           ("union" "∪" "v")
-                           ;; b
-                           ("up-tack" "⊥" "b")
-                           ("pound-sign" "£" "B")
-                           ;; n
-                           ("down-tack" "⊤" "n")
-                           ;; m
-                           ("divides" "|" "m")
-                           ;; ,
-                           ("shoe-jot" "⍝" ",")
-                           ("comma-bar" "⍪" "<")
-                           ;; .
-                           ("backslash-bar" "⍀" ">")
-                           ;; /
-                           ("slash-bar" "⌿" "/")
-                           ("quad-colon" "⍠" "?")
-                           
-                           ;; Extras
-                           ("pi" "π")
-                           ("root" "√")
-                           ("inverted-exclamation-mark" "¡")
-                           ("quad-backslash" "⍂")
-                           ("inverted-question-mark" "¿")
-                           ))
+(load "gnu-apl-symbols")
 
 (defun gnu-apl--make-key-command-sym (n)
   (intern (concat "insert-sym-apl-" n)))
@@ -410,7 +260,9 @@ documentation will not be loaded.")
       (list (add-assignment-syntax (format "\\(%s\\)" s))
             (add-assignment-syntax (format "\\(?:%s +\\)?\\(%s\\)%s +%s" s s f s))
             (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) *)%s +%s" s s s f s))
-            (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) +%s)%s +%s" s s s s f s))))))
+            (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) +%s)%s +%s" s s s s f s)))))
+  "List of regexps that matches a function declaration header.
+The first parenthised substring is the name of the function.")
 
 (defun gnu-apl--match-function-head (limit)
   (loop for pattern in gnu-apl--function-declaration-patterns
@@ -427,7 +279,7 @@ function or nil if the function could not be parsed."
           when (string-match (concat "^" pattern) line)
           return (match-string 1 line))))
 
-(define-derived-mode gnu-apl-mode prog-mode "GNU APL"
+(define-derived-mode gnu-apl-mode prog-mode "GNU-APL"
   "Major mode for editing GNU APL files."
   :syntax-table gnu-apl-mode-syntax-table
   :group 'gnu-apl
@@ -455,9 +307,6 @@ function or nil if the function could not be parsed."
 ;;;  Indentation support
 ;;;
 
-(defun gnu-apl--indent-safely (pos)
-  (indent-line-to (max pos 0)))
-
 (defun gnu-apl--full-function-definition-p (line &optional error-on-incorrect-format)
   (when (and (plusp (length line))
              (string= (subseq line 0 1) "∇"))
@@ -467,7 +316,15 @@ function or nil if the function could not be parsed."
         (user-error "Incorrectly formatted function header"))
       parsed)))
 
-(defun gnu-apl--indent-this ()
+(defun gnu-apl--indent-to-column-properly (col)
+  "Ensure that the current line is indented to COL."
+  (unless (= (current-column) col)
+    (beginning-of-line)
+    (re-search-forward "\\=[ \t]*" nil t)
+    (replace-match "")
+    (indent-to-column col)))
+
+(defun gnu-apl-indent ()
   "Indent a function, controlled by `gnu-apl--indent-amounts'.
 Anything outside a function definition is not indented."
   (save-excursion
@@ -476,12 +333,12 @@ Anything outside a function definition is not indented."
     (destructuring-bind (i-header i-comment i-label i-other)
         gnu-apl-indent-amounts
       (cond ((looking-at "∇")
-             (indent-to-column 0)
+             (gnu-apl--indent-to-column-properly 0)
              (re-search-forward "∇[ \t]*" nil t)
              (when (not (char-equal (char-after) ?\n))
                (replace-match (format "∇%s" (make-string i-header 32)))))
             ((looking-at (format "%s:" gnu-apl--apl-symbol-pattern))
-             (indent-to-column i-label))
+             (gnu-apl--indent-to-column-properly i-label))
             (t
              (let ((function-start (save-excursion
                                      (search-backward-regexp
@@ -498,19 +355,17 @@ Anything outside a function definition is not indented."
                             (< prev-function-end function-start))
                         (< function-start function-end))
                    (if (looking-at "⍝")
-                       (indent-to-column i-comment)
-                     (indent-to-column i-other))
-                 (indent-to-column 0))))))
+                       (gnu-apl--indent-to-column-properly i-comment)
+                     (gnu-apl--indent-to-column-properly i-other))
+                 (gnu-apl--indent-to-column-properly 0))))))
     nil))
-
-(defun gnu-apl-indent ()
-  (gnu-apl--indent-this))
 
 ;;;
 ;;;  Support for expansion
 ;;;
 
 (defun gnu-apl--load-commands (prefix)
+  "Return a list of all system commands that start with PREFIX."
   (let ((results (gnu-apl--send-network-command-and-read "systemcommands")))
     (cl-remove-if-not #'(lambda (v)
                           (gnu-apl--string-match-start v prefix))
@@ -577,7 +432,7 @@ used in `completion-at-point-functions'."
 (add-to-list 'auto-mode-alist '("\\.apl\\'" . gnu-apl-mode))
 
 ;;;###autoload
-(add-to-list 'interpreter-mode-alist '("gnu-apl" . gnu-apl-mode))
+(add-to-list 'interpreter-mode-alist '("apl" . gnu-apl-mode))
 
 (eval-after-load 'speedbar
   '(speedbar-add-supported-extension ".apl"))
