@@ -26,7 +26,7 @@ dervived from the APL2 documentation.")
     map)
   "Keymap for keymap mode buffers")
 
-(define-derived-mode gnu-apl-keymap-mode fundamental-mode "GNU APL Keymap"
+(define-derived-mode gnu-apl-keymap-mode fundamental-mode "GNU-APL-Keymap"
   "Major mode for displaying the keymap help."
   (use-local-map gnu-apl-keymap-mode-map)
   (read-only-mode 1)
@@ -121,7 +121,7 @@ dervived from the APL2 documentation.")
     map)
   "Keymap for keymap mode buffers")
 
-(define-derived-mode gnu-apl-documentation-mode fundamental-mode "GNU APL Documentation"
+(define-derived-mode gnu-apl-documentation-mode fundamental-mode "GNU-APL-Documentation"
   "Major mode for displaying GNU APL documentation"
   (use-local-map gnu-apl-documentation-mode-map))
 
@@ -340,7 +340,7 @@ if it is open."
     map)
   "Keymap for keymap mode buffers")
 
-(define-derived-mode gnu-apl-documentation-search-mode fundamental-mode "GNU APL Documentation"
+(define-derived-mode gnu-apl-documentation-search-mode fundamental-mode "GNU-APL-Documentation"
   "Major mode for displaying GNU APL documentation search results."
   (use-local-map gnu-apl-documentation-mode-map))
 

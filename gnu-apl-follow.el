@@ -22,7 +22,7 @@
     (define-key map (kbd "q") 'gnu-apl-trace-mode-kill-buffer)
     map))
 
-(define-derived-mode gnu-apl-trace-mode fundamental-mode "GNU APL Variable"
+(define-derived-mode gnu-apl-trace-mode fundamental-mode "GNU-APL-Variable"
   "Major mode for live display of variable content"
   (use-local-map gnu-apl-trace-mode-map)
   (read-only-mode 1)
