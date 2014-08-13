@@ -189,6 +189,8 @@ documentation will not be loaded.")
         (define-key map (kbd "C-c C-k") 'gnu-apl-show-keyboard)
         (define-key map (kbd "C-c C-h") 'gnu-apl-show-help-for-symbol)
         (define-key map (kbd "C-c C-a") 'gnu-apl-apropos-symbol)
+        (define-key map (kbd "C-M-a") 'gnu-apl-beginning-of-defun)
+        (define-key map (kbd "C-M-e") 'gnu-apl-end-of-defun)
         (define-key map (kbd "M-.") 'gnu-apl-find-function-at-point)
         (define-key map (kbd "C-c C-.") 'gnu-apl-trace)
         (define-key map [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
@@ -414,9 +416,40 @@ used in `completion-at-point-functions'."
                 gnu-apl--function-declaration-patterns)))
 
 ;;;
-;;;  Load the other source files
+;;;  Movement
 ;;;
 
+(defun gnu-apl-beginning-of-defun ()
+  "Go beginning of function. If point is not located whithin a
+function, go to `point-min'."
+  (interactive)
+  (let* ((positions (mapcan #'(lambda (pattern)
+                                       (save-excursion
+                                         (if (re-search-backward (concat "^∇ *" pattern) nil t)
+                                             (list (point))
+                                           nil)))
+                                   gnu-apl--function-declaration-patterns))
+         (pos (if positions (reduce #'max positions) nil)))
+    (if pos
+        (progn
+          (goto-char pos)
+          (beginning-of-line))
+      (goto-char (point-min)))))
+
+(defun gnu-apl-end-of-defun ()
+  "Go to the end of the function. If the cursor is not located
+within a function, got o `point-max'."
+  (interactive)
+  (beginning-of-line)
+  (next-line)
+  (if (re-search-forward "^[ \t]*∇[ \t]*$" nil t)
+      (beginning-of-line)
+    (goto-char (point-max))))
+
+;;;
+;;;  Load the other source files
+;;;
+  
 (load "gnu-apl-input")
 (load "gnu-apl-interactive")
 (load "gnu-apl-editor")
