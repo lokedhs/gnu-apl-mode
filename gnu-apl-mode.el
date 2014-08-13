@@ -97,7 +97,7 @@ automatically disabled anyway.")
   :type '(repeat string)
   :group 'gnu-apl)
 
-(defvar gnu-apl-use-new-native-library nil
+(defvar gnu-apl-use-new-native-library t
   "If non-nil, use the new-style native library.
 Enabling this option requires the use of at least GNU APL version 1.4
 or the latest version from the subversion repository.")
