@@ -1,7 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
 (require 'cl)
-(require 'thingatpt)
 (require 'comint)
 (require 'etags)
 

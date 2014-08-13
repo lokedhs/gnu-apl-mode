@@ -55,6 +55,11 @@
       (beginning-of-line)
       (1+ (count-lines 1 (point))))))
 
+(defun gnu-apl--current-line-string ()
+  (let ((start (save-excursion (beginning-of-line) (point)))
+        (end (save-excursion (end-of-line) (point))))
+    (buffer-substring start end)))
+
 (unless (fboundp 'cl-find)
   (defun cl-find (&rest args)
     (apply #'find args)))

@@ -59,7 +59,7 @@ The block is bounded by a function definition of the form
 
   (save-excursion
     (beginning-of-line)
-    (let ((start (loop for line = (gnu-apl--trim-spaces (thing-at-point 'line))
+    (let ((start (loop for line = (gnu-apl--trim-spaces (gnu-apl--current-line-string))
                        when (gnu-apl--full-function-definition-p line t)
                        return (point)
                        when (plusp (forward-line -1))
@@ -71,7 +71,7 @@ The block is bounded by a function definition of the form
         (user-error "No end marker found"))
 
       (let ((end (loop for line = (gnu-apl--trim-trailing-newline
-                                   (gnu-apl--trim-spaces (thing-at-point 'line)))
+                                   (gnu-apl--trim-spaces (gnu-apl--current-line-string)))
                        when (string= line "∇")
                        return (progn (forward-line -1) (end-of-line) (point))
                        when (plusp (forward-line 1))
@@ -140,7 +140,7 @@ successfully."
   "Save the currently edited function."
   (interactive)
   (goto-char (point-min))
-  (let ((definition (gnu-apl--trim-spaces (gnu-apl--trim-trailing-newline (thing-at-point 'line)))))
+  (let ((definition (gnu-apl--trim-spaces (gnu-apl--trim-trailing-newline (gnu-apl--current-line-string)))))
     (unless (string= (subseq definition 0 1) "∇")
       (user-error "Function header does not start with function definition symbol"))
     (unless (zerop (forward-line))
