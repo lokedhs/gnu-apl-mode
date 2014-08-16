@@ -310,7 +310,20 @@ are not of the value 0 or 1, a DOMAIN ERROR will be raised.")
     ;; ========================================
 
     ("⊤"
-     (("Dyadic" "Encode" "Yields the representation of L in the number system whose radices are R"))))
+     (("Dyadic" "Encode" "Yields the representation of L in the number system whose radices are R")))
+
+    ;; ========================================
+
+    ("⊢"
+     (("Monadic" "Identity" "Return R.")
+      ("Dyadic" "Right" "Return R.")))
+
+    ;; ========================================
+
+    ("⊣"
+     (("Monadic" "Identity computed" "Returns R, marked as being computed.")
+      ("Dyadic" "Left" "Return L."))))
+
   "Documentation for APL symbols. Each element is a list of six
 elements: The APL symbol, name of monadic operator, description
 of the monadic operator, name of the dyadic operator, description
