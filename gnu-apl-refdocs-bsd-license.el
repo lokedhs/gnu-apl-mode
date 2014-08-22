@@ -241,12 +241,14 @@ are not of the value 0 or 1, a DOMAIN ERROR will be raised.")
     ;; ========================================
 
     ("⍋"
-     (("Monadic" "Grade up" "Indices of R which will arrange R in ascending order")))
+     (("Monadic" "Grade up" "Indices of R which will arrange R in ascending order")
+      ("Dyadic" "Grade up with collation sequence" "Indices of R which will arrange R in ascending order based on collating sequence L")))
 
     ;; ========================================
 
     ("⍒"
-     (("Monadic" "Grade down" "Indices of R which will arrange R in descending order")))
+     (("Monadic" "Grade down" "Indices of R which will arrange R in descending order")
+      ("Dyadic" "Grade down with collation sequence" "Indices of R which will arrange R in descending order based on collating sequence L")))
 
     ;; ========================================
 
