@@ -439,7 +439,7 @@ function, go to `point-min'."
 
 (defun gnu-apl-end-of-defun ()
   "Go to the end of the function. If the cursor is not located
-within a function, got o `point-max'."
+within a function, go to `point-max'."
   (interactive)
   (beginning-of-line)
   (next-line)
