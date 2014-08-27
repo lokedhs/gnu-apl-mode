@@ -230,6 +230,8 @@ documentation will not be loaded.")
   (set (make-local-variable 'comment-start) "⍝")
   (set (make-local-variable 'comment-padding) " ")
   (set (make-local-variable 'comment-end) "")
+  (when (featurep 'company)
+    (add-to-list (make-local-variable 'company-backends) 'company-gnu-apl))
   ;; TODO: It's an open question as to whether the below is a good idea
   ;; or if a user should manually set this from the hook
   ;;(setq buffer-face-mode-face 'gnu-apl-default)
@@ -462,7 +464,11 @@ within a function, got o `point-max'."
          nil)))
 
 (eval-after-load 'company
-  '(add-to-list 'company-backends 'company-gnu-apl))
+  (dolist (buffer (buffer-list))
+    (with-current-buffer buffer
+      (when (or (eq major-mode 'gnu-apl-mode) (eq major-mode 'gnu-apl-interactive-mode))
+        (add-to-list (make-local-variable 'company-backends) 'company-gnu-apl)))))
+
 
 ;;;
 ;;;  Load the other source files
