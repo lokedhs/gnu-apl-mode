@@ -446,6 +446,25 @@ within a function, got o `point-max'."
     (goto-char (point-max))))
 
 ;;;
+;;;  Company support
+;;;
+
+(defun company-gnu-apl (command &optional arg &rest ignored)
+  (interactive (list 'interactive))
+  (cond ((eq command 'interactive)
+         (company-begin-backend 'company-gnu-apl))
+        ((or (eq command 'prefix) (eq command 'candidates))
+         (let ((result (gnu-apl-expand-symbol)))
+           (case command
+             (prefix (if result (buffer-substring (first result) (second result)) nil))
+             (candidates (third result)))))
+        ((eq command 'meta)
+         nil)))
+
+(eval-after-load 'company
+  '(add-to-list 'company-backends 'company-gnu-apl))
+
+;;;
 ;;;  Load the other source files
 ;;;
   
