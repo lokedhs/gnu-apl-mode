@@ -303,3 +303,10 @@ to `gnu-apl-executable')."
                    (message "%s: No source information" resolved-name))
                   (t
                    (error "Unexpected tag format: %S" reference)))))))))
+
+(defun gnu-apl-switch-to-interactive ()
+  "Switch to the GNU APL interaction buffer if it has been started."
+  (interactive)
+  (let ((buffer (gnu-apl--get-interactive-session)))
+    (pop-to-buffer buffer)
+    (goto-char (point-max))))
