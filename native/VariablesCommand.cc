@@ -33,6 +33,7 @@ enum TypeSpec {
 void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<std::string> &args )
 {
     stringstream out;
+    bool tagged = false;
 
     TypeSpec cls = ALL;
     if( args.size() >= 2 ) {
@@ -42,6 +43,10 @@ void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<s
         }
         else if( typespec == "function" ) {
             cls = FUNCTION;
+        }
+        else if( typespec == "tagged" ) {
+            cls = ALL;
+            tagged = true;
         }
         else {
             CERR << "Illegal variable type: " << typespec << endl;
@@ -59,12 +64,17 @@ void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<s
             if( (cls == ALL && (symbol_nc == NC_VARIABLE || symbol_nc == NC_FUNCTION || symbol_nc == NC_OPERATOR))
                 || (cls == VARIABLE && symbol_nc == NC_VARIABLE)
                 || (cls == FUNCTION && (symbol_nc == NC_FUNCTION || symbol_nc == NC_OPERATOR)) ) {
-                out << symbol->get_name() << "\n";
+                out << symbol->get_name();
+                if( tagged ) {
+                    out << " " << symbol_nc;
+                }
+                out << "\n";
             }
         }
     }
 
-    conn.send_reply( out.str() );
+    out << END_TAG << "\n";
+    conn.write_string_to_fd( out.str() );
 
     delete[] symbols;
 }
