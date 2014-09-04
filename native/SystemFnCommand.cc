@@ -29,7 +29,7 @@ void SystemFnCommand::run_command( NetworkConnection &conn, const std::vector<st
 {
     stringstream out;
 
-#define cmd_def(NAME, CMD, ARG) out << NAME << "\n";
+#define cmd_def(NAME, CMD, ARG, HINT) out << NAME << "\n";
 #include "../Command.def"
 
     for( vector<Command::user_command>::iterator i = Command::user_commands.begin() ; i != Command::user_commands.end() ; i++ ) {
