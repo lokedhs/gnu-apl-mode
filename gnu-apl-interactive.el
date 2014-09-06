@@ -256,12 +256,12 @@ to `gnu-apl-executable')."
         (gnu-apl--insert-tips))
       (apply #'make-comint-in-buffer
              "apl" buffer resolved-binary nil
-             "--emacs" (append
-                        (if (and gnu-apl-native-communication gnu-apl-use-new-native-library)
-                            (list "--emacs_arg" (int-to-string gnu-apl-native-listener-port)))
-                        (if (not gnu-apl-show-apl-welcome)
-                            (list "--silent"))
-                        gnu-apl-program-extra-args))
+             "--rawCIN" "--noRL" "--emacs" (append
+                                            (if (and gnu-apl-native-communication gnu-apl-use-new-native-library)
+                                                (list "--emacs_arg" (int-to-string gnu-apl-native-listener-port)))
+                                            (if (not gnu-apl-show-apl-welcome)
+                                                (list "--silent"))
+                                            gnu-apl-program-extra-args))
       (setq gnu-apl-current-session buffer)
 
       (gnu-apl-interactive-mode)
