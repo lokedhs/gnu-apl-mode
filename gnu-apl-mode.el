@@ -82,9 +82,9 @@ If -1, request the use of Unix domain sockets."
 ;;; This parameter is not customisable since there are very few cases
 ;;; where it would need to be changed.
 (defvar gnu-apl-native-communication t
-  "Enable the use of the Emacs native library that is part of GNU
-APL. This library provides a communications channel that
-gnu-apl-mode can use to communicate with the APL interpreter.
+  "Enable the use of the Emacs native library that is part of GNU APL.
+This library provides a communications channel that
+`gnu-apl-mode' can use to communicate with the APL interpreter.
 Normally, this value should be set to t, as without it many
 functions will not work. If this option is set to t, and the
 library fails to load for some reason, the features will be
@@ -93,7 +93,7 @@ automatically disabled anyway.")
 ;;;###autoload
 (defcustom gnu-apl-program-extra-args nil
   "List of strings containing extra commandline arguments to pass
-  to the apl binary."
+to the apl binary."
   :type '(repeat string)
   :group 'gnu-apl)
 
@@ -207,7 +207,7 @@ documentation will not be loaded.")
     (define-key map (kbd "C-c C-l") 'gnu-apl-interactive-send-buffer)
     (define-key map (kbd "C-c C-z") 'gnu-apl-switch-to-interactive)
     map)
-  "The keymap for gnu-apl-mode")
+  "The keymap for `gnu-apl-mode'.")
 
 (defvar gnu-apl-mode-syntax-table
   (let ((table (make-syntax-table)))
@@ -222,10 +222,10 @@ documentation will not be loaded.")
     (modify-syntax-entry (aref "⍙" 0) "w" table)
     (modify-syntax-entry ?\\ "." table)
     table)
-  "Syntax table for gnu-apl-mode")
+  "Syntax table for `gnu-apl-mode'.")
 
 (defun gnu-apl--init-mode-common ()
-  "Generic initialisation code for all gnu-apl modes"
+  "Generic initialisation code for all gnu-apl modes."
   (set (make-local-variable 'eldoc-documentation-function) 'gnu-apl--eldoc-data)
   (set (make-local-variable 'completion-at-point-functions) '(gnu-apl-expand-symbol))
   (set (make-local-variable 'comment-start) "⍝")
@@ -276,8 +276,8 @@ The first parenthised substring is the name of the function.")
         finally (return nil)))
 
 (defun gnu-apl--parse-function-header (string)
-  "Parse a function definition string. Returns the name of the
-function or nil if the function could not be parsed."
+  "Parse a function definition string.
+Returns the name of the function or nil if the function could not be parsed."
   (let* ((line (gnu-apl--trim-spaces string)))
     (loop for pattern in gnu-apl--function-declaration-patterns
           when (string-match (concat "^" pattern) line)
@@ -376,8 +376,8 @@ Anything outside a function definition is not indented."
                       results)))
 
 (defun gnu-apl-expand-symbol ()
-  "Implementation of expansion. This function is designed to be
-used in `completion-at-point-functions'."
+  "Implementation of expansion.
+This function is designed to be used in `completion-at-point-functions'."
   (let* ((row (buffer-substring (save-excursion (beginning-of-line) (point)) (point))))
     ;; Check for system commands
     (if (string-match "^[ \t]*\\([])][a-zA-Z0-9]*\\)$" row)
@@ -422,8 +422,8 @@ used in `completion-at-point-functions'."
 ;;;
 
 (defun gnu-apl-beginning-of-defun ()
-  "Go beginning of function. If point is not located whithin a
-function, go to `point-min'."
+  "Go beginning of function.
+If point is not located whithin a function, go to `point-min'."
   (interactive)
   (let* ((positions (mapcan #'(lambda (pattern)
                                        (save-excursion
@@ -439,8 +439,8 @@ function, go to `point-min'."
       (goto-char (point-min)))))
 
 (defun gnu-apl-end-of-defun ()
-  "Go to the end of the function. If the cursor is not located
-within a function, go to `point-max'."
+  "Go to the end of the function.
+If the cursor is not located within a function, go to `point-max'."
   (interactive)
   (beginning-of-line)
   (next-line)
@@ -453,6 +453,7 @@ within a function, go to `point-max'."
 ;;;
 
 (defun company-gnu-apl (command &optional arg &rest ignored)
+  "Backend for for `company-mode' for GNU APL."
   (interactive (list 'interactive))
   (cond ((eq command 'interactive)
          (company-begin-backend 'company-gnu-apl))

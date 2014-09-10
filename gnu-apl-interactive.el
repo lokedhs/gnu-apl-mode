@@ -10,6 +10,9 @@ This shouldn't normally need to be changed except when doing
 development of the native code.")
 
 (defun gnu-apl-interactive-send-string (string &optional file line)
+  "Send STRING to the current active interpreter.
+If given, FILE and LINE indicates the file and location where the
+code was read from."
   (let ((content (split-string string "\n")))
     (gnu-apl--send-network-command (concat "sendcontent"
                                            (if (and file line)
@@ -42,7 +45,7 @@ development of the native code.")
 (defvar *gnu-apl-network-end* "NATIVE-STARTUP-END")
 
 (defun gnu-apl--send (proc string)
-  "Filter for any commands that are sent to comint"
+  "Filter for any commands that are sent to comint."
   (let* ((trimmed (gnu-apl--trim-spaces string)))
     (cond ((and gnu-apl-auto-function-editor-popup
                 (plusp (length trimmed))
@@ -197,7 +200,7 @@ function editor.
     (define-key map [menu-bar gnu-apl edit-matrix] '("Edit variable" . gnu-apl-edit-variable))
     (define-key map [menu-bar gnu-apl plot-line] '("Plot line graph of variable content" . gnu-apl-plot-line))
     map)
-  "The keymap for gnu-apl-interactive-mode")
+  "The keymap for `gnu-apl-interactive-mode'.")
 
 (define-derived-mode gnu-apl-interactive-mode comint-mode "GNU-APL/Comint"
   "Major mode for interacting with GNU APL."
