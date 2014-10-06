@@ -72,7 +72,7 @@ void DefCommand::run_command( NetworkConnection &conn, const std::vector<std::st
                     out << "error\n"
                         << "parse error\n"
                         << "Error parsing expression\n"
-                        << value->get_ravel( 0 ).get_int_value();
+                        << value->get_ravel( 0 ).get_int_value() - Workspace::get_IO() + 1;
                 }
                 else if( value->is_char_string() ) {
                     out << "function defined\n"
