@@ -4,6 +4,8 @@
 ;;; Keymap buffer
 ;;;
 
+(require 'cl)
+
 (defvar *gnu-apl-keymap-buffer-name* "*gnu-apl keymap*")
 
 (defvar gnu-apl--ibm-copyright-notice
@@ -149,10 +151,10 @@ dervived from the APL2 documentation.")
 (defun gnu-apl-show-help-for-symbol (symbol)
   "Open the help window for SYMBOL."
   (interactive (list (let ((default-sym (gnu-apl--name-at-point)))
-                       (read-input (if default-sym
-                                       (format "Symbol (default '%s'): " default-sym)
-                                     "Symbol: ")
-                                   nil nil default-sym t))))
+                       (read-string (if default-sym
+                                        (format "Symbol (default '%s'): " default-sym)
+                                      "Symbol: ")
+                                    nil nil default-sym t))))
   (when (or (null symbol) (string= symbol ""))
     (error "Symbol is empty"))
   (let ((string (gnu-apl--get-full-docstring-for-symbol symbol)))

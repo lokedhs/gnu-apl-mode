@@ -1,5 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
+(require 'cl)
+
 (defun gnu-apl--make-trace-buffer-name (varname)
   (format "*gnu-apl trace %s*" varname))
 
@@ -91,7 +93,7 @@ content."
                        (let ((level (read-from-minibuffer "CR level: ")))
                          (if (string= level "")
                              nil
-                           (string-to-int level))))))
+                           (string-to-number level))))))
   (when (and cr-level (not (<= 1 cr-level 9)))
     (user-error "cr-level must be nil or between 1 and 9"))
   (with-current-buffer (gnu-apl--get-interactive-session)

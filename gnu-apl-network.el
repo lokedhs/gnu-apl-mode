@@ -1,5 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
+(require 'cl)
+
 (defvar *gnu-apl-end-tag* "APL_NATIVE_END_TAG")
 (defvar *gnu-apl-notification-start* "APL_NATIVE_NOTIFICATION_START")
 (defvar *gnu-apl-notification-end* "APL_NATIVE_NOTIFICATION_END")

@@ -1,5 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
+(require 'cl)
 (require 'quail)
 
 (quail-define-package "APL-Z" "UTF-8" "⍞" t

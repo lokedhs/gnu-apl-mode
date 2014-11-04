@@ -1,5 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
+(require 'cl)
+
 (defun gnu-apl--string-to-apl-expression (string)
   "Escape quotes in an APL string. If the string contains
 non-printable characters, generate a full expression. For now,

@@ -1,5 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
+(require 'cl)
+
 (defun gnu-apl-edit-function (name)
   "Open the function with the given name in a separate buffer.
 After editing the function, use `gnu-apl-save-function' to save
@@ -82,7 +84,7 @@ The block is bounded by a function definition of the form
           (overlay-put overlay 'face '(background-color . "green"))
           (run-at-time "0.5 sec" nil #'(lambda () (delete-overlay overlay))))
         (let ((function-lines (gnu-apl--function-definition-to-list (buffer-substring start end))))
-          (gnu-apl--send-si-and-send-new-function function-lines nil
+          (gnu-apl--send-si-and-send-new-function function-lines
                                                   (gnu-apl--make-tag (buffer-file-name)
                                                                      (line-number-at-pos start))))))))
 
@@ -97,8 +99,8 @@ The block is bounded by a function definition of the form
           ((string= (car return-data) "error")
            (if (string= (second return-data) "parse error")
                (let ((error-msg (third return-data))
-                     (line (string-to-int (fourth return-data))))
-                 (goto-line line)
+                     (line (string-to-number (fourth return-data))))
+                 (gnu-apl--move-to-line line)
                  (let ((overlay (make-overlay (save-excursion
                                                 (beginning-of-line)
                                                 (point))
@@ -109,13 +111,13 @@ The block is bounded by a function definition of the form
                    (run-at-time "0.5 sec" nil #'(lambda () (delete-overlay overlay))))
                  (message "Error on line %d: %s" line error-msg)
                  nil)
-             (error "Unexpected error: " (second return-data))))
+             (error "Unexpected error: %s" (second return-data))))
           (t
            (gnu-apl--display-error-buffer (format "Error second function: %s" (car content))
                                           (cdr return-data))
            nil))))
 
-(defun gnu-apl--send-si-and-send-new-function (parts edit-when-fail &optional tag)
+(defun gnu-apl--send-si-and-send-new-function (parts &optional tag)
   "Send an )SI request that should be checked against the current
 function being sent. Returns non-nil if the function was sent
 successfully."
@@ -154,7 +156,7 @@ successfully."
              (content (list* function-header
                              (split-string buffer-content "\r?\n"))))
 
-        (when (gnu-apl--send-si-and-send-new-function content t)
+        (when (gnu-apl--send-si-and-send-new-function content)
           (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
                                           gnu-apl-window-configuration
                                         nil)))

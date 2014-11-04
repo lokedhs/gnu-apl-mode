@@ -1,5 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
+(require 'cl)
+
 (defun gnu-apl-update-fontset-character (spec)
   (dolist (s gnu-apl--symbols)
     (let ((char (aref (second s) 0)))

@@ -1,5 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
+(require 'cl)
+
 (defvar gnu-apl-current-session nil
   "The buffer that holds the currently active GNU APL session,
 or NIL if there is no active session.")
@@ -300,7 +302,7 @@ to `gnu-apl-executable')."
                                  (select-window window)
                                (switch-to-buffer buffer)))
                          (find-file-existing file)))
-                     (goto-line line-num)))
+                     (gnu-apl--move-to-line line-num)))
                   ((string-match "^⎕FX$" reference)
                    (message "%s: No source information" resolved-name))
                   (t

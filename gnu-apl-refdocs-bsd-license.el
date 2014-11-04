@@ -1,5 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
+(require 'cl)
+
 (defvar gnu-apl--symbol-doc
   '(("+"
      (("Monadic" "Conjugate" "Returns the conjugate of R"

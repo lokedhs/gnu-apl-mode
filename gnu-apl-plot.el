@@ -1,5 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
+(require 'cl)
+
 (cl-defmacro gnu-apl--with-temp-files (files &body body)
   (declare (indent 1))
   (if files

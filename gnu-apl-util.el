@@ -46,6 +46,16 @@
   `(let ((,var ,value))
      (when ,var ,@body)))
 
+(defun gnu-apl--move-to-line (line)
+  "A version of `goto-line' that does the right thing in narrowed buffers."
+  (let ((dest-char (save-excursion
+                     (save-restriction
+                       (widen)
+                       (goto-char (point-min))
+                       (forward-line (1- line))
+                       (point)))))
+    (goto-char dest-char)))
+
 (defun gnu-apl--current-line-number (&optional pos)
   (save-restriction
     (widen)
