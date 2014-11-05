@@ -476,7 +476,6 @@ If the cursor is not located within a function, go to `point-max'."
 ;;;  Load the other source files
 ;;;
   
-(load "gnu-apl-input")
 (load "gnu-apl-interactive")
 (load "gnu-apl-editor")
 (load "gnu-apl-network")
