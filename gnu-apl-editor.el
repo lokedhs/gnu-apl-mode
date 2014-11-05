@@ -1,6 +1,8 @@
 ;;; -*- lexical-binding: t -*-
 
 (require 'cl)
+(require 'gnu-apl-util)
+(require 'gnu-apl-network)
 
 (defun gnu-apl-edit-function (name)
   "Open the function with the given name in a separate buffer.
@@ -232,3 +234,5 @@ characters."
       (insert "\n"))
     (goto-char (point-min))
     (read-only-mode 1)))
+
+(provide 'gnu-apl-editor)

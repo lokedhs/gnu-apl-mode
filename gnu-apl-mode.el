@@ -3,8 +3,8 @@
 (require 'cl)
 (require 'comint)
 (require 'etags)
-
-(load "gnu-apl-util")
+(require 'gnu-apl-util)
+(require 'gnu-apl-network)
 
 ;;;###autoload
 (defgroup gnu-apl nil
@@ -165,7 +165,7 @@ documentation will not be loaded.")
 ;;;  Keymap functions
 ;;;
 
-(load "gnu-apl-symbols")
+(require 'gnu-apl-symbols)
 
 (defun gnu-apl--make-key-command-sym (n)
   (intern (concat "insert-sym-apl-" n)))
@@ -475,16 +475,17 @@ If the cursor is not located within a function, go to `point-max'."
 ;;;
 ;;;  Load the other source files
 ;;;
-  
-(load "gnu-apl-interactive")
-(load "gnu-apl-editor")
-(load "gnu-apl-network")
-(load "gnu-apl-spreadsheet")
-(load "gnu-apl-plot")
-(load "gnu-apl-follow")
-(load "gnu-apl-refdocs-bsd-license")
-(load "gnu-apl-documentation")
-(load "gnu-apl-osx-workaround")
+ 
+(require 'gnu-apl-input) 
+(require 'gnu-apl-interactive)
+(require 'gnu-apl-editor)
+(require 'gnu-apl-network)
+(require 'gnu-apl-spreadsheet)
+(require 'gnu-apl-plot)
+(require 'gnu-apl-follow)
+(require 'gnu-apl-refdocs-bsd-license)
+(require 'gnu-apl-documentation)
+(require 'gnu-apl-osx-workaround)
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.apl\\'" . gnu-apl-mode))

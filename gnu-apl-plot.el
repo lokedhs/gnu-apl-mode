@@ -1,6 +1,8 @@
 ;;; -*- lexical-binding: t -*-
 
 (require 'cl)
+(require 'gnu-apl-util)
+(require 'gnu-apl-network)
 
 (cl-defmacro gnu-apl--with-temp-files (files &body body)
   (declare (indent 1))
@@ -113,3 +115,5 @@ dimension of the exported data as a list of the form (ROWS COLS)"
             (insert "\n")))
         (write-file script-file)))
     (shell-command (format "%s -p %s" gnu-apl-gnuplot-program script-file))))
+
+(provide 'gnu-apl-plot)

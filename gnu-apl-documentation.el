@@ -5,6 +5,8 @@
 ;;;
 
 (require 'cl)
+(require 'gnu-apl-util)
+(require 'gnu-apl-network)
 
 (defvar *gnu-apl-keymap-buffer-name* "*gnu-apl keymap*")
 
@@ -387,3 +389,5 @@ if it is open."
     (if result
         (gnu-apl--open-apropos-results result)
       (message "No match"))))
+
+(provide 'gnu-apl-documentation)

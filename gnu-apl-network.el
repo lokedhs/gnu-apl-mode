@@ -1,6 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
 (require 'cl)
+(require 'gnu-apl-util)
 
 (defvar *gnu-apl-end-tag* "APL_NATIVE_END_TAG")
 (defvar *gnu-apl-notification-start* "APL_NATIVE_NOTIFICATION_START")
@@ -123,3 +124,5 @@ connect mode in use."
   (loop for line = (gnu-apl--read-network-reply)
         while (not (string= line *gnu-apl-end-tag*))
         collect line))
+
+(provide 'gnu-apl-network)

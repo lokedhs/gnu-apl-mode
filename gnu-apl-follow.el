@@ -1,6 +1,8 @@
 ;;; -*- lexical-binding: t -*-
 
 (require 'cl)
+(require 'gnu-apl-util)
+(require 'gnu-apl-network)
 
 (defun gnu-apl--make-trace-buffer-name (varname)
   (format "*gnu-apl trace %s*" varname))
@@ -123,3 +125,5 @@ content."
                          (t
                           (error "Unexpected response from trace command")))))))
         (switch-to-buffer-other-window b)))))
+
+(provide 'gnu-apl-follow)

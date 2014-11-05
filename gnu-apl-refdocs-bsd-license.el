@@ -1,6 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
 (require 'cl)
+(require 'gnu-apl-util)
 
 (defvar gnu-apl--symbol-doc
   '(("+"
@@ -332,3 +333,5 @@ are not of the value 0 or 1, a DOMAIN ERROR will be raised.")
 elements: The APL symbol, name of monadic operator, description
 of the monadic operator, name of the dyadic operator, description
 of the dyadic operator, extra documentation.")
+
+(provide 'gnu-apl-refdocs-bsd-license)

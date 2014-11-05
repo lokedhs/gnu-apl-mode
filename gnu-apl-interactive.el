@@ -1,6 +1,8 @@
 ;;; -*- lexical-binding: t -*-
 
 (require 'cl)
+(require 'gnu-apl-util)
+(require 'gnu-apl-network)
 
 (defvar gnu-apl-current-session nil
   "The buffer that holds the currently active GNU APL session,
@@ -314,3 +316,5 @@ to `gnu-apl-executable')."
   (let ((buffer (gnu-apl--get-interactive-session)))
     (pop-to-buffer buffer)
     (goto-char (point-max))))
+
+(provide 'gnu-apl-interactive)

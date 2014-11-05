@@ -85,3 +85,5 @@
 (unless (fboundp 'cl-remove-if-not)
   (defun cl-remove-if-not (&rest args)
     (apply #'remove-if-not args)))
+
+(provide 'gnu-apl-util)
