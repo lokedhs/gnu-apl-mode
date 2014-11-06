@@ -23,9 +23,9 @@
 ;;;
 ;;; The other method is a bit more cumbersome to use, but it's pretty
 ;;; much guaranteed to work everywhere. Simply enable the input mode
-;;; using C-\ (`toggle-input-method'). Once this mode is enabled,
-;;; press "." (period) followed by a letter to generate the
-;;; corresponding symbol.
+;;; using C-\ (`toggle-input-method') and choose APL-Z. Once this mode
+;;; is enabled, press "." (period) followed by a letter to generate
+;;; the corresponding symbol.
 ;;;
 ;;; Code:
 
