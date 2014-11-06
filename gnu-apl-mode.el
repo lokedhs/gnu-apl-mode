@@ -188,10 +188,6 @@ The ∇s are always flush-left, as are all lines outside of functions."
   "Face used to display the keyboard help popup"
   :group 'gnu-apl)
 
-(defvar gnu-apl-use-free-documentation nil
-  "If this value is set to true prior to loading, the non-free
-documentation will not be loaded.")
-
 ;;;
 ;;;  Keymap functions
 ;;;
