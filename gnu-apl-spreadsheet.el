@@ -136,7 +136,7 @@ content of the spreadsheet in this buffer."
                        do (let ((item (ses-cell-value row col)))
                             (typecase item
                               (null (princ "(0⍴0)"))
-                              (number (princ item))
+                              (number (if (minusp item) (princ (format "¯%f" (- item))) (princ item)))
                               (string (princ (gnu-apl--string-to-apl-expression item)))
                               (t (ses-goto-print row col) (error "Invalid content in cell %d,%d" row col)))
                             (if (< col (1- cols))
