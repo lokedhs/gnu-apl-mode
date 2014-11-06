@@ -118,7 +118,7 @@ value of VARNAME to the content of the spreadsheet."
   (kill-new (concat (gnu-apl-make-function-from-spreadsheet-data varname) "\n")))
 
 (defun gnu-apl-make-function-from-spreadsheet-data (varname)
-  "Return a APL code that sets VARNAME to an array with the same
+  "Return the APL code that sets VARNAME to an array with the same
 values as the spreadsheet in the current buffer."
   (concat (gnu-apl-make-array-loading-instructions varname)))
 
