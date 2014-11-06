@@ -493,6 +493,41 @@ If the cursor is not located within a function, go to `point-max'."
       (when (or (eq major-mode 'gnu-apl-mode) (eq major-mode 'gnu-apl-interactive-mode))
         (add-to-list (make-local-variable 'company-backends) 'company-gnu-apl)))))
 
+;;;###autoload
+(defun gnu-apl (apl-executable)
+  "Start the GNU APL interpreter in a buffer.
+APL-EXECUTABLE is the path to the apl program (defaults
+to `gnu-apl-executable')."
+  (interactive (list (when current-prefix-arg
+                       (read-file-name "Location of GNU APL Executable: " nil nil t))))
+  (let ((buffer (get-buffer-create "*gnu-apl*"))
+        (resolved-binary (or apl-executable gnu-apl-executable)))
+    (unless resolved-binary
+      (user-error "GNU APL Executable was not set"))
+    (pop-to-buffer-same-window buffer)
+    (unless (comint-check-proc buffer)
+      (gnu-apl--cleanup-trace-symbol buffer)
+      (when gnu-apl-show-tips-on-start
+        (gnu-apl--insert-tips))
+      (apply #'make-comint-in-buffer
+             "apl" buffer resolved-binary nil
+             "--rawCIN" "--emacs" (append (if (and gnu-apl-native-communication gnu-apl-use-new-native-library)
+                                              (list "--emacs_arg" (int-to-string gnu-apl-native-listener-port)))
+                                          (if (not gnu-apl-show-apl-welcome)
+                                              (list "--silent"))
+                                          gnu-apl-program-extra-args))
+      (setq gnu-apl-current-session buffer)
+
+      (gnu-apl-interactive-mode)
+      (set-buffer-process-coding-system 'utf-8 'utf-8)
+      (when (and gnu-apl-native-communication (not gnu-apl-use-new-native-library))
+        (gnu-apl--send buffer (concat "'" *gnu-apl-network-start* "'"))
+        (gnu-apl--send buffer (concat "'" gnu-apl-libemacs-location "' ⎕FX "
+                                      "'" *gnu-apl-native-lib* "'"))
+        (gnu-apl--send buffer (format "%s[1] %d" *gnu-apl-native-lib* gnu-apl-native-listener-port))
+        (gnu-apl--send buffer (concat "'" *gnu-apl-network-end* "'"))))
+    (when gnu-apl-show-keymap-on-startup
+      (run-at-time "0 sec" nil #'(lambda () (gnu-apl-show-keyboard 1))))))
 
 ;;;
 ;;;  Load the other source files
