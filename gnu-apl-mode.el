@@ -53,7 +53,9 @@
 If non-nil, the function editor will start automatically when
 the function definition command is entered. If nil, the
 function editor must be opened manually using the function
-`gnu-apl-edit-function'.")
+`gnu-apl-edit-function'."
+  :type 'boolean
+  :group 'gnu-apl)
 
 ;;;###autoload
 (defcustom gnu-apl-redefine-function-when-in-use-action 'ask
