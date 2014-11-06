@@ -1,4 +1,9 @@
-;;; -*- lexical-binding: t -*-
+;;; gnu-apl-mode --- Emacs mode for GNU APL -*- lexical-binding: t -*-
+;;;
+;;; Copyright (C) 2014 Elias Mårtenson
+;;;
+;;; Author: Elias Mårtenson <lokedhs@gmail.com>
+;;; Keywords: languages
 ;;;
 ;;; Commentary:
 ;;;
@@ -20,7 +25,7 @@
 ;;; press "." (period) followed by a letter to generate the
 ;;; corresponding symbol.
 ;;;
-;;; Author: Elias Mårtenson, lokedhs@gmail.com
+;;; Code:
 
 (require 'cl)
 (require 'comint)
