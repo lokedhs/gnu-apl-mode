@@ -35,19 +35,16 @@
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
 
-;;;###autoload
 (defgroup gnu-apl nil
   "Major mode for interacting with the GNU APL interpreter."
   :prefix 'gnu-apl
   :group 'languages)
 
-;;;###autoload
 (defcustom gnu-apl-executable "apl"
   "Where the GNU APL implementaion is located."
   :type 'string
   :group 'gnu-apl)
 
-;;;###autoload
 (defcustom gnu-apl-auto-function-editor-popup t
   "Edit function definitions in an Emacs buffer.
 If non-nil, the function editor will start automatically when
@@ -57,7 +54,6 @@ function editor must be opened manually using the function
   :type 'boolean
   :group 'gnu-apl)
 
-;;;###autoload
 (defcustom gnu-apl-redefine-function-when-in-use-action 'ask
   "What action to take when trying to save a function that is on the )SI stack.
 This parameter controls the behaviour when an attempt is made
@@ -72,7 +68,6 @@ Permitted values are:
                  (const :tag "ask" ask))
   :group 'gnu-apl)
 
-;;;###autoload
 (defcustom gnu-apl-show-keymap-on-startup t
   "Choose if the keymap should be automatically displayed.
 When non-nil, automatically display the keymap when activating
@@ -82,7 +77,6 @@ buffer can also be toggled using the command
   :type 'boolean
   :group 'gnu-apl)
 
-;;;###autoload
 (defcustom gnu-apl-show-apl-welcome t
   "Choose if the GNU APL welcome screen should be displayed.
 When non-nil, display the GNU APL welcome screen. When this value
@@ -90,13 +84,11 @@ is nil, the apl binary is called with the --silent flag."
   :type 'boolean
   :group 'gnu-apl)
 
-;;;###autoload
 (defcustom gnu-apl-show-tips-on-start t
   "When non-nil, show some help when starting a new APL session."
   :type 'boolean
   :group 'gnu-apl)
 
-;;;###autoload
 (defcustom gnu-apl-native-listener-port 0
   "The port number that the native listener should listen to.
 If zero, randomly choose an available port.
@@ -104,7 +96,6 @@ If -1, request the use of Unix domain sockets."
   :type 'integer
   :group 'gnu-apl)
 
-;;;###autoload
 (defcustom gnu-apl-gnuplot-program "gnuplot"
   "The name of the gnuplot executable."
   :type 'string
@@ -121,7 +112,6 @@ functions will not work. If this option is set to t, and the
 library fails to load for some reason, the features will be
 automatically disabled anyway.")
 
-;;;###autoload
 (defcustom gnu-apl-program-extra-args nil
   "List of strings containing extra commandline arguments to pass
 to the apl binary."
@@ -133,7 +123,6 @@ to the apl binary."
 Enabling this option requires the use of at least GNU APL version 1.4
 or the latest version from the subversion repository.")
 
-;;;###autoload
 (defcustom gnu-apl-indent-amounts '(0 2 0 2)
   "The amounts by which to indent lines within APL functions.
 The ∇s are always flush-left, as are all lines outside of functions."
@@ -148,13 +137,11 @@ The ∇s are always flush-left, as are all lines outside of functions."
                 (every #'(lambda (n) (>= n 0)) v)))
   :group 'gnu-apl)
 
-;;;###autoload
 (defface gnu-apl-default
   ()
   "Face used for APL buffers"
   :group 'gnu-apl)
 
-;;;###autoload
 (defface gnu-apl-error
   '((((class color))
      :foreground "red"
@@ -164,7 +151,6 @@ The ∇s are always flush-left, as are all lines outside of functions."
   "Face used for error messages in the interactive APL buffer"
   :group 'gnu-apl)
 
-;;;###autoload
 (defface gnu-apl-user-status-text
   '((((class color))
      :foreground "#ff0080"
@@ -174,14 +160,12 @@ The ∇s are always flush-left, as are all lines outside of functions."
   "Face used for user diagnostic messages in the interactive APL buffer"
   :group 'gnu-apl)
 
-;;;###autoload
 (defface gnu-apl-help
   '((t
      :inherit gnu-apl-default))
   "Face used for displaying text in help buffers"
   :group 'gnu-apl)
 
-;;;###autoload
 (defface gnu-apl-kbd-help-screen
   '((t
      :inherit gnu-apl-default))
