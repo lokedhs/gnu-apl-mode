@@ -35,6 +35,7 @@
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
 
+;;;###autoload
 (defgroup gnu-apl nil
   "Major mode for interacting with the GNU APL interpreter."
   :prefix 'gnu-apl
