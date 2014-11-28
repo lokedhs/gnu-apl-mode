@@ -10,12 +10,6 @@
 
 (defvar *gnu-apl-keymap-buffer-name* "*gnu-apl keymap*")
 
-(defvar gnu-apl--ibm-copyright-notice
-  "Reprint Courtesy of International Business Machines Corporation,
-© 1984, 1994 International Business Machines Corporation"
-  "Copyright notice that is appended to any documentation that is
-dervived from the APL2 documentation.")
-
 (defun gnu-apl-keymap-mode-kill-buffer ()
   "Close the buffer displaying the keymap."
   (interactive)
@@ -87,8 +81,6 @@ dervived from the APL2 documentation.")
                      (when long
                        (insert (format "%s\n" long)))))
               do (insert "\n===================================\n"))
-        (when (third doc)
-          (insert (format "\n%s" gnu-apl--ibm-copyright-notice)))
         (buffer-string)))))
 
 (defun gnu-apl--remove-local-variable-name (name)
