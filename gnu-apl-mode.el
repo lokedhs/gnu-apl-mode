@@ -295,6 +295,7 @@ Returns the name of the function or nil if the function could not be parsed."
           when (string-match (concat "^" pattern) line)
           return (match-string 1 line))))
 
+;;;###autoload
 (define-derived-mode gnu-apl-mode prog-mode "GNU-APL"
   "Major mode for editing GNU APL files."
   :syntax-table gnu-apl-mode-syntax-table
