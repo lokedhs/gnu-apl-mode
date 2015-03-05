@@ -1,6 +1,6 @@
 ;;; gnu-apl-mode --- Emacs mode for GNU APL -*- lexical-binding: t -*-
 ;;;
-;;; Copyright (C) 2014 Elias Mårtenson
+;;; Copyright (C) 2013-2015 Elias Mårtenson
 ;;;
 ;;; Author: Elias Mårtenson <lokedhs@gmail.com>
 ;;; Version: 1.4.0

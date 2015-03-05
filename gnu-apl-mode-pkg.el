@@ -1,6 +1,6 @@
 ;;; gnu-apl-mode --- GNU APL integration for Emacs
 
-;; Copyright 2013-2014 Elias Martenson
+;; Copyright 2013-2015 Elias Martenson
 
 ;; Author: Elias Martenson <lokedhs@gmail.com>
 ;; URL: https://github.com/lokedhs/gnu-apl-mode
