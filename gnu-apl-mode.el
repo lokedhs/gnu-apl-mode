@@ -275,8 +275,8 @@ The ∇s are always flush-left, as are all lines outside of functions."
                                                      " *\\(?:;.*\\)?$")))
       (list (add-assignment-syntax (format "\\(%s\\)" s))
             (add-assignment-syntax (format "\\(?:%s +\\)?\\(%s\\)%s +%s" s s f s))
-            (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) *)%s +%s" s s s f s))
-            (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) +%s)%s +%s" s s s s f s)))))
+            (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) *)%s *%s" s s s f s))
+            (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) +%s)%s *%s" s s s s f s)))))
   "List of regexps that matches a function declaration header.
 The first parenthised substring is the name of the function.")
 
