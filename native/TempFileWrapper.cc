@@ -21,6 +21,9 @@
 #include "TempFileWrapper.hh"
 
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
 #include "emacs.hh"
 
 FileWrapper::FileWrapper( int fd_in )
