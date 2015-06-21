@@ -47,7 +47,7 @@
      (when ,var ,@body)))
 
 (defun gnu-apl--move-to-line (line)
-  "A version of `goto-line' that does the right thing in narrowed buffers."
+  "A version of ‘goto-line’ that does the right thing in narrowed buffers."
   (let ((dest-char (save-excursion
                      (save-restriction
                        (widen)

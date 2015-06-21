@@ -13,7 +13,7 @@
 ;;;
 ;;; This mode provides both normal editing facilities for APL code as
 ;;; well as an interactive mode. The interactive mode is started using
-;;; the command `gnu-apl'.
+;;; the command ‘gnu-apl’.
 ;;;
 ;;; The mode provides two different ways to input APL symbols. The
 ;;; first method is enabled by default, and simply binds keys with the
@@ -23,7 +23,7 @@
 ;;;
 ;;; The other method is a bit more cumbersome to use, but it's pretty
 ;;; much guaranteed to work everywhere. Simply enable the input mode
-;;; using C-\ (`toggle-input-method') and choose APL-Z. Once this mode
+;;; using C-\ (‘toggle-input-method’) and choose APL-Z. Once this mode
 ;;; is enabled, press "." (period) followed by a letter to generate
 ;;; the corresponding symbol.
 ;;;
@@ -51,7 +51,7 @@
 If non-nil, the function editor will start automatically when
 the function definition command is entered. If nil, the
 function editor must be opened manually using the function
-`gnu-apl-edit-function'."
+‘gnu-apl-edit-function’."
   :type 'boolean
   :group 'gnu-apl)
 
@@ -72,9 +72,9 @@ Permitted values are:
 (defcustom gnu-apl-show-keymap-on-startup t
   "Choose if the keymap should be automatically displayed.
 When non-nil, automatically display the keymap when activating
-the GNU APL buffer using the command `gnu-apl'. The keyboard help
+the GNU APL buffer using the command ‘gnu-apl’. The keyboard help
 buffer can also be toggled using the command
-`gnu-apl-show-keyboard'."
+‘gnu-apl-show-keyboard’."
   :type 'boolean
   :group 'gnu-apl)
 
@@ -107,7 +107,7 @@ If -1, request the use of Unix domain sockets."
 (defvar gnu-apl-native-communication t
   "Enable the use of the Emacs native library that is part of GNU APL.
 This library provides a communications channel that
-`gnu-apl-mode' can use to communicate with the APL interpreter.
+‘gnu-apl-mode’ can use to communicate with the APL interpreter.
 Normally, this value should be set to t, as without it many
 functions will not work. If this option is set to t, and the
 library fails to load for some reason, the features will be
@@ -219,7 +219,7 @@ The ∇s are always flush-left, as are all lines outside of functions."
     (define-key map (kbd "C-c C-l") 'gnu-apl-interactive-send-buffer)
     (define-key map (kbd "C-c C-z") 'gnu-apl-switch-to-interactive)
     map)
-  "The keymap for `gnu-apl-mode'.")
+  "The keymap for ‘gnu-apl-mode’.")
 
 (defvar gnu-apl-mode-syntax-table
   (let ((table (make-syntax-table)))
@@ -234,7 +234,7 @@ The ∇s are always flush-left, as are all lines outside of functions."
     (modify-syntax-entry (aref "⍙" 0) "w" table)
     (modify-syntax-entry ?\\ "." table)
     table)
-  "Syntax table for `gnu-apl-mode'.")
+  "Syntax table for ‘gnu-apl-mode’.")
 
 (defun gnu-apl--init-mode-common ()
   "Generic initialisation code for all gnu-apl modes."
@@ -342,7 +342,7 @@ Returns the name of the function or nil if the function could not be parsed."
     (indent-to-column col)))
 
 (defun gnu-apl-indent ()
-  "Indent a function, controlled by `gnu-apl--indent-amounts'.
+  "Indent a function, controlled by ‘gnu-apl--indent-amounts’.
 Anything outside a function definition is not indented."
   (save-excursion
     (beginning-of-line)
@@ -390,7 +390,7 @@ Anything outside a function definition is not indented."
 
 (defun gnu-apl-expand-symbol ()
   "Implementation of expansion.
-This function is designed to be used in `completion-at-point-functions'."
+This function is designed to be used in ‘completion-at-point-functions’."
   (let* ((row (buffer-substring (save-excursion (beginning-of-line) (point)) (point))))
     ;; Check for system commands
     (if (string-match "^[ \t]*\\([])][a-zA-Z0-9]*\\)$" row)
@@ -436,7 +436,7 @@ This function is designed to be used in `completion-at-point-functions'."
 
 (defun gnu-apl-beginning-of-defun ()
   "Go beginning of function.
-If point is not located whithin a function, go to `point-min'."
+If point is not located whithin a function, go to ‘point-min’."
   (interactive)
   (let* ((positions (mapcan #'(lambda (pattern)
                                        (save-excursion
@@ -453,7 +453,7 @@ If point is not located whithin a function, go to `point-min'."
 
 (defun gnu-apl-end-of-defun ()
   "Go to the end of the function.
-If the cursor is not located within a function, go to `point-max'."
+If the cursor is not located within a function, go to ‘point-max’."
   (interactive)
   (beginning-of-line)
   (next-line)
@@ -466,7 +466,7 @@ If the cursor is not located within a function, go to `point-max'."
 ;;;
 
 (defun company-gnu-apl (command &optional arg &rest ignored)
-  "Backend for for `company-mode' for GNU APL."
+  "Backend for for ‘company-mode’ for GNU APL."
   (interactive (list 'interactive))
   (cond ((eq command 'interactive)
          (company-begin-backend 'company-gnu-apl))
@@ -488,7 +488,7 @@ If the cursor is not located within a function, go to `point-max'."
 (defun gnu-apl (apl-executable)
   "Start the GNU APL interpreter in a buffer.
 APL-EXECUTABLE is the path to the apl program (defaults
-to `gnu-apl-executable')."
+to ‘gnu-apl-executable’)."
   (interactive (list (when current-prefix-arg
                        (read-file-name "Location of GNU APL Executable: " nil nil t))))
   (let ((buffer (get-buffer-create "*gnu-apl*"))

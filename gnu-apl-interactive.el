@@ -204,7 +204,7 @@ function editor.
     (define-key map [menu-bar gnu-apl edit-matrix] '("Edit variable" . gnu-apl-edit-variable))
     (define-key map [menu-bar gnu-apl plot-line] '("Plot line graph of variable content" . gnu-apl-plot-line))
     map)
-  "The keymap for `gnu-apl-interactive-mode'.")
+  "The keymap for ‘gnu-apl-interactive-mode'.")
 
 (define-derived-mode gnu-apl-interactive-mode comint-mode "GNU-APL/Comint"
   "Major mode for interacting with GNU APL."
@@ -249,7 +249,7 @@ function editor.
 (defun gnu-apl (apl-executable)
   "Start the GNU APL interpreter in a buffer.
 APL-EXECUTABLE is the path to the apl program (defaults
-to `gnu-apl-executable')."
+to ‘gnu-apl-executable’)."
   (interactive (list (when current-prefix-arg
                        (read-file-name "Location of GNU APL Executable: " nil nil t))))
   (let ((buffer (get-buffer-create "*gnu-apl*"))

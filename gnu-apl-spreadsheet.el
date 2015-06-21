@@ -62,7 +62,7 @@ the active interpreter."
     (message "Variable %s updated" variable-name)))
 
 (define-minor-mode gnu-apl-spreadsheet-mode
-  "A variation of `ses-mode' to be used for editing APL matrices."
+  "A variation of ‘ses-mode’ to be used for editing APL matrices."
   nil
   " ≡"
   (list (cons (kbd "C-c C-c") 'gnu-apl-spreadsheet-send-to-variable)
