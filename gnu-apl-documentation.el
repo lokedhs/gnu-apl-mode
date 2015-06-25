@@ -154,11 +154,11 @@
   (let ((string (gnu-apl--get-full-docstring-for-symbol symbol)))
     (unless string
       (user-error "No documentation available for %s" symbol))
-    (let ((old-buffer (get-buffer *gnu-apl-documentation-buffer-name*)))
-      (when old-buffer
-        (kill-buffer old-buffer)))
-    (let ((buffer (get-buffer-create *gnu-apl-documentation-buffer-name*)))
+    (let ((buffer (get-buffer *gnu-apl-documentation-buffer-name*)))
+      (unless buffer
+        (setq buffer (get-buffer-create *gnu-apl-documentation-buffer-name*)))
       (with-current-buffer buffer
+        (read-only-mode 0)
         (delete-region (point-min) (point-max))
         (insert string)
         (goto-char (point-min))
