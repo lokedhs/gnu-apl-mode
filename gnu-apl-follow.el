@@ -15,6 +15,7 @@
 ;;;
 
 (defun gnu-apl-trace-mode-kill-buffer ()
+  "If the current buffer is a trace buffer, kill the buffer. Otherwise raise an error."
   (interactive)
   (unless (and (boundp 'gnu-apl-trace-buffer)
                gnu-apl-trace-buffer)
