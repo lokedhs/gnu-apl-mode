@@ -191,12 +191,19 @@ The ∇s are always flush-left, as are all lines outside of functions."
                           gnu-apl--symbols))))
   (make-insert-functions))
 
+(defun gnu-apl-insert-spc ()
+  "Insert a space. This is needed so that one can type a space
+character when using the super-prefixed characters."
+  (interactive)
+  (insert " "))
+
 (defun gnu-apl--make-mode-map (prefix)
   (let ((map (make-sparse-keymap)))
     (dolist (command gnu-apl--symbols)
       (let ((key-sequence (caddr command)))
         (dolist (s (if (listp key-sequence) key-sequence (list key-sequence)))
           (define-key map (gnu-apl--kbd (concat prefix s)) (gnu-apl--make-key-command-sym (car command))))
+        (define-key map (kbd (concat prefix "SPC")) 'gnu-apl-insert-spc)
         (define-key map (kbd "C-c C-k") 'gnu-apl-show-keyboard)
         (define-key map (kbd "C-c C-h") 'gnu-apl-show-help-for-symbol)
         (define-key map (kbd "C-c C-a") 'gnu-apl-apropos-symbol)
