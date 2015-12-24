@@ -478,7 +478,7 @@ If the cursor is not located within a function, go to ‘point-max’."
         ((eq command 'meta)
          nil)))
 
-(eval-after-load 'company
+(with-eval-after-load 'company
   (dolist (buffer (buffer-list))
     (with-current-buffer buffer
       (when (or (eq major-mode 'gnu-apl-mode) (eq major-mode 'gnu-apl-interactive-mode))
@@ -541,7 +541,7 @@ to ‘gnu-apl-executable’)."
 ;;;###autoload
 (add-to-list 'interpreter-mode-alist '("apl" . gnu-apl-mode))
 
-(eval-after-load 'speedbar
-  '(speedbar-add-supported-extension ".apl"))
+(with-eval-after-load 'speedbar
+  (speedbar-add-supported-extension ".apl"))
 
 (provide 'gnu-apl-mode)
