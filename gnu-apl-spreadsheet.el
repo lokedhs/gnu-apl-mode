@@ -3,6 +3,7 @@
 (require 'cl)
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
+(require 'ses)
 
 (defun gnu-apl--string-to-apl-expression (string)
   "Escape quotes in an APL string. If the string contains
