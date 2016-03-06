@@ -140,6 +140,13 @@ successfully."
                    t)))
         (gnu-apl--send-new-function parts tag)))))
 
+(defun gnu-apl--remove-final-endfn (strings)
+  "If the last element is, ∇ return a new list with that element removed, else return the original list."
+  (if (and strings
+           (equal (string-trim (car (last strings))) "∇"))
+      (butlast strings)
+    strings))
+
 (defun gnu-apl-save-function ()
   "Save the currently edited function."
   (interactive)
@@ -156,7 +163,7 @@ successfully."
 
       (let* ((buffer-content (gnu-apl--trim-trailing-newline (buffer-substring (point) (point-max))))
              (content (list* function-header
-                             (split-string buffer-content "\r?\n"))))
+                             (gnu-apl--remove-final-endfn (split-string buffer-content "\r?\n")))))
 
         (when (gnu-apl--send-si-and-send-new-function content)
           (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
