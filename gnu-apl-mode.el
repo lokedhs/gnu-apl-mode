@@ -368,8 +368,8 @@ Anything outside a function definition is not indented."
                                      (search-backward-regexp
                                       "^[ \t]*∇[ \t]*[^ \t]" nil t)))
                    (function-end (save-excursion
-                                   (search-forward-regexp
-                                    "^[ \t]*∇[ \t]*$" nil t)))
+                                   (or (search-forward-regexp "^[ \t]*∇[ \t]*$" nil t)
+                                       (point-max))))
                    (prev-function-end (save-excursion
                                         (search-backward-regexp
                                          "^[ \t]*∇[ \t]*$" nil t))))
