@@ -4,7 +4,7 @@ Emacs mode for GNU APL
 Author contact information
 --------------------------
 
-  - Elias Martenson
+  - Elias Mårtenson
   - Email: lokedhs@gmail.com
 
 Installing gnu-apl-mode
