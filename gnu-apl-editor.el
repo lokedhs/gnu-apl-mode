@@ -143,7 +143,7 @@ successfully."
 (defun gnu-apl--remove-final-endfn (strings)
   "If the last element is, ∇ return a new list with that element removed, else return the original list."
   (if (and strings
-           (equal (string-trim (car (last strings))) "∇"))
+           (equal (gnu-apl--trim-spaces (car (last strings))) "∇"))
       (butlast strings)
     strings))
 
