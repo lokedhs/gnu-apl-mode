@@ -141,7 +141,7 @@ successfully."
         (gnu-apl--send-new-function parts tag)))))
 
 (defun gnu-apl--remove-final-endfn (strings)
-  "If the last element is, ∇ return a new list with that element removed, else return the original list."
+  "If the last element is ∇, return a new list with that element removed, else return the original list."
   (if (and strings
            (equal (gnu-apl--trim-spaces (car (last strings))) "∇"))
       (butlast strings)
