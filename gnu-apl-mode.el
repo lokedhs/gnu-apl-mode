@@ -379,7 +379,6 @@ Anything outside a function definition is not indented."
                          (indent-to-column i-comment)
                        (indent-to-column i-other))
                    (indent-to-column 0)))))))
-    (message "was: %S" was-at-first-col)
     (when was-at-first-col
       (re-search-forward "[ \t]*" (point-at-eol) t))
     nil))
