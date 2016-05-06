@@ -174,6 +174,12 @@ The ∇s are always flush-left, as are all lines outside of functions."
   :group 'gnu-apl)
 
 ;;;
+;;;  History variables
+;;;
+
+(defvar gnu-apl-variables-history nil)
+
+;;;
 ;;;  Keymap functions
 ;;;
 

@@ -220,7 +220,7 @@ characters."
                                        nil ; predicate
                                        nil ; require-match
                                        nil ; initial-input
-                                       nil ; hist
+                                       'gnu-apl-variables-history  ; hist
                                        initial ; def
                                        t ; inherit input method
                                        )))
