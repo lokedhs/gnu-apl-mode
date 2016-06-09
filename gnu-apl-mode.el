@@ -225,8 +225,18 @@ character when using the super-prefixed characters."
         (define-key map [menu-bar gnu-apl trace] '("Trace variable" . gnu-apl-trace))))
     map))
 
+(defcustom gnu-apl-mode-map-prefix "s-"
+  "The keymap prefix for ‘gnu-apl-mode-map’."
+  :type 'string
+  :group 'gnu-apl)
+
+(defcustom gnu-apl-interactive-mode-map-prefix "s-"
+  "The keymap prefix for ‘gnu-apl-interactive-mode-map’."
+  :type 'string
+  :group 'gnu-apl)
+
 (defvar gnu-apl-mode-map
-  (let ((map (gnu-apl--make-mode-map "s-")))
+  (let ((map (gnu-apl--make-mode-map gnu-apl-mode-map-prefix)))
     (define-key map (kbd "C-c r") 'gnu-apl-interactive-send-region)
     (define-key map (kbd "C-c C-c") 'gnu-apl-interactive-send-current-function)
     (define-key map (kbd "C-c C-l") 'gnu-apl-interactive-send-buffer)
@@ -535,8 +545,8 @@ to ‘gnu-apl-executable’)."
 ;;;
 ;;;  Load the other source files
 ;;;
- 
-(require 'gnu-apl-input) 
+
+(require 'gnu-apl-input)
 (require 'gnu-apl-interactive)
 (require 'gnu-apl-editor)
 (require 'gnu-apl-network)

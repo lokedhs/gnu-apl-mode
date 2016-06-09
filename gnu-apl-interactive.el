@@ -195,7 +195,7 @@ function editor.
     result))
 
 (defvar gnu-apl-interactive-mode-map
-  (let ((map (gnu-apl--make-mode-map "s-")))
+  (let ((map (gnu-apl--make-mode-map gnu-apl-interactive-mode-map-prefix)))
     (define-key map (kbd "TAB") 'completion-at-point)
     (define-key map (kbd "C-c C-f") 'gnu-apl-edit-function)
     (define-key map (kbd "C-c C-v") 'gnu-apl-edit-variable)
