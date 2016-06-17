@@ -203,7 +203,7 @@ character when using the super-prefixed characters."
   (interactive)
   (insert " "))
 
-(defun gnu-apl--make-mode-map (prefix)
+(defun gnu-apl--make-base-mode-map (prefix)
   (let ((map (make-sparse-keymap)))
     (dolist (command gnu-apl--symbols)
       (let ((key-sequence (caddr command)))
@@ -225,13 +225,34 @@ character when using the super-prefixed characters."
         (define-key map [menu-bar gnu-apl trace] '("Trace variable" . gnu-apl-trace))))
     map))
 
-(defvar gnu-apl-mode-map
-  (let ((map (gnu-apl--make-mode-map "s-")))
+(defun gnu-apl--make-apl-mode-map ()
+  (message "Creating `gnu-apl-mode-map' with prefix %S." gnu-apl-mode-map-prefix)
+  (let ((map (gnu-apl--make-base-mode-map gnu-apl-mode-map-prefix)))
     (define-key map (kbd "C-c r") 'gnu-apl-interactive-send-region)
     (define-key map (kbd "C-c C-c") 'gnu-apl-interactive-send-current-function)
     (define-key map (kbd "C-c C-l") 'gnu-apl-interactive-send-buffer)
     (define-key map (kbd "C-c C-z") 'gnu-apl-switch-to-interactive)
-    map)
+    map))
+
+(defun gnu-apl--set-mode-map-prefix (symbol new)
+  "Recreate the prefix and the keymap."
+  (message "Changing `gnu-apl-mode-map-prefix' from %S to %S."
+           (if (boundp symbol) (symbol-value symbol)
+             nil)
+           new)
+  (set-default symbol new)
+  (message "Updating `gnu-apl-mode-map'.")
+  (setq gnu-apl-mode-map (gnu-apl--make-apl-mode-map)))
+
+(defcustom gnu-apl-mode-map-prefix "s-"
+  "The keymap prefix for ‘gnu-apl-mode-map’ used both to store the new value
+using `set-create' and to update `gnu-apl-mode-map' using
+  `gnu-apl--make-apl-mode-map'. Kill and re-start your APL buffers to reflect the change."
+  :type 'string
+  :group 'gnu-apl
+  :set 'gnu-apl--set-mode-map-prefix)
+
+(defvar gnu-apl-mode-map (gnu-apl--make-apl-mode-map)
   "The keymap for ‘gnu-apl-mode’.")
 
 (defvar gnu-apl-mode-syntax-table
