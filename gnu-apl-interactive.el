@@ -195,7 +195,7 @@ function editor.
     result))
 
 (defun gnu-apl--make-interactive-mode-map ()
-  (message "Creating `gnu-apl-interactive-mode-map' with prefix %S." gnu-apl-interactive-mode-map-prefix)
+  (message "Creating ‘gnu-apl-interactive-mode-map’ with prefix %S." gnu-apl-interactive-mode-map-prefix)
   (let ((map (gnu-apl--make-base-mode-map gnu-apl-interactive-mode-map-prefix)))
     (define-key map (kbd "TAB") 'completion-at-point)
     (define-key map (kbd "C-c C-f") 'gnu-apl-edit-function)
@@ -208,19 +208,19 @@ function editor.
 
 (defun gnu-apl--set-interactive-mode-map-prefix (symbol new)
   "Recreate the prefix and the keymap."
-  (message "Changing `gnu-apl-interactive-mode-map-prefix' from %S to %S."
+  (message "Changing ‘gnu-apl-interactive-mode-map-prefix’ from %S to %S."
            (if (boundp symbol) (symbol-value symbol)
              nil)
            new)
   (set-default symbol new)
-  (message "Updating `gnu-apl-interactive-mode-map'.")
+  (message "Updating ‘gnu-apl-interactive-mode-map’.")
   (setq gnu-apl-interactive-mode-map (gnu-apl--make-interactive-mode-map)))
 
 (defcustom gnu-apl-interactive-mode-map-prefix "s-"
   "The keymap prefix for ‘gnu-apl-interactive-mode-map’ used both to store the new value
-using `set-create' and to update `gnu-apl-interactive-mode-map' using
-  `gnu-apl--make-interactive-mode-map'. Kill and re-start your interactive APL
-  buffers to reflect the change."
+using ‘set-create’ and to update ‘gnu-apl-interactive-mode-map’ using
+‘gnu-apl--make-interactive-mode-map’. Kill and re-start your interactive APL
+buffers to reflect the change."
   :type 'string
   :group 'gnu-apl
   :set 'gnu-apl--set-interactive-mode-map-prefix)
