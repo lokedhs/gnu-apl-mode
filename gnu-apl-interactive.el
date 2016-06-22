@@ -194,8 +194,9 @@ function editor.
                     (add-to-result command))))))))
     result))
 
-(defvar gnu-apl-interactive-mode-map
-  (let ((map (gnu-apl--make-mode-map "s-")))
+(defun gnu-apl--make-interactive-mode-map ()
+  (message "Creating `gnu-apl-interactive-mode-map' with prefix %S." gnu-apl-interactive-mode-map-prefix)
+  (let ((map (gnu-apl--make-base-mode-map gnu-apl-interactive-mode-map-prefix)))
     (define-key map (kbd "TAB") 'completion-at-point)
     (define-key map (kbd "C-c C-f") 'gnu-apl-edit-function)
     (define-key map (kbd "C-c C-v") 'gnu-apl-edit-variable)
@@ -203,7 +204,28 @@ function editor.
     (define-key map [menu-bar gnu-apl edit-function] '("Edit function" . gnu-apl-edit-function))
     (define-key map [menu-bar gnu-apl edit-matrix] '("Edit variable" . gnu-apl-edit-variable))
     (define-key map [menu-bar gnu-apl plot-line] '("Plot line graph of variable content" . gnu-apl-plot-line))
-    map)
+    map))
+
+(defun gnu-apl--set-interactive-mode-map-prefix (symbol new)
+  "Recreate the prefix and the keymap."
+  (message "Changing `gnu-apl-interactive-mode-map-prefix' from %S to %S."
+           (if (boundp symbol) (symbol-value symbol)
+             nil)
+           new)
+  (set-default symbol new)
+  (message "Updating `gnu-apl-interactive-mode-map'.")
+  (setq gnu-apl-interactive-mode-map (gnu-apl--make-interactive-mode-map)))
+
+(defcustom gnu-apl-interactive-mode-map-prefix "s-"
+  "The keymap prefix for ‘gnu-apl-interactive-mode-map’ used both to store the new value
+using `set-create' and to update `gnu-apl-interactive-mode-map' using
+  `gnu-apl--make-interactive-mode-map'. Kill and re-start your interactive APL
+  buffers to reflect the change."
+  :type 'string
+  :group 'gnu-apl
+  :set 'gnu-apl--set-interactive-mode-map-prefix)
+
+(defvar gnu-apl-interactive-mode-map (gnu-apl--make-interactive-mode-map)
   "The keymap for ‘gnu-apl-interactive-mode'.")
 
 (define-derived-mode gnu-apl-interactive-mode comint-mode "GNU-APL/Comint"
