@@ -37,6 +37,8 @@
            (cdr content))
           ((string= result "undefined")
            nil)
+          ((string= result "symbol is not a function")
+           nil)
           (t
            (error "Error getting function: %s" (car content))))))
 
