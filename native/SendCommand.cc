@@ -50,7 +50,8 @@ static void write_string_to_fd( const string &line, int fd )
     }
 }
 
-void SendCommand::run_command( NetworkConnection &conn, const vector<string> &args )
+void SendCommand::run_command(NetworkConnection &conn,
+                              const vector<string> &args )
 {
     vector<string> content = conn.load_block();
 
@@ -84,7 +85,7 @@ void SendCommand::run_command( NetworkConnection &conn, const vector<string> &ar
             throw ConnectionError( "Unable to open generated temp file" );
         }
         const UTF8_string utfname( name.c_str() );
-        InputFile fam( utfname, handle, false, false, true, false );
+        InputFile fam( utfname, handle, false, false, true, no_LX);
         fam.set_line_no( line );
         InputFile::files_todo.insert( InputFile::files_todo.begin(), fam );
 

@@ -41,18 +41,16 @@ FileWrapper::~FileWrapper()
 
 TempFileWrapper::TempFileWrapper( const std::string &prefix )
 {
-    stringstream name_buf;
-    name_buf << prefix << "XXXXXX";
-    const char *name_cstr = name_buf.str().c_str();
-    DynArray( char, tmp_name, strlen( name_cstr ) + 1 );
-    strcpy( tmp_name, name_cstr );
+    // mkstemp() modifies its argument, so we need to copy it.
+    std::string filename = prefix;
+    filename.append("XXXXXX");
 
-    fd = mkstemp( tmp_name );
+    fd = mkstemp( (char *)filename.c_str() );
     if( fd == -1 ) {
         abort();
     }
 
-    name = tmp_name;
+    name = filename;
     closed = false;
 }
 
