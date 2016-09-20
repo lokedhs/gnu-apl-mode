@@ -237,7 +237,8 @@ character when using the super-prefixed characters."
 (defun gnu-apl--set-mode-map-prefix (symbol new)
   "Recreate the prefix and the keymap."
   (message "Changing ‘gnu-apl-mode-map-prefix’ from %S to %S."
-           (if (boundp symbol) (symbol-value symbol)
+           (if (boundp symbol)
+               (symbol-value symbol)
              nil)
            new)
   (set-default symbol new)
