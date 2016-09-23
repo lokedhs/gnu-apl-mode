@@ -226,7 +226,6 @@ character when using the super-prefixed characters."
     map))
 
 (defun gnu-apl--make-apl-mode-map ()
-  (message "Creating ‘gnu-apl-mode-map’ with prefix %S." gnu-apl-mode-map-prefix)
   (let ((map (gnu-apl--make-base-mode-map gnu-apl-mode-map-prefix)))
     (define-key map (kbd "C-c r") 'gnu-apl-interactive-send-region)
     (define-key map (kbd "C-c C-c") 'gnu-apl-interactive-send-current-function)
@@ -236,13 +235,7 @@ character when using the super-prefixed characters."
 
 (defun gnu-apl--set-mode-map-prefix (symbol new)
   "Recreate the prefix and the keymap."
-  (message "Changing ‘gnu-apl-mode-map-prefix’ from %S to %S."
-           (if (boundp symbol)
-               (symbol-value symbol)
-             nil)
-           new)
   (set-default symbol new)
-  (message "Updating ‘gnu-apl-mode-map’.")
   (setq gnu-apl-mode-map (gnu-apl--make-apl-mode-map)))
 
 (defcustom gnu-apl-mode-map-prefix "s-"
@@ -273,11 +266,11 @@ using ‘set-create’ and to update ‘gnu-apl-mode-map’ using
 
 (defun gnu-apl--init-mode-common ()
   "Generic initialisation code for all gnu-apl modes."
-  (set (make-local-variable 'eldoc-documentation-function) 'gnu-apl--eldoc-data)
-  (set (make-local-variable 'completion-at-point-functions) '(gnu-apl-expand-symbol))
-  (set (make-local-variable 'comment-start) "⍝")
-  (set (make-local-variable 'comment-padding) " ")
-  (set (make-local-variable 'comment-end) "")
+  (setq-local eldoc-documentation-function 'gnu-apl--eldoc-data)
+  (setq-local completion-at-point-functions '(gnu-apl-expand-symbol))
+  (setq-local comment-start "⍝")
+  (setq-local comment-padding " ")
+  (setq-local comment-end "")
   (when (featurep 'company)
     (add-to-list (make-local-variable 'company-backends) 'company-gnu-apl))
   ;; TODO: It's an open question as to whether the below is a good idea
@@ -305,9 +298,9 @@ using ‘set-create’ and to update ‘gnu-apl-mode-map’ using
     ;;    (LO FN RO) R
     ;;    L (LO FN) R
     ;;    L (LO FN RO) R
-    (labels ((add-assignment-syntax (regexp) (concat (format "\\(?:%s *← *\\)?" s)
-                                                     regexp
-                                                     " *\\(?:;.*\\)?$")))
+    (cl-labels ((add-assignment-syntax (regexp) (concat (format "\\(?:%s *← *\\)?" s)
+                                                        regexp
+                                                        " *\\(?:;.*\\)?$")))
       (list (add-assignment-syntax (format "\\(%s\\)" s))
             (add-assignment-syntax (format "\\(?:%s +\\)?\\(%s\\)%s +%s" s s f s))
             (add-assignment-syntax (format "\\(?:%s +\\)?( *%s +\\(%s\\) *)%s *%s" s s s f s))
@@ -338,12 +331,11 @@ Returns the name of the function or nil if the function could not be parsed."
   (use-local-map gnu-apl-mode-map)
   (gnu-apl--init-mode-common)
   (gnu-apl--set-imenu-pattern)
-  (set (make-local-variable 'font-lock-defaults)
-       '((("⎕[a-zA-Z0-9]+" . font-lock-keyword-face)
-          ("^[ \t]*[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]+:" . font-lock-builtin-face)
-          (gnu-apl--match-function-head . (1 font-lock-function-name-face)))
-         nil nil nil))
-  (set (make-local-variable 'indent-line-function) 'gnu-apl-indent))
+  (setq-local font-lock-defaults '((("⎕[a-zA-Z0-9]+" . font-lock-keyword-face)
+                                    ("^[ \t]*[a-zA-Z_∆⍙λ⍺⍵][a-zA-Z0-9_∆⍙λ⍺⍵¯]+:" . font-lock-builtin-face)
+                                    (gnu-apl--match-function-head . (1 font-lock-function-name-face)))
+                                   nil nil nil))
+  (setq-local indent-line-function 'gnu-apl-indent))
 
 (defun gnu-apl--find-largest-backward-match (regex)
   (save-excursion

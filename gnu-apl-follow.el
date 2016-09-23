@@ -116,8 +116,8 @@ content."
                             (with-current-buffer buffer
                               (gnu-apl-trace-mode)
                               (let ((inhibit-read-only t))
-                                (set (make-local-variable 'gnu-apl-trace-variable) varname)
-                                (set (make-local-variable 'gnu-apl-trace-buffer) t)
+                                (setq-local gnu-apl-trace-variable varname)
+                                (setq-local gnu-apl-trace-buffer t)
                                 (add-hook 'kill-buffer-hook 'gnu-apl--trace-buffer-closed nil t)
                                 (gnu-apl--insert-traced-variable-value (cdr result))
                                 (goto-char (point-min))))

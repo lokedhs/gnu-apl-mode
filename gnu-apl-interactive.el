@@ -132,11 +132,11 @@ function editor.
   (let ((result "")
         (first t))
 
-    (labels ((add-to-result (s)
-                            (if first
-                                (setq first nil)
-                              (setq result (concat result "\n")))
-                            (setq result (concat result s))))
+    (cl-labels ((add-to-result (s)
+                  (if first
+                      (setq first nil)
+                    (setq result (concat result "\n")))
+                  (setq result (concat result s))))
 
       (dolist (plain (split-string line "\n"))
         (let ((command (gnu-apl--parse-text plain)))
@@ -195,7 +195,6 @@ function editor.
     result))
 
 (defun gnu-apl--make-interactive-mode-map ()
-  (message "Creating ‘gnu-apl-interactive-mode-map’ with prefix %S." gnu-apl-interactive-mode-map-prefix)
   (let ((map (gnu-apl--make-base-mode-map gnu-apl-interactive-mode-map-prefix)))
     (define-key map (kbd "TAB") 'completion-at-point)
     (define-key map (kbd "C-c C-f") 'gnu-apl-edit-function)
@@ -208,12 +207,7 @@ function editor.
 
 (defun gnu-apl--set-interactive-mode-map-prefix (symbol new)
   "Recreate the prefix and the keymap."
-  (message "Changing ‘gnu-apl-interactive-mode-map-prefix’ from %S to %S."
-           (if (boundp symbol) (symbol-value symbol)
-             nil)
-           new)
   (set-default symbol new)
-  (message "Updating ‘gnu-apl-interactive-mode-map’.")
   (setq gnu-apl-interactive-mode-map (gnu-apl--make-interactive-mode-map)))
 
 (defcustom gnu-apl-interactive-mode-map-prefix "s-"
@@ -236,10 +230,10 @@ buffers to reflect the change."
   (gnu-apl--init-mode-common)
 
   (setq comint-prompt-regexp "^\\(      \\)\\|\\(\\[[0-9]+\\] \\)")
-  (set (make-local-variable 'gnu-apl-preoutput-filter-state) 'normal)
-  (set (make-local-variable 'gnu-apl-input-display-type) 'cout)
-  (set (make-local-variable 'comint-input-sender) 'gnu-apl--send)
-  (set (make-local-variable 'gnu-apl-trace-symbols) nil)
+  (setq-local gnu-apl-preoutput-filter-state 'normal)
+  (setq-local gnu-apl-input-display-type 'cout)
+  (setq-local comint-input-sender 'gnu-apl--send)
+  (setq-local gnu-apl-trace-symbols nil)
   (add-hook 'comint-preoutput-filter-functions 'gnu-apl--preoutput-filter nil t)
 
   (setq font-lock-defaults '(nil t)))

@@ -199,7 +199,7 @@ characters."
     (forward-line 1)
     (gnu-apl-mode)
     (gnu-apl-interactive-edit-mode 1)
-    (set (make-local-variable 'gnu-apl-window-configuration) window-configuration)
+    (setq-local gnu-apl-window-configuration window-configuration)
     (message "To save the buffer, use M-x gnu-apl-save-function (C-c C-c)")))
 
 (defun gnu-apl--choose-variable (prompt &optional type default-value)

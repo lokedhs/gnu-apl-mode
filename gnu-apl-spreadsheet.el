@@ -107,8 +107,8 @@ the active interpreter."
                                              (list "!list")))
                                      (t (error "Illegal cell content: %S" col-content)))))
                             (ses-edit-cell row-index col-index v))))
-        (set (make-local-variable 'gnu-apl-var-name) backend-variable-name))
-      (set (make-local-variable 'gnu-apl-window-configuration) window-configuration)
+        (setq-local gnu-apl-var-name backend-variable-name))
+      (setq-local gnu-apl-window-configuration window-configuration)
       (message "To save the buffer, use M-x gnu-apl-spreadsheet-send-this-document (C-c C-c)"))))
 
 (defun gnu-apl-copy-spreadsheet-to-kill-ring (varname)
