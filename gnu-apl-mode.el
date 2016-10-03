@@ -227,7 +227,7 @@ character when using the super-prefixed characters."
 
 (defun gnu-apl--make-apl-mode-map ()
   (let ((map (gnu-apl--make-base-mode-map gnu-apl-mode-map-prefix)))
-    (define-key map (kbd "C-c r") 'gnu-apl-interactive-send-region)
+    (define-key map (kbd "C-c C-s") 'gnu-apl-interactive-send-region)
     (define-key map (kbd "C-c C-c") 'gnu-apl-interactive-send-current-function)
     (define-key map (kbd "C-c C-l") 'gnu-apl-interactive-send-buffer)
     (define-key map (kbd "C-c C-z") 'gnu-apl-switch-to-interactive)
