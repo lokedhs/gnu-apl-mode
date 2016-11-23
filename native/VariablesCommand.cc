@@ -54,11 +54,9 @@ void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<s
         }
     }
 
-    int num_symbols = Workspace::symbols_allocated();
-    Symbol **symbols = new Symbol *[num_symbols];
-    Workspace::get_all_symbols( symbols, num_symbols );
-    for( int i = 0 ; i < num_symbols ; i++ ) {
-        Symbol *symbol = symbols[i];
+    Simple_string<const Symbol *> symbols = Workspace::get_all_symbols();
+    for( int i = 0 ; i < symbols.size() ; i++ ) {
+        const Symbol *symbol = symbols[i];
         if( !symbol->is_erased() ) {
             NameClass symbol_nc = symbol->top_of_stack()->name_class;
             if( (cls == ALL && (symbol_nc == NC_VARIABLE || symbol_nc == NC_FUNCTION || symbol_nc == NC_OPERATOR))
@@ -75,6 +73,4 @@ void VariablesCommand::run_command( NetworkConnection &conn, const std::vector<s
 
     out << END_TAG << "\n";
     conn.write_string_to_fd( out.str() );
-
-    delete[] symbols;
 }

@@ -1,4 +1,4 @@
-AM_CXXFLAGS = $(CXX_RDYNAMIC)
+AM_CXXFLAGS = $(CXX_RDYNAMIC) -Wno-deprecated-declarations
 
 dist_noinst_DATA =	AUTHORS		\
 			LAST_GIT_PULL
