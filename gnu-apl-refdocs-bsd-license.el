@@ -71,7 +71,7 @@ following list of available operations:
     ;; ========================================
 
     ("⍷"
-     (("Find" "Find subsequence in array" "1 for position each position that contains the array L in R")))
+     (("Dyadic" "Find" "Find subsequence in array. 1 for position each position that contains the array L in R")))
 
     ;; ========================================
 
