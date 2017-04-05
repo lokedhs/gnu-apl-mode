@@ -358,22 +358,23 @@ are not of the value 0 or 1, a DOMAIN ERROR will be raised.")
     ;; ========================================
 
     ("⍨"
-     (("Monadic Operator" "Duplicate / Commute" "Make L a function that when called as a monadic function is given its argument as R and L. f⍨ X → X f X. When called as a dyadic function, its arguments are switched. A f⍨ B → B f A")))
+     (("Monadic Operator" "Duplicate / Commute" "Modify the way arguments are passed to a function" "When called as a monadic function duplicate the argument. f⍨ X → X f X.
+When called as a dyadic function, arguments are switched. A f⍨ B → B f A")))
 
     ;; ========================================
 
     ("¨"
-     (("Monadic Operator" "Each" "Make L a function that when called as a monadic function applies L to each item in the argument. When called as a dyadic function, apply L to corresponding items of both arguments.")))
+     (("Monadic Operator" "Each" "Apply a function to each item." "Make L a function that when called as a monadic function
+applies L to each item in the argument.
+When called as a dyadic function,
+apply L to corresponding items of both arguments.")))
 
     ;; ========================================
 
-    ("∘."
-     (("Dyadic Operator" "Outer Product" "Make a function that applies R to each combination of items in L and R.")))
-
-    ;; ========================================
-
-    ;; ("."
-    ;;  (("Dyadic Operator" "Inner Product" "TODO")))
+    ("."
+     (("Dyadic Operator" "Inner/Outer Product" "If L is ∘, apply R to each combination." "Outer Product (∘.f): apply f to each combination of items in L and R."))
+     ;; TODO: inner product
+     )
 
     ;; ========================================
 
