@@ -453,6 +453,46 @@ This function is designed to be used in ‘completion-at-point-functions’."
                   (list pos (point) filtered-variables))))))))))
 
 ;;;
+;;;  remote help command integration
+;;;
+
+(defun gnu-apl--load-help (&optional string)
+  "Retrieve the help from GNU APL for a symbol STRING and
+convert it to the format same as `gnu-apl--symbol-doc'.
+If STRING is nil return help for all symbols"
+  (let* ((results (gnu-apl--send-network-command-and-read
+                   (if string (concat "help:" string) "help")))
+         (entries (mapcar (lambda (x) (car (read-from-string x))) results))
+         (uniq-symbols (mapcar #'second
+                               (seq-uniq entries
+                                         (lambda (x y)
+                                           (string= (second x) (second y))))))
+         (docs))
+    (flet ((cnv (entry)
+                (let ((arity (first entry)))
+                  (list (case arity
+                          (0 "Niladic function")
+                          (1 "Monadic function")
+                          (2 "Dyadic function")
+                          (-1 "Monadic operator taking one argument")
+                          (-2 "Monadic operator taking one or two arguments")
+                          (-3 "Dyadic operator taking one argument")
+                          (-4 "Dyadic operator taking two arguments")
+                          (-5 "Quasi-dyadic operator (outer product)"))
+                      (third entry)
+                      (fourth entry)
+                      (fifth entry)))))
+      (dolist (symb uniq-symbols)
+        (push
+         (list symb
+               (mapcar #'cnv
+                       (cl-remove-if-not (lambda (x) (string= (second x) symb)) entries)))
+         docs)))
+    docs))
+
+                               
+
+;;;
 ;;;  imenu integration
 ;;;
 
@@ -549,8 +589,7 @@ to ‘gnu-apl-executable’)."
                                       "'" *gnu-apl-native-lib* "'"))
         (gnu-apl--send buffer (format "%s[1] %d" *gnu-apl-native-lib* gnu-apl-native-listener-port))
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-end* "'"))))
-    (when gnu-apl-show-keymap-on-startup
-      (run-at-time "0 sec" nil #'(lambda () (gnu-apl-show-keyboard 1))))))
+    (when gnu-apl-show-keymap-on-startup      (run-at-time "0 sec" nil #'(lambda () (gnu-apl-show-keyboard 1))))))
 
 ;;;
 ;;;  Load the other source files
