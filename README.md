@@ -95,13 +95,19 @@ buffer is opened.
 
 This may be changed to be the default in a future version.
 
-Customizing keyboard layout
+Customising keyboard layout
 ---------------------------
-Sometimes the default keyboard layout may not be enough, for example for
-Dvorak users. In this case it can be customized by redefining 2 variables:
-`gnu-apl--symbols`, which is a list of triplets: character name, APL symbol and a corresponding key in the current keyboard layout.
 
-To customize displayed keyboard help it is necessary to redefine the `gnu-apl-keymap-template` variable to match the physical keyboard. For example the old macbook's keyboard with the Dvorak layout could look like this:
+Sometimes the default keyboard layout may not be enough, for example
+for Dvorak users. In this case it can be customised by redefining 2
+variables: `gnu-apl--symbols`, which is a list of triplets: character
+name, APL symbol and a corresponding key in the current keyboard
+layout.
+
+To customise displayed keyboard help it is necessary to redefine the
+`gnu-apl-keymap-template` variable to match the physical keyboard. For
+example the old macbook's keyboard with the Dvorak layout could look
+like this:
 
 ```lisp
 (setq gnu-apl-keymap-template"
@@ -120,4 +126,7 @@ To customize displayed keyboard help it is necessary to redefine the `gnu-apl-ke
 ╚════════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩══════════╝")
 ```
 
-Note that both of these variable shall be set _before_ loading the `gnu-apl-mode`. In order for changes in `gnu-apl--symbols` to take place one better to restart Emacs; for `gnu-apl-keymap-template` it is enough to just hide/show keyboard help.
+Note that both of these variable shall be set _before_ loading the
+`gnu-apl-mode`. In order for changes in `gnu-apl--symbols` to take
+place one better to restart Emacs; for `gnu-apl-keymap-template` it is
+enough to just hide/show keyboard help.
