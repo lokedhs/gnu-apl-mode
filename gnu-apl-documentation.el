@@ -10,6 +10,25 @@
 
 (defvar *gnu-apl-keymap-buffer-name* "*gnu-apl keymap*")
 
+(defvar gnu-apl-keymap-template
+  "╔════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦═════════╗
+║ ~∇ ║ !∇ ║ @∇ ║ #∇ ║ $∇ ║ %∇ ║ ^∇ ║ &∇ ║ *∇ ║ (∇ ║ )∇ ║ _∇ ║ +∇ ║         ║
+║ `∇ ║ 1∇ ║ 2∇ ║ 3∇ ║ 4∇ ║ 5∇ ║ 6∇ ║ 7∇ ║ 8∇ ║ 9∇ ║ 0∇ ║ -∇ ║ =∇ ║ BACKSP  ║
+╠════╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦══════╣
+║       ║ Q∇ ║ W∇ ║ E∇ ║ R∇ ║ T∇ ║ Y∇ ║ U∇ ║ I∇ ║ O∇ ║ P∇ ║ {∇ ║ }∇ ║  |∇  ║
+║  TAB  ║ q∇ ║ w∇ ║ e∇ ║ r∇ ║ t∇ ║ y∇ ║ u∇ ║ i∇ ║ o∇ ║ p∇ ║ [∇ ║ ]∇ ║  \\∇  ║
+╠═══════╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩══════╣
+║ (CAPS   ║ A∇ ║ S∇ ║ D∇ ║ F∇ ║ G∇ ║ H∇ ║ J∇ ║ K∇ ║ L∇ ║ :∇ ║ \"∇ ║         ║
+║  LOCK)  ║ a∇ ║ s∇ ║ d∇ ║ f∇ ║ g∇ ║ h∇ ║ j∇ ║ k∇ ║ l∇ ║ ;∇ ║ '∇ ║ RETURN  ║
+╠═════════╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═════════╣
+║             ║ Z∇ ║ X∇ ║ C∇ ║ V∇ ║ B∇ ║ N∇ ║ M∇ ║ <∇ ║ >∇ ║ ?∇ ║          ║
+║  SHIFT      ║ z∇ ║ x∇ ║ c∇ ║ v∇ ║ b∇ ║ n∇ ║ m∇ ║ ,∇ ║ .∇ ║ /∇ ║  SHIFT   ║
+╚═════════════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩══════════╝"
+  "APL keyboard layout template. It is based on
+GNU APL keyboard layout: http://commons.wikimedia.org/wiki/File:GNU_APL_keyboard_layout.png
+This variable could be redefined to match another physical layout.
+In order for changes to take effect the buffer needs to be recreated.")
+
 (defun gnu-apl-keymap-mode-kill-buffer ()
   "Close the buffer displaying the keymap."
   (interactive)
@@ -223,39 +242,26 @@
     map))
 
 (defun gnu-apl--make-readable-keymap ()
-  (let ((keymap-template "╔════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦════╦═════════╗
-║ ~∇ ║ !∇ ║ @∇ ║ #∇ ║ $∇ ║ %∇ ║ ^∇ ║ &∇ ║ *∇ ║ (∇ ║ )∇ ║ _∇ ║ +∇ ║         ║
-║ `∇ ║ 1∇ ║ 2∇ ║ 3∇ ║ 4∇ ║ 5∇ ║ 6∇ ║ 7∇ ║ 8∇ ║ 9∇ ║ 0∇ ║ -∇ ║ =∇ ║ BACKSP  ║
-╠════╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦═╩══╦══════╣
-║       ║ Q∇ ║ W∇ ║ E∇ ║ R∇ ║ T∇ ║ Y∇ ║ U∇ ║ I∇ ║ O∇ ║ P∇ ║ {∇ ║ }∇ ║  |∇  ║
-║  TAB  ║ q∇ ║ w∇ ║ e∇ ║ r∇ ║ t∇ ║ y∇ ║ u∇ ║ i∇ ║ o∇ ║ p∇ ║ [∇ ║ ]∇ ║  \\∇  ║
-╠═══════╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩═╦══╩══════╣
-║ (CAPS   ║ A∇ ║ S∇ ║ D∇ ║ F∇ ║ G∇ ║ H∇ ║ J∇ ║ K∇ ║ L∇ ║ :∇ ║ \"∇ ║         ║
-║  LOCK)  ║ a∇ ║ s∇ ║ d∇ ║ f∇ ║ g∇ ║ h∇ ║ j∇ ║ k∇ ║ l∇ ║ ;∇ ║ '∇ ║ RETURN  ║
-╠═════════╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═══╦╩═════════╣
-║             ║ Z∇ ║ X∇ ║ C∇ ║ V∇ ║ B∇ ║ N∇ ║ M∇ ║ <∇ ║ >∇ ║ ?∇ ║          ║
-║  SHIFT      ║ z∇ ║ x∇ ║ c∇ ║ v∇ ║ b∇ ║ n∇ ║ m∇ ║ ,∇ ║ .∇ ║ /∇ ║  SHIFT   ║
-╚═════════════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩════╩══════════╝"))
-    ;; Ensure that the buffer is recreated
-    (let ((old-buffer (get-buffer *gnu-apl-keymap-buffer-name*)))
-      (when old-buffer
-        (kill-buffer old-buffer)))
-    ;; Recreate the buffer according to the active keymap.
-    (let ((buffer (get-buffer-create *gnu-apl-keymap-buffer-name*))
-          (keymap (gnu-apl--make-help-property-keymap)))
-      (with-current-buffer buffer
-        (delete-region (point-min) (point-max))
-        (insert keymap-template)
-        (goto-char (point-min))
-        (while (search-forward-regexp "\\(.\\)∇" nil t)
-          (let* ((key (match-string 1))
-                 (found (cl-find key gnu-apl--symbols :key #'third :test #'equal))
-                 (result-string (if found (gnu-apl--make-clickable (second found) keymap) " ")))
-            (replace-match (concat key result-string) t t)))
-        (add-text-properties (point-min) (point-max) (list 'face 'gnu-apl-kbd-help-screen))
-        (goto-char (point-min))
-        (gnu-apl-keymap-mode))
-      buffer)))
+  ;; Ensure that the buffer is recreated
+  (let ((old-buffer (get-buffer *gnu-apl-keymap-buffer-name*)))
+    (when old-buffer
+      (kill-buffer old-buffer)))
+  ;; Recreate the buffer according to the active keymap.
+  (let ((buffer (get-buffer-create *gnu-apl-keymap-buffer-name*))
+        (keymap (gnu-apl--make-help-property-keymap)))
+    (with-current-buffer buffer
+      (delete-region (point-min) (point-max))
+      (insert gnu-apl-keymap-template)
+      (goto-char (point-min))
+      (while (search-forward-regexp "\\(.\\)∇" nil t)
+        (let* ((key (match-string 1))
+               (found (cl-find key gnu-apl--symbols :key #'third :test #'equal))
+               (result-string (if found (gnu-apl--make-clickable (second found) keymap) " ")))
+          (replace-match (concat key result-string) t t)))
+      (add-text-properties (point-min) (point-max) (list 'face 'gnu-apl-kbd-help-screen))
+      (goto-char (point-min))
+      (gnu-apl-keymap-mode))
+    buffer))
 
 (defun gnu-apl-show-keyboard (&optional arg)
   "When arg is nil, toggle the display of the keyboard help.
