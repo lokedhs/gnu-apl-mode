@@ -34,6 +34,7 @@
 (require 'etags)
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
+(require 'gnu-apl-finnapl)
 
 ;;;###autoload
 (defgroup gnu-apl nil
@@ -217,12 +218,14 @@ character when using the super-prefixed characters."
     (define-key map (kbd "C-M-e") 'gnu-apl-end-of-defun)
     (define-key map (kbd "M-.") 'gnu-apl-find-function-at-point)
     (define-key map (kbd "C-c C-.") 'gnu-apl-trace)
+    (define-key map (kbd "C-c C-i") 'gnu-apl-finnapl-list)
     (define-key map [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
     (define-key map [menu-bar gnu-apl toggle-keyboard] '("Toggle keyboard" . gnu-apl-show-keyboard))
     (define-key map [menu-bar gnu-apl show-help-for-symbol] '("Documentation for symbol" . gnu-apl-show-help-for-symbol))
     (define-key map [menu-bar gnu-apl apropos-symbol] '("Search symbols" . gnu-apl-apropos-symbol))
     (define-key map [menu-bar gnu-apl find-symbol-at-point] '("Find symbol at point" . gnu-apl-find-function-at-point))
     (define-key map [menu-bar gnu-apl trace] '("Trace variable" . gnu-apl-trace))
+    (define-key map [menu-bar gnu-apl finnapl-list] '("FinnAPL idioms list" . gnu-apl-finnapl-list))
     map))
 
 (defun gnu-apl--make-apl-mode-map ()
