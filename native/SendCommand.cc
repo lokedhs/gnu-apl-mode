@@ -87,7 +87,7 @@ void SendCommand::run_command(NetworkConnection &conn,
         const UTF8_string utfname( name.c_str() );
         InputFile fam( utfname, handle, false, false, true, no_LX);
         fam.set_line_no( line );
-        InputFile::files_todo.insert( InputFile::files_todo.begin(), fam );
+        InputFile::files_todo.insert_before( 0, fam );
 
         stringstream out;
         out << "content sent\n"

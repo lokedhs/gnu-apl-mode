@@ -49,12 +49,10 @@ void FnCommand::run_command( NetworkConnection &conn, const std::vector<std::str
         else {
             out << "function-content\n";
             const UCS_string ucs = function->canonical( false );
-            vector<UCS_string> tlines;
+            UCS_string_vector tlines;
             ucs.to_vector( tlines );
 
-            for( vector<UCS_string>::iterator i = tlines.begin() ; i != tlines.end() ; i++ ) {
-                out << to_string(*i) << "\n";
-            }
+            loop(i, tlines.size())   out << to_string(tlines[i]) << "\n";
         }
     }
     out << END_TAG << "\n";

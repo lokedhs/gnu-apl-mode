@@ -32,8 +32,8 @@ void SystemFnCommand::run_command( NetworkConnection &conn, const std::vector<st
 #define cmd_def(NAME, CMD, ARG, HINT) out << NAME << "\n";
 #include "../Command.def"
 
-    for( vector<Command::user_command>::iterator i = Command::user_commands.begin() ; i != Command::user_commands.end() ; i++ ) {
-        out << i->prefix << endl;
+    loop(i, Workspace::get_user_commands().size()) {
+        out << Workspace::get_user_commands()[i].prefix << endl;
     }
 
     out << END_TAG << "\n";
