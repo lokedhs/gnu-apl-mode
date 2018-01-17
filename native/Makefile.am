@@ -28,7 +28,8 @@ libemacs_la_SOURCES =						\
 		UnixSocketListener.cc	UnixSocketListener.hh	\
 		util.cc			util.hh			\
 		VariablesCommand.cc	VariablesCommand.hh	\
-		VersionCommand.cc	VersionCommand.hh
+		VersionCommand.cc	VersionCommand.hh \
+		HelpCommand.cc HelpCommmand.hh
 
 .PHONY: git-pull
 git-pull:

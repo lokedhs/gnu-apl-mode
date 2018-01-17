@@ -21,7 +21,6 @@
 #ifndef EMACS_HH
 #define EMACS_HH
 
-#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -32,11 +31,10 @@
 #pragma GCC diagnostic ignored "-Wmismatched-tags"
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #include "../Native_interface.hh"
-#pragma GCC diagnostic pop
 
 void set_active( bool v );
 
-#define PROTOCOL_VERSION "1.5"
+#define PROTOCOL_VERSION "1.6"
 
 #define END_TAG "APL_NATIVE_END_TAG"
 #define NOTIFICATION_START_TAG "APL_NATIVE_NOTIFICATION_START"
@@ -56,7 +54,7 @@ Value_P make_string_cell( const std::string &string, const char *loc );
 inline std::string to_string(const UCS_string & ucs)
 {
     const UTF8_string utf(ucs);
-    return string((const char *)(utf.get_items()), utf.size());
+    return string((const char *)&utf[0], utf.size());
 }
 
 #endif

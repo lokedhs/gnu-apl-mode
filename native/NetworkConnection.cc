@@ -36,6 +36,7 @@
 #include "SystemFnCommand.hh"
 #include "SystemVariableCommand.hh"
 #include "SendCommand.hh"
+#include "HelpCommand.hh"
 
 #include <iostream>
 #include <sstream>
@@ -70,6 +71,7 @@ NetworkConnection::NetworkConnection( int socket_in )
     add_command( commands, new SystemFnCommand( "systemcommands" ) );
     add_command( commands, new SystemVariableCommand( "systemvariables" ) );
     add_command( commands, new SendCommand( "sendcontent" ) );
+    add_command( commands, new HelpCommand( "help" ) );
 }
 
 NetworkConnection::~NetworkConnection()
