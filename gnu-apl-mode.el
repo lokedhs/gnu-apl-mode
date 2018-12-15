@@ -471,7 +471,7 @@ If STRING is nil return help for all symbols"
                                          (lambda (x y)
                                            (string= (second x) (second y))))))
          (docs))
-    (flet ((cnv (entry)
+    (cl-flet ((cnv (entry)
                 (let ((arity (first entry)))
                   (list (case arity
                           (0 "Niladic function")
