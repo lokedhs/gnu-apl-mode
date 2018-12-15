@@ -103,7 +103,7 @@ In order for changes to take effect the buffer needs to be recreated.")
 
 (defun gnu-apl--get-full-docstring-for-native-symbol (string full-text-p)
   (let ((doc (gnu-apl--get-doc-for-symbol string))
-        (format-short 
+        (format-short
          (if full-text-p "\n%s\n\n" "\n%s\n")))
     (when doc
       (with-temp-buffer
@@ -215,7 +215,7 @@ buffer. Otherwise try to make it short to fit into the tooltip."
                                                  (not gnu-apl-keyboard-simplified-mouse-action-mode))))
     (cond ((and gnu-apl-keyboard-simplified-mouse-action-mode
                 description)
-           (setf help-echo-string description))           
+           (setf help-echo-string description))
           (gnu-apl-keyboard-simplified-mouse-action-mode
            (setf help-echo-string "No documentation available")))
   (propertize string
@@ -276,7 +276,7 @@ buffer. Otherwise try to make it short to fit into the tooltip."
     (gnu-apl-show-help-for-symbol string)))
 
 (defun gnu-apl--make-help-property-keymap ()
-  (let ((map (make-sparse-keymap)))  
+  (let ((map (make-sparse-keymap)))
     (cond (gnu-apl-keyboard-simplified-mouse-action-mode
            (define-key map [mouse-1] 'gnu-apl-mouse-insert-from-keymap)
            (define-key map [down-mouse-2] 'gnu-apl-mouse-help-from-keymap))

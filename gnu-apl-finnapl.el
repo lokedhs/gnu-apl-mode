@@ -71,7 +71,7 @@ containing parsed values from this list"
           ;; parse sections updating the global list of idioms
           (dolist (x sections)
             (apply #'gnu-apl--parse-finnapl-section x))
-          ;; kill the buffer created by url-retrieve. 
+          ;; kill the buffer created by url-retrieve.
           (kill-buffer (current-buffer))
           (setq *gnu-apl--finnapl-idioms* (nreverse *gnu-apl--finnapl-idioms*))
           (message "List of APL idioms successfully downloaded")
@@ -117,7 +117,7 @@ the buffer created by url-retrieve START END."
 
 (defun gnu-apl--parse-finnapl-idiom (idiom)
   "Parse particular IDIOM part of the buffer.
-The IDIOM is a list of: 
+The IDIOM is a list of:
   - Idiom number (string)
   - Idiom name
   - Idiom arguments
@@ -183,7 +183,7 @@ and closes the idioms window."
   (let* ((id (tabulated-list-get-id))
          (idiom (fourth (cl-find id *gnu-apl--finnapl-idioms*
                                  :test #'string= :key #'car))))
-    (quit-window t)  
+    (quit-window t)
     (gnu-apl-finnapl--insert-idiom idiom)))
 
 (defun gnu-apl-finnapl-choice-tabular ()

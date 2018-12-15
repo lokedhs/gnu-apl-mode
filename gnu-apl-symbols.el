@@ -152,7 +152,7 @@
                            ;; /
                            ("slash-bar" "⌿" "/")
                            ("quad-colon" "⍠" "?")
-                           
+
                            ;; Extras
                            ("pi" "π")
                            ("root" "√")

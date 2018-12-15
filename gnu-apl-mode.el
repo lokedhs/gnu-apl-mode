@@ -493,7 +493,7 @@ If STRING is nil return help for all symbols"
          docs)))
     docs))
 
-                               
+
 
 ;;;
 ;;;  imenu integration
@@ -597,8 +597,8 @@ to ‘gnu-apl-executable’)."
 ;;;
 ;;;  Load the other source files
 ;;;
- 
-(require 'gnu-apl-input) 
+
+(require 'gnu-apl-input)
 (require 'gnu-apl-interactive)
 (require 'gnu-apl-editor)
 (require 'gnu-apl-network)
