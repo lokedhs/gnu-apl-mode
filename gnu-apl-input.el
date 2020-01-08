@@ -24,16 +24,16 @@
   (quail-select-package "APL-Z")
   (quail-install-map
    (let* ((prefix (string new))
-		  (gnu-apl--transcription-alist
-		   (loop for command in gnu-apl--symbols
-				 for key-command = (third command)
-				 append (loop for s in (if (listp key-command)
-										   key-command
-										 (list key-command))
-							  collect (cons (concat prefix s)
-											(second command))))))
-	 (quail-map-from-table
-	  '((default gnu-apl--transcription-alist)))))
+          (gnu-apl--transcription-alist
+           (loop for command in gnu-apl--symbols
+                 for key-command = (third command)
+                 append (loop for s in (if (listp key-command)
+                                           key-command
+                                         (list key-command))
+                              collect (cons (concat prefix s)
+                                            (second command))))))
+     (quail-map-from-table
+      '((default gnu-apl--transcription-alist)))))
   (set-default symbol new))
 
 (defun gnu-apl--initialize-key-prefix (symbol new)
@@ -46,5 +46,5 @@
   :group 'gnu-apl
   :initialize #'gnu-apl--initialize-key-prefix
   :set #'gnu-apl--update-key-prefix)
- 
+
 (provide 'gnu-apl-input)
