@@ -52,7 +52,7 @@ GNU APL interpreter."
 
 (defun gnu-apl-interactive-send-line ()
   "Send the current to the GNU APL interpreter."
-  (interactive "r")
+  (interactive)
   (gnu-apl-interactive-send-region (point-at-bol) (point-at-eol)))
 
 (defun gnu-apl--function-definition-to-list (content)
