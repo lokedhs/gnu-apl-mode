@@ -12,7 +12,9 @@ the function and set it in the running APL interpreter."
   (gnu-apl--get-function name))
 
 (defcustom gnu-apl-flash-on-send t
-  "When non-nil flash the region that is sent to GNU APL interpreter.")
+  "When non-nil flash the region that is sent to GNU APL interpreter."
+  :type  'boolean
+  :group 'gnu-apl)
 
 (defun gnu-apl--get-function (function-definition)
   (let ((function-name (gnu-apl--parse-function-header function-definition)))
@@ -45,7 +47,7 @@ GNU APL interpreter."
   "Send the region to the active GNU APL interpreter."
   (interactive "r")
   (when gnu-apl-flash-on-send
-    (gnu-apl-flash-region start end))
+    (gnu-apl--flash-region start end))
   (gnu-apl-interactive-send-string (buffer-substring start end)
                                    buffer-file-name (1- (gnu-apl--current-line-number (min start end))))
   (message "Region sent to APL"))
