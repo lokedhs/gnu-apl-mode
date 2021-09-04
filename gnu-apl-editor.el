@@ -11,7 +11,7 @@ the function and set it in the running APL interpreter."
   (interactive (list (gnu-apl--choose-variable "Function name" :function (gnu-apl--name-at-point))))
   (gnu-apl--get-function name))
 
-(defvar gnu-apl-flash-on-send t
+(defcustom gnu-apl-flash-on-send t
   "When non-nil flash the region that is sent to GNU APL interpreter.")
 
 (defun gnu-apl--get-function (function-definition)
@@ -29,7 +29,7 @@ the function and set it in the running APL interpreter."
                              (error "Not an editable function: %s" function-name)))))
         (gnu-apl--open-function-editor-with-timer content)))))
 
-(defun gnu-apl-flash-region (start end &optional timeout)
+(defun gnu-apl--flash-region (start end &optional timeout)
   "Temporarily highlight region from start to end."
   (let ((overlay (make-overlay start end)))
     (overlay-put overlay 'face 'secondary-selection)
