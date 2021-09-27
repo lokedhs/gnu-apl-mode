@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-(require 'cl)
+(require 'cl-lib)
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
 
@@ -64,9 +64,9 @@ normalised to a normal function definition form."
   (let ((rows (split-string content "\r?\n")))
     (let ((definition (gnu-apl--trim-spaces (car rows)))
           (body (cdr rows)))
-      (unless (string= (subseq definition 0 1) "∇")
+      (unless (string= (cl-subseq definition 0 1) "∇")
         (error "When splitting function, header does not start with function definition"))
-      (cons (subseq definition 1) body))))
+      (cons (cl-subseq definition 1) body))))
 
 (defun gnu-apl--make-tag (filename line)
   "Creates a tag appropriate for sending to the APL interpreter
@@ -81,23 +81,23 @@ The block is bounded by a function definition of the form
 
   (save-excursion
     (beginning-of-line)
-    (let ((start (loop for line = (gnu-apl--trim-spaces (gnu-apl--current-line-string))
-                       when (gnu-apl--full-function-definition-p line t)
-                       return (point)
-                       when (plusp (forward-line -1))
-                       return nil)))
+    (let ((start (cl-loop for line = (gnu-apl--trim-spaces (gnu-apl--current-line-string))
+                          when (gnu-apl--full-function-definition-p line t)
+                          return (point)
+                          when (cl-plusp (forward-line -1))
+                          return nil)))
       (unless start
         (user-error "Can't find function definition above cursor"))
 
       (unless (zerop (forward-line 1))
         (user-error "No end marker found"))
 
-      (let ((end (loop for line = (gnu-apl--trim-trailing-newline
-                                   (gnu-apl--trim-spaces (gnu-apl--current-line-string)))
-                       when (string= line "∇")
-                       return (progn (forward-line -1) (end-of-line) (point))
-                       when (plusp (forward-line 1))
-                       return nil)))
+      (let ((end (cl-loop for line = (gnu-apl--trim-trailing-newline
+                                      (gnu-apl--trim-spaces (gnu-apl--current-line-string)))
+                          when (string= line "∇")
+                          return (progn (forward-line -1) (end-of-line) (point))
+                          when (cl-plusp (forward-line 1))
+                          return nil)))
         (unless end
           (user-error "No end marker found"))
         (let ((overlay (make-overlay start end)))
@@ -117,9 +117,9 @@ The block is bounded by a function definition of the form
           ((string= (car return-data) "function defined")
            t)
           ((string= (car return-data) "error")
-           (if (string= (second return-data) "parse error")
-               (let ((error-msg (third return-data))
-                     (line (string-to-number (fourth return-data))))
+           (if (string= (cl-second return-data) "parse error")
+               (let ((error-msg (cl-third return-data))
+                     (line (string-to-number (cl-fourth return-data))))
                  (gnu-apl--move-to-line line)
                  (let ((overlay (make-overlay (save-excursion
                                                 (beginning-of-line)
@@ -131,7 +131,7 @@ The block is bounded by a function definition of the form
                    (run-at-time "0.5 sec" nil #'(lambda () (delete-overlay overlay))))
                  (message "Error on line %d: %s" line error-msg)
                  nil)
-             (error "Unexpected error: %s" (second return-data))))
+             (error "Unexpected error: %s" (cl-second return-data))))
           (t
            (gnu-apl--display-error-buffer (format "Error second function: %s" (car content))
                                           (cdr return-data))
@@ -148,7 +148,7 @@ successfully."
     (gnu-apl--send-network-command "si")
     (let ((reply (gnu-apl--read-network-reply-block)))
       (if (cl-find function-name reply :test #'string=)
-          (ecase gnu-apl-redefine-function-when-in-use-action
+          (cl-ecase gnu-apl-redefine-function-when-in-use-action
             (error (error "Function already on the )SI stack"))
             (clear (gnu-apl--send-network-command "sic")
                    (gnu-apl--send-new-function parts tag))
@@ -170,18 +170,18 @@ successfully."
   (interactive)
   (goto-char (point-min))
   (let ((definition (gnu-apl--trim-spaces (gnu-apl--trim-trailing-newline (gnu-apl--current-line-string)))))
-    (unless (string= (subseq definition 0 1) "∇")
+    (unless (string= (cl-subseq definition 0 1) "∇")
       (user-error "Function header does not start with function definition symbol"))
     (unless (zerop (forward-line))
       (user-error "Empty function definition"))
-    (let* ((function-header (subseq definition 1))
            (function-name (gnu-apl--parse-function-header function-header)))
+    (let* ((function-header (cl-subseq definition 1))
       (unless function-name
         (user-error "Illegal function header"))
 
       (let* ((buffer-content (gnu-apl--trim-trailing-newline (buffer-substring (point) (point-max))))
-             (content (list* function-header
-                             (gnu-apl--remove-final-endfn (split-string buffer-content "\r?\n")))))
+             (content (cl-list* function-header
+                                (gnu-apl--remove-final-endfn (split-string buffer-content "\r?\n")))))
 
         (when (gnu-apl--send-si-and-send-new-function content)
           (let ((window-configuration (if (boundp 'gnu-apl-window-configuration)
@@ -222,7 +222,7 @@ characters."
 
 (defun gnu-apl--choose-variable (prompt &optional type default-value)
   (gnu-apl--send-network-command (concat "variables"
-                                         (ecase type
+                                         (cl-ecase type
                                            (nil "")
                                            (:function ":function")
                                            (:variable ":variable"))))

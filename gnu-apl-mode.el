@@ -29,7 +29,7 @@
 ;;;
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib)
 (require 'comint)
 (require 'etags)
 (require 'gnu-apl-util)
@@ -255,8 +255,8 @@ using ‘set-create’ and to update ‘gnu-apl-mode-map’ using
 
 (defvar gnu-apl-mode-syntax-table
   (let ((table (make-syntax-table)))
-    (loop for s in gnu-apl--symbols
-          for char = (second s)
+    (cl-loop for s in gnu-apl--symbols
+          for char = (cl-second s)
           when char
           do (modify-syntax-entry (aref char 0) "." table))
     (modify-syntax-entry (aref "⍝" 0) "<" table)
@@ -313,7 +313,7 @@ using ‘set-create’ and to update ‘gnu-apl-mode-map’ using
 The first parenthised substring is the name of the function.")
 
 (defun gnu-apl--match-function-head (limit)
-  (loop for pattern in gnu-apl--function-declaration-patterns
+  (cl-loop for pattern in gnu-apl--function-declaration-patterns
         for result = (search-forward-regexp (format "^∇ *%s" pattern) limit t)
         when result
         return t
@@ -323,7 +323,7 @@ The first parenthised substring is the name of the function.")
   "Parse a function definition string.
 Returns the name of the function or nil if the function could not be parsed."
   (let* ((line (gnu-apl--trim-spaces string)))
-    (loop for pattern in gnu-apl--function-declaration-patterns
+    (cl-loop for pattern in gnu-apl--function-declaration-patterns
           when (string-match (concat "^" pattern) line)
           return (match-string 1 line))))
 
@@ -343,7 +343,7 @@ Returns the name of the function or nil if the function could not be parsed."
 
 (defun gnu-apl--find-largest-backward-match (regex)
   (save-excursion
-    (loop with old-pos = nil
+    (cl-loop with old-pos = nil
           for pos = (save-excursion (search-backward-regexp regex nil t))
           while pos
           do (progn
@@ -356,9 +356,9 @@ Returns the name of the function or nil if the function could not be parsed."
 ;;;
 
 (defun gnu-apl--full-function-definition-p (line &optional error-on-incorrect-format)
-  (when (and (plusp (length line))
-             (string= (subseq line 0 1) "∇"))
-    (let ((parsed (gnu-apl--parse-function-header (subseq line 1))))
+  (when (and (cl-plusp (length line))
+             (string= (cl-subseq line 0 1) "∇"))
+    (let ((parsed (gnu-apl--parse-function-header (cl-subseq line 1))))
       (when (and error-on-incorrect-format
                  (null parsed))
         (user-error "Incorrectly formatted function header"))
@@ -377,7 +377,7 @@ Anything outside a function definition is not indented."
     (save-excursion
       (beginning-of-line)
       (re-search-forward "\\=[ \t]*" nil t)
-      (let ((indent-amount (destructuring-bind (i-header i-comment i-label i-other)
+      (let ((indent-amount (cl-destructuring-bind (_i-header i-comment i-label i-other)
                                gnu-apl-indent-amounts
                              (cond ((looking-at "∇")
                                     0)
@@ -467,14 +467,14 @@ If STRING is nil return help for all symbols"
   (let* ((results (gnu-apl--send-network-command-and-read
                    (if string (concat "help:" string) "help")))
          (entries (mapcar (lambda (x) (car (read-from-string x))) results))
-         (uniq-symbols (mapcar #'second
+         (uniq-symbols (mapcar #'cl-second
                                (seq-uniq entries
                                          (lambda (x y)
-                                           (string= (second x) (second y))))))
+                                           (string= (cl-second x) (cl-second y))))))
          (docs))
     (cl-flet ((cnv (entry)
-                   (let ((arity (first entry)))
-                     (list (case arity
+                   (let ((arity (cl-first entry)))
+                     (list (cl-case arity
                              (0 "Niladic function")
                              (1 "Monadic function")
                              (2 "Dyadic function")
@@ -483,14 +483,14 @@ If STRING is nil return help for all symbols"
                              (-3 "Dyadic operator taking one argument")
                              (-4 "Dyadic operator taking two arguments")
                              (-5 "Quasi-dyadic operator (outer product)"))
-                           (third entry)
-                           (fourth entry)
-                           (fifth entry)))))
+                           (cl-third entry)
+                           (cl-fourth entry)
+                           (cl-fifth entry)))))
       (dolist (symb uniq-symbols)
         (push
          (list symb
                (mapcar #'cnv
-                       (cl-remove-if-not (lambda (x) (string= (second x) symb)) entries)))
+                       (cl-remove-if-not (lambda (x) (string= (cl-second x) symb)) entries)))
          docs)))
     docs))
 
@@ -520,7 +520,7 @@ If point is not located whithin a function, go to ‘point-min’."
                                              (list (point))
                                            nil)))
                                    gnu-apl--function-declaration-patterns))
-         (pos (if positions (reduce #'max positions) nil)))
+         (pos (if positions (cl-reduce #'max positions) nil)))
     (if pos
         (progn
           (goto-char pos)
@@ -548,9 +548,9 @@ If the cursor is not located within a function, go to ‘point-max’."
          (company-begin-backend 'company-gnu-apl))
         ((or (eq command 'prefix) (eq command 'candidates))
          (let ((result (gnu-apl-expand-symbol)))
-           (case command
-             (prefix (if result (buffer-substring (first result) (second result)) nil))
-             (candidates (third result)))))
+           (cl-case command
+             (prefix (if result (buffer-substring (cl-first result) (cl-second result)) nil))
+             (candidates (cl-third result)))))
         ((eq command 'meta)
          nil)))
 

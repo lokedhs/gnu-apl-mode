@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-(require 'cl)
+(require 'cl-lib)
 (require 'quail)
 (require 'gnu-apl-util)
 

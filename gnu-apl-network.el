@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-(require 'cl)
+(require 'cl-lib)
 (require 'gnu-apl-util)
 
 (defvar *gnu-apl-end-tag* "APL_NATIVE_END_TAG")
@@ -76,10 +76,10 @@ connect mode in use."
 (defun gnu-apl--filter-network (proc output)
   (with-current-buffer (gnu-apl--get-interactive-session)
     (setq gnu-apl--current-incoming (concat gnu-apl--current-incoming output))
-    (loop with start = 0
+    (cl-loop with start = 0
           for pos = (cl-position ?\n gnu-apl--current-incoming :start start)
           while pos
-          do (let ((s (subseq gnu-apl--current-incoming start pos)))
+          do (let ((s (cl-subseq gnu-apl--current-incoming start pos)))
                (setq start (1+ pos))
 
                (cond ((string= s *gnu-apl-notification-start*)
@@ -99,8 +99,8 @@ connect mode in use."
                      (t
                       (error "Illegal state"))))
 
-          finally (when (plusp start)
-                    (setq gnu-apl--current-incoming (subseq gnu-apl--current-incoming start))))))
+          finally (when (cl-plusp start)
+                    (setq gnu-apl--current-incoming (cl-subseq gnu-apl--current-incoming start))))))
 
 (defun gnu-apl--send-network-command-and-read (command)
   (gnu-apl--send-network-command command)
@@ -117,7 +117,7 @@ connect mode in use."
 
 (defun gnu-apl--read-network-reply ()
   (with-current-buffer (gnu-apl--get-interactive-session)
-    (loop while (and (null gnu-apl--results) (process-live-p gnu-apl--connection))
+    (cl-loop while (and (null gnu-apl--results) (process-live-p gnu-apl--connection))
           do (accept-process-output gnu-apl--connection 3))
     (unless gnu-apl--results
       (signal 'gnu-apl-network-proto-error 'disconnected))
@@ -125,7 +125,7 @@ connect mode in use."
       value)))
 
 (defun gnu-apl--read-network-reply-block ()
-  (loop for line = (gnu-apl--read-network-reply)
+  (cl-loop for line = (gnu-apl--read-network-reply)
         while (not (string= line *gnu-apl-end-tag*))
         collect line))
 

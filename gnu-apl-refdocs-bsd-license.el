@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-(require 'cl)
+(require 'cl-lib)
 (require 'gnu-apl-util)
 
 (defvar gnu-apl--symbol-doc

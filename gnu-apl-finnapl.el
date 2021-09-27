@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-(require 'cl)
+(require 'cl-lib)
 (require 'tabulated-list)
 
 (eval-when-compile (require 'cl-lib))
@@ -56,7 +56,7 @@ containing parsed values from this list"
       (when start-point
         (let* ((section-regexp "^=== \\(.*\\) ===[ \n\r]*")
                (sections
-                (loop for index-start = 0 then (match-end 0)
+                (cl-loop for index-start = 0 then (match-end 0)
                       for last-section-name = nil then (decode-coding-string (match-string 1) 'utf-8)
                       while (search-forward-regexp section-regexp
                                                    (point-max)
@@ -89,7 +89,7 @@ the buffer created by url-retrieve START END."
     (goto-char start)
     (let* ((idiom-title-regexp "rowspan=\\([0-9]+\\).*> +\\([0-9]+\\). || \\(.*\\) ||.*{{{\\(.*\\)}}}")
            (idiom-list
-            (loop for index-start = 0 then (match-end 0)
+            (cl-loop for index-start = 0 then (match-end 0)
                   for last-idiom-title = nil then (decode-coding-string (match-string 3) 'utf-8)
                   for last-title-rows = 0 then (string-to-number (match-string 1))
                   for last-title-number = 0 then (match-string 2)
@@ -124,19 +124,19 @@ The IDIOM is a list of:
   - Number of rows to parse
   - start position of idiom contents
   - end position of idiom contents"
-  (destructuring-bind (id name args numrows start end)
+  (cl-destructuring-bind (id name args numrows start end)
       idiom
     (let* ((idiom-row-regexp "colspan=[0-9].*>\\(.*\\)[ \t]*||")
            (rows
             (save-excursion
               (goto-char start)
               ;; collect contents of all rows starting with "colspan"
-              (loop while (search-forward-regexp idiom-row-regexp
-                                                 end
-                                                 t)
-                    collect (decode-coding-string (match-string 1) 'utf-8)))))
+              (cl-loop while (search-forward-regexp idiom-row-regexp
+                                                    end
+                                                    t)
+                       collect (decode-coding-string (match-string 1) 'utf-8)))))
       ;; sanity check, numrows in table is header line + list of idioms
-      (assert (= (length rows) (1- numrows)))
+      (cl-assert (= (length rows) (1- numrows)))
       (cond ((and (= (length rows) 1)
                   (string-match ".*{{{\\(.*\\).*}}}" (car rows)))
              (push (list id name args (match-string 1 (pop rows)))
@@ -144,21 +144,21 @@ The IDIOM is a list of:
             ;; special case then more than 1 implementation of the
             ;; idiom provided
             ((> (length rows) 1)
-             (assert (string-match ".*{{{\\(.*\\).*}}}" (car rows)))
+             (cl-assert (string-match ".*{{{\\(.*\\).*}}}" (car rows)))
              (push (list id name args (match-string 1 (pop rows)))
                    *gnu-apl--finnapl-idioms*)
-             (loop for i from 0 below (/ (length rows) 2)
-                   for header-line = (elt rows (* 2 i))
-                   for code-line = (elt rows (1+ (* 2 i)))
-                   do
-                   (assert (string-match "{{{\\(.*\\)}}}"
-                                         code-line))
-                   (setf code-line (match-string 1 code-line))
-                   (push (list (concat id  "." (int-to-string (1+ i)))
-                               (concat name " : "
-                                       (string-trim header-line))
-                               args code-line)
-                         *gnu-apl--finnapl-idioms*)))))))
+             (cl-loop for i from 0 below (/ (length rows) 2)
+                      for header-line = (elt rows (* 2 i))
+                      for code-line = (elt rows (1+ (* 2 i)))
+                      do
+                      (cl-assert (string-match "{{{\\(.*\\)}}}"
+                                               code-line))
+                      (setf code-line (match-string 1 code-line))
+                      (push (list (concat id  "." (int-to-string (1+ i)))
+                                  (concat name " : "
+                                          (string-trim header-line))
+                                  args code-line)
+                            *gnu-apl--finnapl-idioms*)))))))
 
 
 (define-derived-mode gnu-apl-idioms-choice-mode tabulated-list-mode "GNU APL Idioms list"
@@ -181,9 +181,9 @@ This action inserts the selected idiom into the buffer
 and closes the idioms window."
   (ignore button)
   (let* ((id (tabulated-list-get-id))
-         (idiom (fourth (cl-find id *gnu-apl--finnapl-idioms*
-                                 :test #'string= :key #'car))))
-    (quit-window t)  
+	 (idiom (cl-fourth (cl-find id *gnu-apl--finnapl-idioms*
+				    :test #'string= :key #'car))))
+    (quit-window t)
     (gnu-apl-finnapl--insert-idiom idiom)))
 
 (defun gnu-apl-finnapl-choice-tabular ()
@@ -211,7 +211,7 @@ and closes the idioms window."
                                               #'gnu-apl-finnapl-choice-tabular-action
                                               'face face))))))
       (setq tabulated-list-entries
-            (loop for (id name args idiom) in *gnu-apl--finnapl-idioms*
+            (cl-loop for (id name args idiom) in *gnu-apl--finnapl-idioms*
                   ;; first line is the idiom id and a name
                   collect (create-line id id name)
                   ;; second line is just arguments
@@ -244,9 +244,9 @@ https://aplwiki.com/FinnAplIdiomLibrary"
   "Present helm narrowing search buffer for FinnAPL idioms"
   (let* ((candidates
           (mapcar (lambda(x)
-                    (cons (concat (car x) ". " (second x) "\n"
-                                  (third x) "\n" (fourth x))
-                          (fourth x)))
+                    (cons (concat (car x) ". " (cl-second x) "\n"
+                                  (cl-third x) "\n" (cl-fourth x))
+                          (cl-fourth x)))
                   *gnu-apl--finnapl-idioms*))
          (sources
           `((name . "FinnAPL Idioms")

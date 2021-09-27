@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-(require 'cl)
+(require 'cl-lib)
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
 
@@ -37,7 +37,7 @@ from the APL runtime"
            (listp (car value)))))
 
 (defun gnu-apl--plot-insert-cell (entry)
-  (etypecase entry
+  (cl-etypecase entry
     (integer (insert (format "%d" entry)))
     (number (insert (format "%f" entry)))
     (string (insert (format "\"%s\"" entry)))
@@ -62,7 +62,7 @@ from the APL runtime"
 
 (defun gnu-apl--write-array-content-to-csv (content)
   (cond ((gnu-apl--single-dimension-p content)
-         (loop for value in content
+         (cl-loop for value in content
                do (progn
                     (insert (gnu-apl--cell-value-as-string value))
                     (insert "\n")))
@@ -71,8 +71,8 @@ from the APL runtime"
          (let ((size (cadr content)))
            (unless (= (length size) 2)
              (error "Unexpected dimensions: %d" (length size)))
-           (loop for row-value in (caddr content)
-                 do (loop for col-content in row-value
+           (cl-loop for row-value in (caddr content)
+                 do (cl-loop for col-content in row-value
                           for first = t then nil
                           when (not first)
                           do (insert " ")

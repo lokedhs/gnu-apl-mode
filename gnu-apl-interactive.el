@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-(require 'cl)
+(require 'cl-lib)
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
 
@@ -52,13 +52,13 @@ code was read from."
   "Filter for any commands that are sent to comint."
   (let* ((trimmed (gnu-apl--trim-spaces string)))
     (cond ((and gnu-apl-auto-function-editor-popup
-                (plusp (length trimmed))
-                (string= (subseq trimmed 0 1) "∇"))
+                (cl-plusp (length trimmed))
+                (string= (cl-subseq trimmed 0 1) "∇"))
            ;; The command is a function definition command
-           (unless (gnu-apl--parse-function-header (subseq trimmed 1))
+           (unless (gnu-apl--parse-function-header (cl-subseq trimmed 1))
              (user-error "Error when parsing function definition command"))
            (unwind-protect
-               (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1)))
+               (gnu-apl--get-function (gnu-apl--trim-spaces (cl-subseq string 1)))
              (let ((buffer (process-buffer proc)))
                (with-current-buffer buffer
                  (let ((inhibit-read-only t))
@@ -75,46 +75,46 @@ code was read from."
            (comint-simple-send proc string)))))
 
 (defun gnu-apl--set-face-for-parsed-text (start end mode string)
-  (case mode
+  (cl-case mode
     (cerr (add-text-properties start end '(font-lock-face gnu-apl-error) string))
     (uerr (add-text-properties start end '(font-lock-face gnu-apl-user-status-text) string))))
 
 (defun gnu-apl--parse-text (string)
   (let ((tags nil))
     (let ((result (with-output-to-string
-                    (loop with current-mode = gnu-apl-input-display-type
-                          with pos = 0
-                          for i from 0 below (length string)
-                          for char = (aref string i)
-                          for newmode = (case char
-                                          (#xf00c0 'cin)
-                                          (#xf00c1 'cout)
-                                          (#xf00c2 'cerr)
-                                          (#xf00c3 'uerr)
-                                          (t nil))
-                          if (and newmode (not (eq current-mode newmode)))
-                          do (progn
-                               (push (list pos newmode) tags)
-                               (setq current-mode newmode))
-                          unless newmode
-                          do (progn
-                               (princ (char-to-string char))
-                               (incf pos))))))
+                    (cl-loop with current-mode = gnu-apl-input-display-type
+                             with pos = 0
+                             for i from 0 below (length string)
+                             for char = (aref string i)
+                             for newmode = (cl-case char
+                                             (#xf00c0 'cin)
+                                             (#xf00c1 'cout)
+                                             (#xf00c2 'cerr)
+                                             (#xf00c3 'uerr)
+                                             (t nil))
+                             if (and newmode (not (eq current-mode newmode)))
+                             do (progn
+                                  (push (list pos newmode) tags)
+                                  (setq current-mode newmode))
+                             unless newmode
+                             do (progn
+                                  (princ (char-to-string char))
+                                  (cl-incf pos))))))
       (let ((prevmode gnu-apl-input-display-type)
             (prevpos 0))
-        (loop for v in (reverse tags)
-              for newpos = (car v)
-              unless (= prevpos newpos)
-              do (gnu-apl--set-face-for-parsed-text prevpos newpos prevmode result)
-              do (progn
-                   (setq prevpos newpos)
-                   (setq prevmode (cadr v))))
+        (cl-loop for v in (reverse tags)
+                 for newpos = (car v)
+                 unless (= prevpos newpos)
+                 do (gnu-apl--set-face-for-parsed-text prevpos newpos prevmode result)
+                 do (progn
+                      (setq prevpos newpos)
+                      (setq prevmode (cadr v))))
         (unless (= prevpos (length result))
           (gnu-apl--set-face-for-parsed-text prevpos (length result) prevmode result))
         (setq gnu-apl-input-display-type prevmode)
         result))))
 
-(defun gnu-apl--erase-and-set-function (name content)
+(defun gnu-apl--erase-and-set-function (name _content)
   (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-start* "'"))
   (gnu-apl-interactive-send-string (concat ")ERASE " name))
   (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-end* "'"))
@@ -147,7 +147,7 @@ function editor.
                   (add-to-result command)))
       (dolist (plain (split-string line "\n"))
         (let ((command (gnu-apl--parse-text plain)))
-          (ecase gnu-apl-preoutput-filter-state
+          (cl-ecase gnu-apl-preoutput-filter-state
             ;; Default parse state
             (normal
              (cond ((string-match (regexp-quote *gnu-apl-ignore-start*) command)

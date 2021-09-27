@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-(require 'cl)
+(require 'cl-lib)
 
 (cl-defun gnu-apl--trim (regexp string &optional (start t) (end t))
   (if (or start end)
@@ -31,7 +31,7 @@
 
 (defun gnu-apl--string-match-start (string key)
   (and (>= (length string) (length key))
-       (string= (subseq string 0 (length key)) key)))
+       (string= (cl-subseq string 0 (length key)) key)))
 
 (defun gnu-apl--kbd (definition)
   (if (functionp #'kbd)
@@ -72,7 +72,7 @@
 
 (unless (fboundp 'cl-find)
   (defun cl-find (&rest args)
-    (apply #'find args)))
+    (apply #'cl-find args)))
 
 (unless (fboundp 'cl-defun)
   (defmacro cl-defun (&rest args)
@@ -84,6 +84,6 @@
 
 (unless (fboundp 'cl-remove-if-not)
   (defun cl-remove-if-not (&rest args)
-    (apply #'remove-if-not args)))
+    (apply #'cl-remove-if-not args)))
 
 (provide 'gnu-apl-util)

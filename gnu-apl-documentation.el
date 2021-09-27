@@ -4,7 +4,7 @@
 ;;; Keymap buffer
 ;;;
 
-(require 'cl)
+(require 'cl-lib)
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
 
@@ -76,8 +76,8 @@ In order for changes to take effect the buffer needs to be recreated.")
            (error "Error getting function: %s" (car content))))))
 
 (defun gnu-apl--remove-leading-space (string)
-  (if (and (plusp (length string)) (eql (aref string 0) (aref " " 0)))
-      (subseq string 1)
+  (if (and (cl-plusp (length string)) (eql (aref string 0) (aref " " 0)))
+      (cl-subseq string 1)
     string))
 
 (defun gnu-apl--find-documentation-for-defined-function (name)
@@ -86,20 +86,20 @@ In order for changes to take effect the buffer needs to be recreated.")
       (let ((header (car content))
             (lines (cdr content)))
         (list header
-              (loop for row in lines
-                    for trim-row = (gnu-apl--trim-spaces row)
-                    while (and (>= (length trim-row) 2) (string= (subseq trim-row 0 2) "⍝⍝"))
-                    collect (gnu-apl--remove-leading-space (subseq trim-row 2))))))))
+              (cl-loop for row in lines
+                       for trim-row = (gnu-apl--trim-spaces row)
+                       while (and (>= (length trim-row) 2) (string= (cl-subseq trim-row 0 2) "⍝⍝"))
+                       collect (gnu-apl--remove-leading-space (cl-subseq trim-row 2))))))))
 
 (defun gnu-apl--get-doc-for-symbol (string)
-  (loop for e in gnu-apl--symbol-doc
-        for name = (car e)
-        when (or (and (stringp name)
-                      (string= string name))
-                 (and (listp name)
-                      (cl-find string name :test #'string=)))
-        return e
-        finally (return nil)))
+  (cl-loop for e in gnu-apl--symbol-doc
+           for name = (car e)
+           when (or (and (stringp name)
+                         (string= string name))
+                    (and (listp name)
+                         (cl-find string name :test #'string=)))
+           return e
+           finally (return nil)))
 
 (defun gnu-apl--get-full-docstring-for-native-symbol (string full-text-p)
   (let ((doc (gnu-apl--get-doc-for-symbol string))
@@ -107,25 +107,25 @@ In order for changes to take effect the buffer needs to be recreated.")
          (if full-text-p "\n%s\n\n" "\n%s\n")))
     (when doc
       (with-temp-buffer
-        (loop for e in (second doc)
-              for first = t then nil
-              unless first
-              do (insert "\n")
-              do (progn
-                   (insert (format "%s: %s" (first e) (second e)))
-                   (insert (format format-short (third e)))
-                   (let ((long (fourth e)))
-                     (when long
-                       (insert (format "%s\n" long)))))
-              when full-text-p
-              do (insert "\n===================================\n"))
+        (cl-loop for e in (cl-second doc)
+                 for first = t then nil
+                 unless first
+                 do (insert "\n")
+                 do (progn
+                      (insert (format "%s: %s" (cl-first e) (cl-second e)))
+                      (insert (format format-short (cl-third e)))
+                      (let ((long (cl-fourth e)))
+                        (when long
+                          (insert (format "%s\n" long)))))
+                 when full-text-p
+                 do (insert "\n===================================\n"))
         (buffer-string)))))
 
 
 (defun gnu-apl--remove-local-variable-name (name)
-  (let ((pos (position ?\; name)))
+  (let ((pos (cl-position ?\; name)))
     (if pos
-        (gnu-apl--trim-spaces (subseq name 0 pos))
+        (gnu-apl--trim-spaces (cl-subseq name 0 pos))
       name)))
 
 (defun gnu-apl--get-full-docstring-for-function-symbol (string)
@@ -133,10 +133,10 @@ In order for changes to take effect the buffer needs to be recreated.")
     (when content
       (with-temp-buffer
         (insert (format "Function: %s\n\n" (gnu-apl--remove-local-variable-name (car content))))
-        (loop for row in (cadr content)
-              for first = t then nil
-              unless first do (insert "\n")
-              do (insert row))
+        (cl-loop for row in (cadr content)
+                 for first = t then nil
+                 unless first do (insert "\n")
+                 do (insert row))
         (buffer-string)))))
 
 (defun gnu-apl--get-full-docstring-for-symbol (string full-text-p)
@@ -166,21 +166,21 @@ buffer. Otherwise try to make it short to fit into the tooltip."
 (defun gnu-apl--name-at-point ()
   (let ((symbol-chars "[a-zA-Z0-9_∆⍙¯]"))
     (if (looking-at symbol-chars)
-        (buffer-substring (save-excursion (loop while (and (> (point) (point-min))
-                                                           (string-match symbol-chars
-                                                                         (buffer-substring (1- (point))
-                                                                                           (point))))
-                                                do (backward-char 1)
-                                                finally (return (point))))
-                          (save-excursion (loop while (< (point) (point-max))
-                                                do (forward-char 1)
-                                                while (looking-at symbol-chars)
-                                                finally (return (point)))))
+        (buffer-substring (save-excursion (cl-loop while (and (> (point) (point-min))
+                                                              (string-match symbol-chars
+                                                                            (buffer-substring (1- (point))
+                                                                                              (point))))
+                                                   do (backward-char 1)
+                                                   finally (return (point))))
+                          (save-excursion (cl-loop while (< (point) (point-max))
+                                                   do (forward-char 1)
+                                                   while (looking-at symbol-chars)
+                                                   finally (return (point)))))
       (let ((ch (char-after (point))))
         (when (and ch
                    (member (char-to-string ch)
                            (mapcan #'(lambda (v) (let ((m (car v)))
-                                                   (if (listp m) (copy-seq m) (list m))))
+                                                   (if (listp m) (cl-copy-seq m) (list m))))
                                    gnu-apl--symbol-doc)))
           (char-to-string ch))))))
 
@@ -301,9 +301,9 @@ buffer. Otherwise try to make it short to fit into the tooltip."
       (goto-char (point-min))
       (while (search-forward-regexp "\\(.\\)∇" nil t)
         (let* ((key (match-string 1))
-               (found (cl-find key gnu-apl--symbols :key #'third :test #'equal))
-               (found-nonspecial (cl-find key gnu-apl--symbol-doc :key #'first :test #'equal))
-               (result-string (if found (save-match-data (gnu-apl--make-clickable (second found) keymap)) " "))
+               (found (cl-find key gnu-apl--symbols :key #'cl-third :test #'equal))
+               (found-nonspecial (cl-find key gnu-apl--symbol-doc :key #'cl-first :test #'equal))
+               (result-string (if found (save-match-data (gnu-apl--make-clickable (cl-second found) keymap)) " "))
                (nonspecial-string (if found-nonspecial (gnu-apl--make-clickable key keymap) key)))
           (replace-match (concat nonspecial-string result-string) t t)))
       (add-text-properties (point-min) (point-max) (list 'face 'gnu-apl-kbd-help-screen))
@@ -318,10 +318,10 @@ if it is open."
   (let ((keyboard-help (get-buffer *gnu-apl-keymap-buffer-name*)))
     (if (and keyboard-help (get-buffer-window keyboard-help))
         ;; The buffer is displayed. Maybe close it.
-        (when (or (null arg) (minusp arg))
+        (when (or (null arg) (cl-minusp arg))
           (gnu-apl-keymap-mode-kill-buffer))
       ;; The buffer is not displayed, check if it's supposed to be displayed
-      (when (or (null arg) (plusp arg))
+      (when (or (null arg) (cl-plusp arg))
         (let* ((buffer (or (when nil ; Make sure the buffer is always created
                              (get-buffer *gnu-apl-keymap-buffer-name*))
                            (gnu-apl--make-readable-keymap)))
@@ -333,7 +333,7 @@ if it is open."
   (regexp-opt (mapcan #'(lambda (v)
                           (let ((name (car v)))
                             (if (listp name)
-                                (copy-seq name)
+                                (cl-copy-seq name)
                               (list name))))
                       gnu-apl--symbol-doc)))
 
@@ -347,9 +347,9 @@ if it is open."
         ;; There is stuff to the left of point, check what that stuff is
         (progn
           (backward-char 1)
-          (loop while (and (> (point) (point-min))
-                           (cl-find (char-after (point)) " \t"))
-                do (backward-char 1))
+          (cl-loop while (and (> (point) (point-min))
+                              (cl-find (char-after (point)) " \t"))
+                   do (backward-char 1))
           (let ((symbol (char-after (point))))
             (and (not (string-match gnu-apl--function-regexp (char-to-string symbol)))
                  (not (cl-find symbol " \t\n[(")))))
@@ -366,16 +366,16 @@ if it is open."
         ;; We have a documentation entry. Now we need to figure out if the call
         ;; is monadic or dyadic. It can be done by searching backwards until we hit
         ;; a non-space character or the beginning of the line.
-        (let ((p (cl-find (if (gnu-apl--is-point-on-argument-value) "Dyadic" "Monadic") (second doc)
+        (let ((p (cl-find (if (gnu-apl--is-point-on-argument-value) "Dyadic" "Monadic") (cl-second doc)
                           :key #'car :test #'string=)))
           (when p
-            (format "%s: %s: %s" (first p) (second p) (third p)))))
+            (format "%s: %s: %s" (cl-first p) (cl-second p) (cl-third p)))))
     ;; ELSE: We're not on a built-in function, check if we're on a user-defined function
     (gnu-apl--when-let (name (gnu-apl--name-at-point))
       (gnu-apl--when-let (function-docs (gnu-apl--find-documentation-for-defined-function name))
-        (when (second function-docs)
+        (when (cl-second function-docs)
           (gnu-apl--when-let (header (gnu-apl--parse-function-header (car function-docs)))
-            (format "%s: %s" header (car (second function-docs)))))))))
+            (format "%s: %s" header (car (cl-second function-docs)))))))))
 
 ;;;
 ;;;  Help search
@@ -420,17 +420,17 @@ if it is open."
 (defun gnu-apl-apropos-symbol (regexp)
   "Search for documentation symbols where the documentation matches REGEX."
   (interactive "MApropos symbol: ")
-  (let ((result (loop for doc-entry in gnu-apl--symbol-doc
-                      append (loop for e in (second doc-entry)
-                                   when (or (and (second e) (string-match regexp (second e)))
-                                            (and (third e) (string-match regexp (third e))))
-                                   collect (list doc-entry
-                                                 (let ((symname-aliases (first doc-entry)))
-                                                   (format "%s: %s: %s: %s"
-                                                           (if (listp symname-aliases)
-                                                               (car symname-aliases)
-                                                             symname-aliases)
-                                                           (first e) (second e) (third e))))))))
+  (let ((result (cl-loop for doc-entry in gnu-apl--symbol-doc
+                         append (cl-loop for e in (cl-second doc-entry)
+                                         when (or (and (cl-second e) (string-match regexp (cl-second e)))
+                                                  (and (cl-third e) (string-match regexp (cl-third e))))
+                                         collect (list doc-entry
+                                                       (let ((symname-aliases (cl-first doc-entry)))
+                                                         (format "%s: %s: %s: %s"
+                                                                 (if (listp symname-aliases)
+                                                                     (car symname-aliases)
+                                                                   symname-aliases)
+                                                                 (cl-first e) (cl-second e) (cl-third e))))))))
     (if result
         (gnu-apl--open-apropos-results result)
       (message "No match"))))

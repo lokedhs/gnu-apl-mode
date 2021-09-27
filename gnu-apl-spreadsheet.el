@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t -*-
 
-(require 'cl)
+(require 'cl-lib)
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
 (require 'ses)
@@ -13,16 +13,16 @@ non-printable means CR or NL characters."
       ;; The string must be formatted as an APL expression
       (with-output-to-string
         (princ "(⎕UCS")
-        (loop for char across string
-              do (princ (format " %d" char)))
+        (cl-loop for char across string
+                 do (princ (format " %d" char)))
         (princ ")"))
     ;; We can simply use plain string
     (with-output-to-string
       (princ "'")
-      (loop for char across string
-            do (if (= char ?\')
-                   (princ "''")
-                 (princ (char-to-string char))))
+      (cl-loop for char across string
+               do (if (= char ?\')
+                      (princ "''")
+                    (princ (char-to-string char))))
       (princ "'"))))
 
 (defun gnu-apl-edit-variable (name)
@@ -92,21 +92,21 @@ the active interpreter."
           (ses-insert-row (1- rows)))
         (when (> cols 1)
           (ses-insert-column (1- cols)))
-        (loop for row-index from 0 below rows
-              for row-values in (caddr value)
-              do (loop for col-index from 0 below cols
-                       for col-content in row-values
-                       do (let ((v (etypecase col-content
-                                     (integer col-content)
-                                     (float col-content)
-                                     (string col-content)
-                                     (list (etypecase (car col-content)
-                                             (symbol (case (car col-content)
-                                                       (:unicode (char-to-string (cadr col-content)))
-                                                       (t (format "!%s" (car col-content)))))
-                                             (list "!list")))
-                                     (t (error "Illegal cell content: %S" col-content)))))
-                            (ses-edit-cell row-index col-index v))))
+        (cl-loop for row-index from 0 below rows
+                 for row-values in (caddr value)
+                 do (cl-loop for col-index from 0 below cols
+                             for col-content in row-values
+                             do (let ((v (cl-etypecase col-content
+                                           (integer col-content)
+                                           (float col-content)
+                                           (string col-content)
+                                           (list (cl-etypecase (car col-content)
+                                                   (symbol (cl-case (car col-content)
+                                                             (:unicode (char-to-string (cadr col-content)))
+                                                             (t (format "!%s" (car col-content)))))
+                                                   (list "!list")))
+                                           (t (error "Illegal cell content: %S" col-content)))))
+                                  (ses-edit-cell row-index col-index v))))
         (setq-local gnu-apl-var-name backend-variable-name))
       (setq-local gnu-apl-window-configuration window-configuration)
       (message "To save the buffer, use M-x gnu-apl-spreadsheet-send-this-document (C-c C-c)"))))
@@ -130,19 +130,19 @@ content of the spreadsheet in this buffer."
     (let ((rows ses--numrows)
           (cols ses--numcols))
       (princ (format "%s←%d⍴0\n" var-name (* rows cols)))
-      (loop for row from 0 below rows
-            do (progn
-                 (princ (format "%s[%d+⍳%d]←" var-name (* row cols) cols))
-                 (loop for col from 0 below cols
-                       do (let ((item (ses-cell-value row col)))
-                            (typecase item
-                              (null (princ "(0⍴0)"))
-                              (number (if (minusp item) (princ (format "¯%f" (- item))) (princ item)))
-                              (string (princ (gnu-apl--string-to-apl-expression item)))
-                              (t (ses-goto-print row col) (error "Invalid content in cell %d,%d" row col)))
-                            (if (< col (1- cols))
-                                (princ " ")
-                              (princ "\n"))))))
+      (cl-loop for row from 0 below rows
+               do (progn
+                    (princ (format "%s[%d+⍳%d]←" var-name (* row cols) cols))
+                    (cl-loop for col from 0 below cols
+                             do (let ((item (ses-cell-value row col)))
+                                  (cl-typecase item
+                                    (null (princ "(0⍴0)"))
+                                    (number (if (cl-minusp item) (princ (format "¯%f" (- item))) (princ item)))
+                                    (string (princ (gnu-apl--string-to-apl-expression item)))
+                                    (t (ses-goto-print row col) (error "Invalid content in cell %d,%d" row col)))
+                                  (if (< col (1- cols))
+                                      (princ " ")
+                                    (princ "\n"))))))
       (princ (format "%s←(%d %d)⍴%s" var-name rows cols var-name)))))
 
 (provide 'gnu-apl-spreadsheet)
