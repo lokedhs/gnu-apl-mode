@@ -82,7 +82,7 @@ containing parsed values from this list"
 
 
 
-(defun gnu-apl--parse-finnapl-section (name start end)
+(defun gnu-apl--parse-finnapl-section (_name start end)
   "Parse a section with the name NAME and boundaries in
 the buffer created by url-retrieve START END."
   (save-excursion
@@ -239,7 +239,8 @@ https://aplwiki.com/FinnAplIdiomLibrary"
           (t (gnu-apl-finnapl-choice-tabular)))))
 
 
-
+(declare-function helm "helm")
+(defvar helm-candidate-number-limit)
 (defun gnu-apl-finnapl-choice-helm ()
   "Present helm narrowing search buffer for FinnAPL idioms"
   (let* ((candidates

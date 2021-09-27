@@ -5,6 +5,12 @@
 (require 'gnu-apl-network)
 (require 'ses)
 
+(declare-function gnu-apl--send "gnu-apl-interactive" (proc string))
+(declare-function gnu-apl--get-interactive-session "gnu-apl-interactive" ())
+(declare-function gnu-apl--name-at-point "gnu-apl-documentation" ())
+(declare-function gnu-apl--choose-variable "gnu-apl-editor"
+                  (prompt &optional type default-value))
+
 (defun gnu-apl--string-to-apl-expression (string)
   "Escape quotes in an APL string. If the string contains
 non-printable characters, generate a full expression. For now,
@@ -64,8 +70,8 @@ the active interpreter."
 
 (define-minor-mode gnu-apl-spreadsheet-mode
   "A variation of ‘ses-mode’ to be used for editing APL matrices."
-  nil
-  " ≡"
+  :lighter " ≡"
+  :keymap
   (list (cons (kbd "C-c C-c") 'gnu-apl-spreadsheet-send-to-variable)
         (cons [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
         (cons [menu-bar gnu-apl send-this-document] '("Send document" . gnu-apl-spreadsheet-send-this-document))
@@ -123,6 +129,9 @@ value of VARNAME to the content of the spreadsheet."
 values as the spreadsheet in the current buffer."
   (concat (gnu-apl-make-array-loading-instructions varname)))
 
+(defvar ses--numrows)                   ;ses.el
+(defvar ses--numcols)                   ;ses.el
+(defvar ses--cells)                     ;ses.el
 (defun gnu-apl-make-array-loading-instructions (var-name)
   "Return APL instructions that sets variable VAR-NAME to the
 content of the spreadsheet in this buffer."

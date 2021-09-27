@@ -4,6 +4,12 @@
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
 
+(declare-function gnu-apl--name-at-point "gnu-apl-documentation" ())
+(declare-function gnu-apl--choose-variable "gnu-apl-editor"
+		  (prompt &optional type default-value))
+
+(defvar gnu-apl-gnuplot-program)	;gnu-apl-mode.el
+
 (cl-defmacro gnu-apl--with-temp-files (files &body body)
   (declare (indent 1))
   (if files

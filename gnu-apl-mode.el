@@ -35,6 +35,16 @@
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
 (require 'gnu-apl-finnapl)
+(require 'gnu-apl-input)
+(require 'gnu-apl-interactive)
+(require 'gnu-apl-editor)
+(require 'gnu-apl-network)
+(require 'gnu-apl-spreadsheet)
+(require 'gnu-apl-plot)
+(require 'gnu-apl-follow)
+(require 'gnu-apl-refdocs-bsd-license)
+(require 'gnu-apl-documentation)
+(require 'gnu-apl-osx-workaround)
 
 ;;;###autoload
 (defgroup gnu-apl nil
@@ -189,11 +199,11 @@ The ∇s are always flush-left, as are all lines outside of functions."
 ;; Declare a command for every APL symbol
 (dolist (command gnu-apl--symbols)
   (let ((name (gnu-apl--make-key-command-sym (car command)))
-	(content (cadr command)))
+        (content (cadr command)))
     (defalias name
       (lambda ()
-	(interactive)
-	(insert content)))))
+        (interactive)
+        (insert content)))))
 
 (defun gnu-apl-insert-spc ()
   "Insert a space. This is needed so that one can type a space
@@ -201,29 +211,8 @@ character when using the super-prefixed characters."
   (interactive)
   (insert " "))
 
-(defun gnu-apl--make-base-mode-map (prefix)
-  (let ((map (make-sparse-keymap)))
-    (dolist (command gnu-apl--symbols)
-      (let ((key-sequence (caddr command)))
-        (dolist (s (if (listp key-sequence) key-sequence (list key-sequence)))
-          (define-key map (gnu-apl--kbd (concat prefix s)) (gnu-apl--make-key-command-sym (car command))))))
-    (define-key map (kbd (concat prefix "SPC")) 'gnu-apl-insert-spc)
-    (define-key map (kbd "C-c C-k") 'gnu-apl-show-keyboard)
-    (define-key map (kbd "C-c C-h") 'gnu-apl-show-help-for-symbol)
-    (define-key map (kbd "C-c C-a") 'gnu-apl-apropos-symbol)
-    (define-key map (kbd "C-M-a") 'gnu-apl-beginning-of-defun)
-    (define-key map (kbd "C-M-e") 'gnu-apl-end-of-defun)
-    (define-key map (kbd "M-.") 'gnu-apl-find-function-at-point)
-    (define-key map (kbd "C-c C-.") 'gnu-apl-trace)
-    (define-key map (kbd "C-c C-i") 'gnu-apl-finnapl-list)
-    (define-key map [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
-    (define-key map [menu-bar gnu-apl toggle-keyboard] '("Toggle keyboard" . gnu-apl-show-keyboard))
-    (define-key map [menu-bar gnu-apl show-help-for-symbol] '("Documentation for symbol" . gnu-apl-show-help-for-symbol))
-    (define-key map [menu-bar gnu-apl apropos-symbol] '("Search symbols" . gnu-apl-apropos-symbol))
-    (define-key map [menu-bar gnu-apl find-symbol-at-point] '("Find symbol at point" . gnu-apl-find-function-at-point))
-    (define-key map [menu-bar gnu-apl trace] '("Trace variable" . gnu-apl-trace))
-    (define-key map [menu-bar gnu-apl finnapl-list] '("FinnAPL idioms list" . gnu-apl-finnapl-list))
-    map))
+(defvar gnu-apl-mode-map-prefix)
+(defvar gnu-apl-mode-map)
 
 (defun gnu-apl--make-apl-mode-map ()
   (let ((map (gnu-apl--make-base-mode-map gnu-apl-mode-map-prefix)))
@@ -240,9 +229,10 @@ character when using the super-prefixed characters."
   (setq gnu-apl-mode-map (gnu-apl--make-apl-mode-map)))
 
 (defcustom gnu-apl-mode-map-prefix "s-"
-  "The keymap prefix for ‘gnu-apl-mode-map’ used both to store the new value
-using ‘set-create’ and to update ‘gnu-apl-mode-map’ using
-  `gnu-apl--make-apl-mode-map'. Kill and re-start your APL buffers to reflect the change."
+  "The keymap prefix for `gnu-apl-mode-map'.
+It is used both to store the new value using ‘set-create’ and to
+update ‘gnu-apl-mode-map’ using `gnu-apl--make-apl-mode-map'.
+Kill and re-start your APL buffers to reflect the change."
   :type 'string
   :group 'gnu-apl
   :set 'gnu-apl--set-mode-map-prefix)
@@ -528,17 +518,18 @@ If point is not located whithin a function, go to ‘point-min’."
   "Go to the end of the function.
 If the cursor is not located within a function, go to ‘point-max’."
   (interactive)
-  (beginning-of-line)
-  (next-line)
+  (goto-char (line-beginning-position))
+  (forward-line)
   (if (re-search-forward "^[ \t]*∇[ \t]*$" nil t)
-      (beginning-of-line)
+      (goto-char (line-beginning-position))
     (goto-char (point-max))))
 
 ;;;
 ;;;  Company support
 ;;;
 
-(defun company-gnu-apl (command &optional arg &rest ignored)
+(declare-function company-begin-backend "company")
+(defun company-gnu-apl (command &rest _)
   "Backend for for ‘company-mode’ for GNU APL."
   (interactive (list 'interactive))
   (cond ((eq command 'interactive)
@@ -583,7 +574,7 @@ to ‘gnu-apl-executable’)."
       (setq gnu-apl-current-session buffer)
 
       (gnu-apl-interactive-mode)
-      (set-buffer-process-coding-system 'utf-8 'utf-8)
+      (set-process-coding-system (get-buffer-process (current-buffer)) 'utf-8 'utf-8)
       (when (and gnu-apl-native-communication (not gnu-apl-use-new-native-library))
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-start* "'"))
         (gnu-apl--send buffer (concat "'" gnu-apl-libemacs-location "' ⎕FX "
@@ -592,27 +583,13 @@ to ‘gnu-apl-executable’)."
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-end* "'"))))
     (when gnu-apl-show-keymap-on-startup      (run-at-time "0 sec" nil #'(lambda () (gnu-apl-show-keyboard 1))))))
 
-;;;
-;;;  Load the other source files
-;;;
-
-(require 'gnu-apl-input)
-(require 'gnu-apl-interactive)
-(require 'gnu-apl-editor)
-(require 'gnu-apl-network)
-(require 'gnu-apl-spreadsheet)
-(require 'gnu-apl-plot)
-(require 'gnu-apl-follow)
-(require 'gnu-apl-refdocs-bsd-license)
-(require 'gnu-apl-documentation)
-(require 'gnu-apl-osx-workaround)
-
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.apl\\'" . gnu-apl-mode))
 
 ;;;###autoload
 (add-to-list 'interpreter-mode-alist '("apl" . gnu-apl-mode))
 
+(declare-function speedbar-add-supported-extension "speedbar")
 (with-eval-after-load 'speedbar
   (speedbar-add-supported-extension ".apl"))
 

@@ -3,6 +3,8 @@
 (require 'cl-lib)
 (require 'gnu-apl-util)
 
+(defvar gnu-apl--symbols)                   ;gnu-apl-symbols.el
+
 (defun gnu-apl-update-fontset-character (spec)
   (dolist (s gnu-apl--symbols)
     (let ((char (aref (cl-second s) 0)))

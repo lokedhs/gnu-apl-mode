@@ -4,18 +4,24 @@
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
 
+(declare-function gnu-apl--get-interactive-session "gnu-apl-interactive")
+(declare-function gnu-apl--name-at-point "gnu-apt-documentation")
+(declare-function gnu-apl--choose-variable "gnu-apl-editor"
+                  (prompt &optional type default-value))
+(declare-function gnu-apl--get-interactive-session-with-nocheck "gnu-apl-interactive")
+
 (defun gnu-apl--make-trace-buffer-name (varname)
   (format "*gnu-apl trace %s*" varname))
 
-;;;
-;;;  gnu-apl-trace-symbols is a list of traced symbols, each element
-;;;  has the following structure:
-;;;
-;;;    ("symbol_name" <buffer>)
-;;;
+(defvar gnu-apl-trace-variable)
+
+(defvar gnu-apl-trace-symbols nil
+  "List of traced symbols.
+Each element has the structure (\"symbol_name\" <buffer>).")
 
 (defun gnu-apl-trace-mode-kill-buffer ()
-  "If the current buffer is a trace buffer, kill the buffer. Otherwise raise an error."
+  "If the current buffer is a trace buffer, kill the buffer.
+Otherwise raise an error."
   (interactive)
   (unless (and (boundp 'gnu-apl-trace-buffer)
                gnu-apl-trace-buffer)

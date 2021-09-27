@@ -1,13 +1,17 @@
 ;;; -*- lexical-binding: t -*-
 
-;;;
-;;; Keymap buffer
-;;;
-
 (require 'cl-lib)
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
+(require 'gnu-apl-refdocs-bsd-license)
+(require 'gnu-apl-symbols)
 
+(declare-function gnu-apl--parse-function-header "gnu-apl-mode" (string))
+(declare-function gnu-apl--get-interactive-session "gnu-apl-interactive" ())
+
+;;;
+;;; Keymap buffer
+;;;
 
 (defcustom gnu-apl-keyboard-simplified-mouse-action-mode t
   "Defines the action to be performed on mouse over the symbol in
@@ -409,7 +413,7 @@ if it is open."
                (symname-aliases (car doc))
                (name (if (listp symname-aliases) (car symname-aliases) symname-aliases)))
           (insert-button (cadr s)
-                         'action #'(lambda (event) (gnu-apl-show-help-for-symbol name))
+                         'action #'(lambda (_event) (gnu-apl-show-help-for-symbol name))
                          'follow-link t))
         (insert "\n"))
       (add-text-properties (point-min) (point-max) '(face gnu-apl-help))
