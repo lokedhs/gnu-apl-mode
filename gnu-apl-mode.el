@@ -186,17 +186,14 @@ The ∇s are always flush-left, as are all lines outside of functions."
 
 (require 'gnu-apl-symbols)
 
-(defun gnu-apl--make-key-command-sym (n)
-  (intern (concat "insert-sym-apl-" n)))
-
-(macrolet ((make-insert-functions ()
-             `(progn
-                ,@(mapcar #'(lambda (command)
-                              `(defun ,(gnu-apl--make-key-command-sym (car command)) ()
-                                 (interactive)
-                                 (insert ,(cadr command))))
-                          gnu-apl--symbols))))
-  (make-insert-functions))
+;; Declare a command for every APL symbol
+(dolist (command gnu-apl--symbols)
+  (let ((name (gnu-apl--make-key-command-sym (car command)))
+	(content (cadr command)))
+    (defalias name
+      (lambda ()
+	(interactive)
+	(insert content)))))
 
 (defun gnu-apl-insert-spc ()
   "Insert a space. This is needed so that one can type a space
