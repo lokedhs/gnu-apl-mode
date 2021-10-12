@@ -3,7 +3,7 @@
 ;;; Copyright (C) 2013-2015 Elias Mårtenson
 ;;;
 ;;; Author: Elias Mårtenson <lokedhs@gmail.com>
-;;; Version: 1.4.0
+;;; Version: 1.5.0
 ;;; Keywords: languages
 ;;; URL: http://www.gnu.org/software/apl/
 ;;;
