@@ -29,12 +29,22 @@
 ;;;
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib)
 (require 'comint)
 (require 'etags)
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
 (require 'gnu-apl-finnapl)
+(require 'gnu-apl-input)
+(require 'gnu-apl-interactive)
+(require 'gnu-apl-editor)
+(require 'gnu-apl-network)
+(require 'gnu-apl-spreadsheet)
+(require 'gnu-apl-plot)
+(require 'gnu-apl-follow)
+(require 'gnu-apl-refdocs-bsd-license)
+(require 'gnu-apl-documentation)
+(require 'gnu-apl-osx-workaround)
 
 ;;;###autoload
 (defgroup gnu-apl nil
@@ -186,17 +196,14 @@ The ∇s are always flush-left, as are all lines outside of functions."
 
 (require 'gnu-apl-symbols)
 
-(defun gnu-apl--make-key-command-sym (n)
-  (intern (concat "insert-sym-apl-" n)))
-
-(macrolet ((make-insert-functions ()
-             `(progn
-                ,@(mapcar #'(lambda (command)
-                              `(defun ,(gnu-apl--make-key-command-sym (car command)) ()
-                                 (interactive)
-                                 (insert ,(cadr command))))
-                          gnu-apl--symbols))))
-  (make-insert-functions))
+;; Declare a command for every APL symbol
+(dolist (command gnu-apl--symbols)
+  (let ((name (gnu-apl--make-key-command-sym (car command)))
+        (content (cadr command)))
+    (defalias name
+      (lambda ()
+        (interactive)
+        (insert content)))))
 
 (defun gnu-apl-insert-spc ()
   "Insert a space. This is needed so that one can type a space
@@ -204,29 +211,8 @@ character when using the super-prefixed characters."
   (interactive)
   (insert " "))
 
-(defun gnu-apl--make-base-mode-map (prefix)
-  (let ((map (make-sparse-keymap)))
-    (dolist (command gnu-apl--symbols)
-      (let ((key-sequence (caddr command)))
-        (dolist (s (if (listp key-sequence) key-sequence (list key-sequence)))
-          (define-key map (gnu-apl--kbd (concat prefix s)) (gnu-apl--make-key-command-sym (car command))))))
-    (define-key map (kbd (concat prefix "SPC")) 'gnu-apl-insert-spc)
-    (define-key map (kbd "C-c C-k") 'gnu-apl-show-keyboard)
-    (define-key map (kbd "C-c C-h") 'gnu-apl-show-help-for-symbol)
-    (define-key map (kbd "C-c C-a") 'gnu-apl-apropos-symbol)
-    (define-key map (kbd "C-M-a") 'gnu-apl-beginning-of-defun)
-    (define-key map (kbd "C-M-e") 'gnu-apl-end-of-defun)
-    (define-key map (kbd "M-.") 'gnu-apl-find-function-at-point)
-    (define-key map (kbd "C-c C-.") 'gnu-apl-trace)
-    (define-key map (kbd "C-c C-i") 'gnu-apl-finnapl-list)
-    (define-key map [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
-    (define-key map [menu-bar gnu-apl toggle-keyboard] '("Toggle keyboard" . gnu-apl-show-keyboard))
-    (define-key map [menu-bar gnu-apl show-help-for-symbol] '("Documentation for symbol" . gnu-apl-show-help-for-symbol))
-    (define-key map [menu-bar gnu-apl apropos-symbol] '("Search symbols" . gnu-apl-apropos-symbol))
-    (define-key map [menu-bar gnu-apl find-symbol-at-point] '("Find symbol at point" . gnu-apl-find-function-at-point))
-    (define-key map [menu-bar gnu-apl trace] '("Trace variable" . gnu-apl-trace))
-    (define-key map [menu-bar gnu-apl finnapl-list] '("FinnAPL idioms list" . gnu-apl-finnapl-list))
-    map))
+(defvar gnu-apl-mode-map-prefix)
+(defvar gnu-apl-mode-map)
 
 (defun gnu-apl--make-apl-mode-map ()
   (let ((map (gnu-apl--make-base-mode-map gnu-apl-mode-map-prefix)))
@@ -243,9 +229,10 @@ character when using the super-prefixed characters."
   (setq gnu-apl-mode-map (gnu-apl--make-apl-mode-map)))
 
 (defcustom gnu-apl-mode-map-prefix "s-"
-  "The keymap prefix for ‘gnu-apl-mode-map’ used both to store the new value
-using ‘set-create’ and to update ‘gnu-apl-mode-map’ using
-  `gnu-apl--make-apl-mode-map'. Kill and re-start your APL buffers to reflect the change."
+  "The keymap prefix for `gnu-apl-mode-map'.
+It is used both to store the new value using ‘set-create’ and to
+update ‘gnu-apl-mode-map’ using `gnu-apl--make-apl-mode-map'.
+Kill and re-start your APL buffers to reflect the change."
   :type 'string
   :group 'gnu-apl
   :set 'gnu-apl--set-mode-map-prefix)
@@ -255,8 +242,8 @@ using ‘set-create’ and to update ‘gnu-apl-mode-map’ using
 
 (defvar gnu-apl-mode-syntax-table
   (let ((table (make-syntax-table)))
-    (loop for s in gnu-apl--symbols
-          for char = (second s)
+    (cl-loop for s in gnu-apl--symbols
+          for char = (cl-second s)
           when char
           do (modify-syntax-entry (aref char 0) "." table))
     (modify-syntax-entry (aref "⍝" 0) "<" table)
@@ -313,7 +300,7 @@ using ‘set-create’ and to update ‘gnu-apl-mode-map’ using
 The first parenthised substring is the name of the function.")
 
 (defun gnu-apl--match-function-head (limit)
-  (loop for pattern in gnu-apl--function-declaration-patterns
+  (cl-loop for pattern in gnu-apl--function-declaration-patterns
         for result = (search-forward-regexp (format "^∇ *%s" pattern) limit t)
         when result
         return t
@@ -323,7 +310,7 @@ The first parenthised substring is the name of the function.")
   "Parse a function definition string.
 Returns the name of the function or nil if the function could not be parsed."
   (let* ((line (gnu-apl--trim-spaces string)))
-    (loop for pattern in gnu-apl--function-declaration-patterns
+    (cl-loop for pattern in gnu-apl--function-declaration-patterns
           when (string-match (concat "^" pattern) line)
           return (match-string 1 line))))
 
@@ -343,7 +330,7 @@ Returns the name of the function or nil if the function could not be parsed."
 
 (defun gnu-apl--find-largest-backward-match (regex)
   (save-excursion
-    (loop with old-pos = nil
+    (cl-loop with old-pos = nil
           for pos = (save-excursion (search-backward-regexp regex nil t))
           while pos
           do (progn
@@ -356,9 +343,9 @@ Returns the name of the function or nil if the function could not be parsed."
 ;;;
 
 (defun gnu-apl--full-function-definition-p (line &optional error-on-incorrect-format)
-  (when (and (plusp (length line))
-             (string= (subseq line 0 1) "∇"))
-    (let ((parsed (gnu-apl--parse-function-header (subseq line 1))))
+  (when (and (cl-plusp (length line))
+             (string= (cl-subseq line 0 1) "∇"))
+    (let ((parsed (gnu-apl--parse-function-header (cl-subseq line 1))))
       (when (and error-on-incorrect-format
                  (null parsed))
         (user-error "Incorrectly formatted function header"))
@@ -377,7 +364,7 @@ Anything outside a function definition is not indented."
     (save-excursion
       (beginning-of-line)
       (re-search-forward "\\=[ \t]*" nil t)
-      (let ((indent-amount (destructuring-bind (i-header i-comment i-label i-other)
+      (let ((indent-amount (cl-destructuring-bind (_i-header i-comment i-label i-other)
                                gnu-apl-indent-amounts
                              (cond ((looking-at "∇")
                                     0)
@@ -467,14 +454,14 @@ If STRING is nil return help for all symbols"
   (let* ((results (gnu-apl--send-network-command-and-read
                    (if string (concat "help:" string) "help")))
          (entries (mapcar (lambda (x) (car (read-from-string x))) results))
-         (uniq-symbols (mapcar #'second
+         (uniq-symbols (mapcar #'cl-second
                                (seq-uniq entries
                                          (lambda (x y)
-                                           (string= (second x) (second y))))))
+                                           (string= (cl-second x) (cl-second y))))))
          (docs))
     (cl-flet ((cnv (entry)
-                   (let ((arity (first entry)))
-                     (list (case arity
+                   (let ((arity (cl-first entry)))
+                     (list (cl-case arity
                              (0 "Niladic function")
                              (1 "Monadic function")
                              (2 "Dyadic function")
@@ -483,14 +470,14 @@ If STRING is nil return help for all symbols"
                              (-3 "Dyadic operator taking one argument")
                              (-4 "Dyadic operator taking two arguments")
                              (-5 "Quasi-dyadic operator (outer product)"))
-                           (third entry)
-                           (fourth entry)
-                           (fifth entry)))))
+                           (cl-third entry)
+                           (cl-fourth entry)
+                           (cl-fifth entry)))))
       (dolist (symb uniq-symbols)
         (push
          (list symb
                (mapcar #'cnv
-                       (cl-remove-if-not (lambda (x) (string= (second x) symb)) entries)))
+                       (cl-remove-if-not (lambda (x) (string= (cl-second x) symb)) entries)))
          docs)))
     docs))
 
@@ -520,7 +507,7 @@ If point is not located whithin a function, go to ‘point-min’."
                                              (list (point))
                                            nil)))
                                    gnu-apl--function-declaration-patterns))
-         (pos (if positions (reduce #'max positions) nil)))
+         (pos (if positions (cl-reduce #'max positions) nil)))
     (if pos
         (progn
           (goto-char pos)
@@ -531,26 +518,27 @@ If point is not located whithin a function, go to ‘point-min’."
   "Go to the end of the function.
 If the cursor is not located within a function, go to ‘point-max’."
   (interactive)
-  (beginning-of-line)
-  (next-line)
+  (goto-char (line-beginning-position))
+  (forward-line)
   (if (re-search-forward "^[ \t]*∇[ \t]*$" nil t)
-      (beginning-of-line)
+      (goto-char (line-beginning-position))
     (goto-char (point-max))))
 
 ;;;
 ;;;  Company support
 ;;;
 
-(defun company-gnu-apl (command &optional arg &rest ignored)
+(declare-function company-begin-backend "company")
+(defun company-gnu-apl (command &rest _)
   "Backend for for ‘company-mode’ for GNU APL."
   (interactive (list 'interactive))
   (cond ((eq command 'interactive)
          (company-begin-backend 'company-gnu-apl))
         ((or (eq command 'prefix) (eq command 'candidates))
          (let ((result (gnu-apl-expand-symbol)))
-           (case command
-             (prefix (if result (buffer-substring (first result) (second result)) nil))
-             (candidates (third result)))))
+           (cl-case command
+             (prefix (if result (buffer-substring (cl-first result) (cl-second result)) nil))
+             (candidates (cl-third result)))))
         ((eq command 'meta)
          nil)))
 
@@ -586,7 +574,7 @@ to ‘gnu-apl-executable’)."
       (setq gnu-apl-current-session buffer)
 
       (gnu-apl-interactive-mode)
-      (set-buffer-process-coding-system 'utf-8 'utf-8)
+      (set-process-coding-system (get-buffer-process (current-buffer)) 'utf-8 'utf-8)
       (when (and gnu-apl-native-communication (not gnu-apl-use-new-native-library))
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-start* "'"))
         (gnu-apl--send buffer (concat "'" gnu-apl-libemacs-location "' ⎕FX "
@@ -595,27 +583,13 @@ to ‘gnu-apl-executable’)."
         (gnu-apl--send buffer (concat "'" *gnu-apl-network-end* "'"))))
     (when gnu-apl-show-keymap-on-startup      (run-at-time "0 sec" nil #'(lambda () (gnu-apl-show-keyboard 1))))))
 
-;;;
-;;;  Load the other source files
-;;;
-
-(require 'gnu-apl-input)
-(require 'gnu-apl-interactive)
-(require 'gnu-apl-editor)
-(require 'gnu-apl-network)
-(require 'gnu-apl-spreadsheet)
-(require 'gnu-apl-plot)
-(require 'gnu-apl-follow)
-(require 'gnu-apl-refdocs-bsd-license)
-(require 'gnu-apl-documentation)
-(require 'gnu-apl-osx-workaround)
-
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.apl\\'" . gnu-apl-mode))
 
 ;;;###autoload
 (add-to-list 'interpreter-mode-alist '("apl" . gnu-apl-mode))
 
+(declare-function speedbar-add-supported-extension "speedbar")
 (with-eval-after-load 'speedbar
   (speedbar-add-supported-extension ".apl"))
 

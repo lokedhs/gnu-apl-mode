@@ -1,17 +1,68 @@
 ;;; -*- lexical-binding: t -*-
 
-(require 'cl)
+(require 'cl-lib)
 (require 'gnu-apl-util)
 (require 'gnu-apl-network)
+(require 'comint)
+(require 'xref)
+
+(declare-function gnu-apl--load-help "gnu-apl-mode" (&optional string))
+(declare-function gnu-apl--choose-variable "gnu-apl-editor"
+                  (prompt &optional type default-value))
+(declare-function gnu-apl--get-function "gnu-apl-editor"
+                  (function-definition))
+(declare-function gnu-apl--name-at-point "gnu-apl-show-keyboard" ())
+(declare-function gnu-apl--init-mode-common "gnu-apl-mode" ())
+(declare-function gnu-apl--parse-function-header "gnu-apl-mode" (string))
+
+(defvar gnu-apl--symbol-doc)                ;gnu-apl-refdocs-bsd-license.el
+(defvar gnu-apl--symbols)                   ;gnu-apl-symbols.el
+(defvar gnu-apl-auto-function-editor-popup) ;gnu-apl-mode.el
+(defvar gnu-apl-use-new-native-library)     ;gnu-apl-mode.el
+(defvar gnu-apl-mode-syntax-table)          ;gnu-apl-mode.el
+
+(defvar gnu-apl-input-display-type nil
+  "Current input display type.")
+(defvar gnu-apl-preoutput-filter-state nil
+  "Current state of the (pre)output filter.")
+(defvar gnu-apl--connection nil
+  "Process object for the current connection.")
 
 (defvar gnu-apl-current-session nil
-  "The buffer that holds the currently active GNU APL session,
-or NIL if there is no active session.")
+  "The buffer that holds the currently active GNU APL session.
+The value is nil if there is no active session.")
 
 (defvar gnu-apl-libemacs-location "libemacs"
   "The location of the native code library from the interpreter.
 This shouldn't normally need to be changed except when doing
 development of the native code.")
+
+(defun gnu-apl--make-key-command-sym (n)
+  (intern (concat "insert-sym-apl-" n)))
+
+(defun gnu-apl--make-base-mode-map (prefix)
+  (let ((map (make-sparse-keymap)))
+    (dolist (command gnu-apl--symbols)
+      (let ((key-sequence (caddr command)))
+        (dolist (s (if (listp key-sequence) key-sequence (list key-sequence)))
+          (define-key map (gnu-apl--kbd (concat prefix s)) (gnu-apl--make-key-command-sym (car command))))))
+    (define-key map (kbd (concat prefix "SPC")) 'gnu-apl-insert-spc)
+    (define-key map (kbd "C-c C-k") 'gnu-apl-show-keyboard)
+    (define-key map (kbd "C-c C-h") 'gnu-apl-show-help-for-symbol)
+    (define-key map (kbd "C-c C-a") 'gnu-apl-apropos-symbol)
+    (define-key map (kbd "C-M-a") 'gnu-apl-beginning-of-defun)
+    (define-key map (kbd "C-M-e") 'gnu-apl-end-of-defun)
+    (define-key map (kbd "M-.") 'gnu-apl-find-function-at-point)
+    (define-key map (kbd "C-c C-.") 'gnu-apl-trace)
+    (define-key map (kbd "C-c C-i") 'gnu-apl-finnapl-list)
+    (define-key map [menu-bar gnu-apl] (cons "APL" (make-sparse-keymap "APL")))
+    (define-key map [menu-bar gnu-apl toggle-keyboard] '("Toggle keyboard" . gnu-apl-show-keyboard))
+    (define-key map [menu-bar gnu-apl show-help-for-symbol] '("Documentation for symbol" . gnu-apl-show-help-for-symbol))
+    (define-key map [menu-bar gnu-apl apropos-symbol] '("Search symbols" . gnu-apl-apropos-symbol))
+    (define-key map [menu-bar gnu-apl find-symbol-at-point] '("Find symbol at point" . gnu-apl-find-function-at-point))
+    (define-key map [menu-bar gnu-apl trace] '("Trace variable" . gnu-apl-trace))
+    (define-key map [menu-bar gnu-apl finnapl-list] '("FinnAPL idioms list" . gnu-apl-finnapl-list))
+    map))
 
 (defun gnu-apl-interactive-send-string (string &optional file line)
   "Send STRING to the current active interpreter.
@@ -52,13 +103,13 @@ code was read from."
   "Filter for any commands that are sent to comint."
   (let* ((trimmed (gnu-apl--trim-spaces string)))
     (cond ((and gnu-apl-auto-function-editor-popup
-                (plusp (length trimmed))
-                (string= (subseq trimmed 0 1) "∇"))
+                (cl-plusp (length trimmed))
+                (string= (cl-subseq trimmed 0 1) "∇"))
            ;; The command is a function definition command
-           (unless (gnu-apl--parse-function-header (subseq trimmed 1))
+           (unless (gnu-apl--parse-function-header (cl-subseq trimmed 1))
              (user-error "Error when parsing function definition command"))
            (unwind-protect
-               (gnu-apl--get-function (gnu-apl--trim-spaces (subseq string 1)))
+               (gnu-apl--get-function (gnu-apl--trim-spaces (cl-subseq string 1)))
              (let ((buffer (process-buffer proc)))
                (with-current-buffer buffer
                  (let ((inhibit-read-only t))
@@ -75,51 +126,49 @@ code was read from."
            (comint-simple-send proc string)))))
 
 (defun gnu-apl--set-face-for-parsed-text (start end mode string)
-  (case mode
+  (cl-case mode
     (cerr (add-text-properties start end '(font-lock-face gnu-apl-error) string))
     (uerr (add-text-properties start end '(font-lock-face gnu-apl-user-status-text) string))))
 
 (defun gnu-apl--parse-text (string)
   (let ((tags nil))
     (let ((result (with-output-to-string
-                    (loop with current-mode = gnu-apl-input-display-type
-                          with pos = 0
-                          for i from 0 below (length string)
-                          for char = (aref string i)
-                          for newmode = (case char
-                                          (#xf00c0 'cin)
-                                          (#xf00c1 'cout)
-                                          (#xf00c2 'cerr)
-                                          (#xf00c3 'uerr)
-                                          (t nil))
-                          if (and newmode (not (eq current-mode newmode)))
-                          do (progn
-                               (push (list pos newmode) tags)
-                               (setq current-mode newmode))
-                          unless newmode
-                          do (progn
-                               (princ (char-to-string char))
-                               (incf pos))))))
+                    (cl-loop with current-mode = gnu-apl-input-display-type
+                             with pos = 0
+                             for i from 0 below (length string)
+                             for char = (aref string i)
+                             for newmode = (cl-case char
+                                             (#xf00c0 'cin)
+                                             (#xf00c1 'cout)
+                                             (#xf00c2 'cerr)
+                                             (#xf00c3 'uerr)
+                                             (t nil))
+                             if (and newmode (not (eq current-mode newmode)))
+                             do (progn
+                                  (push (list pos newmode) tags)
+                                  (setq current-mode newmode))
+                             unless newmode
+                             do (progn
+                                  (princ (char-to-string char))
+                                  (cl-incf pos))))))
       (let ((prevmode gnu-apl-input-display-type)
             (prevpos 0))
-        (loop for v in (reverse tags)
-              for newpos = (car v)
-              unless (= prevpos newpos)
-              do (gnu-apl--set-face-for-parsed-text prevpos newpos prevmode result)
-              do (progn
-                   (setq prevpos newpos)
-                   (setq prevmode (cadr v))))
+        (cl-loop for v in (reverse tags)
+                 for newpos = (car v)
+                 unless (= prevpos newpos)
+                 do (gnu-apl--set-face-for-parsed-text prevpos newpos prevmode result)
+                 do (progn
+                      (setq prevpos newpos)
+                      (setq prevmode (cadr v))))
         (unless (= prevpos (length result))
           (gnu-apl--set-face-for-parsed-text prevpos (length result) prevmode result))
         (setq gnu-apl-input-display-type prevmode)
         result))))
 
-(defun gnu-apl--erase-and-set-function (name content)
+(defun gnu-apl--erase-and-set-function (name _content)
   (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-start* "'"))
   (gnu-apl-interactive-send-string (concat ")ERASE " name))
-  (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-end* "'"))
-  (setq gnu-apl-function-content-lines (split-string content "\n"))
-  (gnu-apl-interactive-send-string (concat "'" *gnu-apl-send-content-start* "'")))
+  (gnu-apl-interactive-send-string (concat "'" *gnu-apl-ignore-end* "'")))
 
 (defun gnu-apl--output-disconnected-message (output-fn)
   (funcall output-fn "The GNU APL environment has been started, but the Emacs mode was
@@ -147,7 +196,7 @@ function editor.
                   (add-to-result command)))
       (dolist (plain (split-string line "\n"))
         (let ((command (gnu-apl--parse-text plain)))
-          (ecase gnu-apl-preoutput-filter-state
+          (cl-ecase gnu-apl-preoutput-filter-state
             ;; Default parse state
             (normal
              (cond ((string-match (regexp-quote *gnu-apl-ignore-start*) command)
@@ -158,8 +207,7 @@ function editor.
                     (setq gnu-apl-preoutput-filter-state 'native))
 
                    ((and gnu-apl-use-new-native-library
-                         (or (not (boundp 'gnu-apl--connection))
-                             (not (process-live-p gnu-apl--connection)))
+                         (not (process-live-p gnu-apl--connection))
                          (string-match (concat "Network listener started.*"
                                                "mode:\\([a-z]+\\) "
                                                "addr:\\([a-zA-Z0-9_/]+\\)")
@@ -180,9 +228,7 @@ function editor.
             ;; Initialising native code
             (native
              (cond ((string-match (regexp-quote *gnu-apl-network-end*) command)
-                    (unless (and (boundp 'gnu-apl--connection)
-                                 gnu-apl--connection
-                                 (process-live-p gnu-apl--connection))
+                    (unless (process-live-p gnu-apl--connection)
                       (gnu-apl--output-disconnected-message #'add-to-result))
                     (setq gnu-apl-preoutput-filter-state 'normal))
                    ((string-match (concat "Network listener started.*"
@@ -195,6 +241,10 @@ function editor.
                    (t
                     (add-to-result command))))))))
     result))
+
+(defvar gnu-apl-interactive-mode-map)
+
+(defvar gnu-apl-interactive-mode-map-prefix "s-")
 
 (defun gnu-apl--make-interactive-mode-map ()
   (let ((map (gnu-apl--make-base-mode-map gnu-apl-interactive-mode-map-prefix)))
@@ -213,10 +263,11 @@ function editor.
   (setq gnu-apl-interactive-mode-map (gnu-apl--make-interactive-mode-map)))
 
 (defcustom gnu-apl-interactive-mode-map-prefix "s-"
-  "The keymap prefix for ‘gnu-apl-interactive-mode-map’ used both to store the new value
-using ‘set-create’ and to update ‘gnu-apl-interactive-mode-map’ using
-‘gnu-apl--make-interactive-mode-map’. Kill and re-start your interactive APL
-buffers to reflect the change."
+  "The keymap prefix for `gnu-apl-interactive-mode-map'.
+It is used both to store the new value using ‘set-create’ and to
+update ‘gnu-apl-interactive-mode-map’ using
+‘gnu-apl--make-interactive-mode-map’.  Kill and re-start your
+interactive APL buffers to reflect the change."
   :type 'string
   :group 'gnu-apl
   :set 'gnu-apl--set-interactive-mode-map-prefix)
@@ -257,7 +308,7 @@ buffers to reflect the change."
           "allows you to input APL symbols by prefixing the key with a \".\" (period).\n\n"
           "There are several ")
   (insert-button "customisation"
-                 'action #'(lambda (event) (customize-group 'gnu-apl t))
+                 'action #'(lambda (_event) (customize-group 'gnu-apl t))
                  'follow-link t)
   (insert " options that can be set.\n"
           "Click the link or run M-x customize-group RET gnu-apl to set up.\n\n"
@@ -279,7 +330,7 @@ buffers to reflect the change."
             (cond ((string-match "^\\(.*\\):\\([0-9]+\\)$" reference)
                    (let ((file (match-string 1 reference))
                          (line-num (string-to-number (match-string 2 reference))))
-                     (ring-insert find-tag-marker-ring (point-marker))
+                     (xref-push-marker-stack)
                      (let ((buffer (find-buffer-visiting file)))
                        (if buffer
                            (let ((window (get-buffer-window buffer)))

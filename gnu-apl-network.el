@@ -1,7 +1,14 @@
 ;;; -*- lexical-binding: t -*-
 
-(require 'cl)
+(require 'cl-lib)
 (require 'gnu-apl-util)
+
+(declare-function gnu-apl--get-interactive-session "gnu-apl-interactive" ())
+(declare-function gnu-apl--trace-symbol-updated "gnu-apl-follow" (content))
+(declare-function gnu-apl--trace-symbol-erased "gnu-apl-follow" (varname))
+(declare-function gnu-apl--trace-symbol-erased "gnu-apl-follow" (varname))
+
+(defvar gnu-apl--connection)            ;gnu-apl-interactive.el
 
 (defvar *gnu-apl-end-tag* "APL_NATIVE_END_TAG")
 (defvar *gnu-apl-notification-start* "APL_NATIVE_NOTIFICATION_START")
@@ -9,7 +16,15 @@
 (defvar *gnu-apl-protocol* "1.5")
 (defvar *gnu-apl-remote-protocol* nil
   "The received version of a protocol on GNU APL side")
+(defvar gnu-apl--incoming-state nil
+  "Current state of the input parser.")
+(defvar gnu-apl--notifications nil
+  "List of events caused by the parser.")
+(defvar gnu-apl--results nil
+  "List of evaluation results.")
 
+(defvar gnu-apl--current-incoming nil
+  "Current input as a string.")
 
 ;;; We really should be using define-error here, but that function is
 ;;; new in 24.4 and thus is not generally available yet. This should
@@ -43,8 +58,7 @@ connect mode in use."
 
 (defun gnu-apl--connect (connect-mode addr)
   (with-current-buffer (gnu-apl--get-interactive-session)
-    (when (and (boundp 'gnu-apl--connection)
-               (process-live-p gnu-apl--connection))
+    (when (process-live-p gnu-apl--connection)
       (error "Connection is already established"))
     (condition-case err
         (let ((proc (gnu-apl--connect-to-remote connect-mode addr)))
@@ -57,7 +71,7 @@ connect mode in use."
           (set-process-filter proc 'gnu-apl--filter-network))
       ;; TODO: Error handling is pretty poor right now
       ('file-error (error "err:%S type:%S" err (type-of err))))
-    (condition-case err
+    (condition-case nil
         (let ((version (gnu-apl--send-network-command-and-read "proto")))
           (unless (gnu-apl--protocol-acceptable-p (car version))
             (error "GNU APL version too old (%s). Please upgrade to at least %s" (car version) *gnu-apl-protocol*))
@@ -73,13 +87,13 @@ connect mode in use."
           (t
            (error "Unexpected notificationt type: %s" type)))))
 
-(defun gnu-apl--filter-network (proc output)
+(defun gnu-apl--filter-network (_proc output)
   (with-current-buffer (gnu-apl--get-interactive-session)
     (setq gnu-apl--current-incoming (concat gnu-apl--current-incoming output))
-    (loop with start = 0
+    (cl-loop with start = 0
           for pos = (cl-position ?\n gnu-apl--current-incoming :start start)
           while pos
-          do (let ((s (subseq gnu-apl--current-incoming start pos)))
+          do (let ((s (cl-subseq gnu-apl--current-incoming start pos)))
                (setq start (1+ pos))
 
                (cond ((string= s *gnu-apl-notification-start*)
@@ -99,8 +113,8 @@ connect mode in use."
                      (t
                       (error "Illegal state"))))
 
-          finally (when (plusp start)
-                    (setq gnu-apl--current-incoming (subseq gnu-apl--current-incoming start))))))
+          finally (when (cl-plusp start)
+                    (setq gnu-apl--current-incoming (cl-subseq gnu-apl--current-incoming start))))))
 
 (defun gnu-apl--send-network-command-and-read (command)
   (gnu-apl--send-network-command command)
@@ -117,7 +131,7 @@ connect mode in use."
 
 (defun gnu-apl--read-network-reply ()
   (with-current-buffer (gnu-apl--get-interactive-session)
-    (loop while (and (null gnu-apl--results) (process-live-p gnu-apl--connection))
+    (cl-loop while (and (null gnu-apl--results) (process-live-p gnu-apl--connection))
           do (accept-process-output gnu-apl--connection 3))
     (unless gnu-apl--results
       (signal 'gnu-apl-network-proto-error 'disconnected))
@@ -125,7 +139,7 @@ connect mode in use."
       value)))
 
 (defun gnu-apl--read-network-reply-block ()
-  (loop for line = (gnu-apl--read-network-reply)
+  (cl-loop for line = (gnu-apl--read-network-reply)
         while (not (string= line *gnu-apl-end-tag*))
         collect line))
 
