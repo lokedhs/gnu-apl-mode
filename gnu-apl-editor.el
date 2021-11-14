@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t -*-
+;;; gnu-apl-editor.el --- Editing GNU APL -*- lexical-binding: t -*-
+
+;; Copyright (C) 2013-2015 Elias Mårtenson
+
+;;; Code:
 
 (require 'cl-lib)
 (require 'gnu-apl-util)
@@ -271,3 +275,4 @@ characters."
     (read-only-mode 1)))
 
 (provide 'gnu-apl-editor)
+;;; gnu-apl-editor.el ends here

@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t -*-
+;;; gnu-apl-interactive.el --- Networking support for GNU APL -*- lexical-binding: t -*-
+
+;; Copyright (C) 2013-2015 Elias Mårtenson
+
+;;; Code:
 
 (require 'cl-lib)
 (require 'gnu-apl-util)
@@ -144,3 +148,4 @@ connect mode in use."
         collect line))
 
 (provide 'gnu-apl-network)
+;;; gnu-apl-network.el ends here

@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t -*-
+;;; gnu-apl-refdocs-bsd-license.el --- GNU APL symbol documentation -*- lexical-binding: t -*-
+
+;; Copyright (C) 2013-2015 Elias Mårtenson
+
+;;; Code:
 
 (require 'cl-lib)
 (require 'gnu-apl-util)
@@ -390,3 +394,4 @@ of the monadic operator, name of the dyadic operator, description
 of the dyadic operator, extra documentation.")
 
 (provide 'gnu-apl-refdocs-bsd-license)
+;;; gnu-apl-refdocs-bsd-license.el ends here

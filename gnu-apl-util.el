@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t -*-
+;;; gnu-apl-util.el --- Utility functionality for `gnu-apl-mode' -*- lexical-binding: t -*-
+
+;; Copyright (C) 2013-2015 Elias Mårtenson
+
+;;; Code:
 
 (require 'cl-lib)
 
@@ -87,3 +91,4 @@
     (apply #'cl-remove-if-not args)))
 
 (provide 'gnu-apl-util)
+;;; gnu-apl-util.el ends here

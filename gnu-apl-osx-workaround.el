@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t -*-
+;;; gnu-apl-osx-workaround.el.el --- GNU APL support for OSX -*- lexical-binding: t -*-
+
+;; Copyright (C) 2013-2015 Elias Mårtenson
+
+;;; Code:
 
 (require 'cl-lib)
 (require 'gnu-apl-util)
@@ -13,3 +17,4 @@
   (set-fontset-font t '(#x2500 . #x2594) (font-spec :family spec)))
 
 (provide 'gnu-apl-osx-workaround)
+;;; gnu-apl-osx-workaround.el ends here

@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t -*-
+;;; gnu-apl-interactive.el --- Interaction support for GNU APL -*- lexical-binding: t -*-
+
+;; Copyright (C) 2013-2015 Elias Mårtenson
+
+;;; Code:
 
 (require 'cl-lib)
 (require 'gnu-apl-util)
@@ -352,3 +356,4 @@ interactive APL buffers to reflect the change."
     (goto-char (point-max))))
 
 (provide 'gnu-apl-interactive)
+;;; gnu-apl-interactive.el ends here

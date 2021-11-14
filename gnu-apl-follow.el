@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t -*-
+;;; gnu-apl-follow.el --- GNU APL Tracing support -*- lexical-binding: t -*-
+
+;; Copyright (C) 2013-2015 Elias Mårtenson
+
+;;; Code:
 
 (require 'cl-lib)
 (require 'gnu-apl-util)
@@ -134,3 +138,4 @@ content."
         (switch-to-buffer-other-window b)))))
 
 (provide 'gnu-apl-follow)
+;;; gnu-apl-follow.el ends here

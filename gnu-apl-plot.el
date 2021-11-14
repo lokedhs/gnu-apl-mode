@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t -*-
+;;; gnu-apl-plot.el --- Plotting support for GNU APL -*- lexical-binding: t -*-
+
+;; Copyright (C) 2013-2015 Elias Mårtenson
+
+;;; Code:
 
 (require 'cl-lib)
 (require 'gnu-apl-util)
@@ -123,3 +127,4 @@ dimension of the exported data as a list of the form (ROWS COLS)"
     (shell-command (format "%s -p %s" gnu-apl-gnuplot-program script-file))))
 
 (provide 'gnu-apl-plot)
+;;; gnu-apl-plot.el ends here
