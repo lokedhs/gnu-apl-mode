@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t -*-
+;;; gnu-apl-input.el --- Input method for GNU APL -*- lexical-binding: t -*-
+
+;; Copyright (C) 2013-2015 Elias Mårtenson
+
+;;; Code:
 
 (require 'cl-lib)
 (require 'quail)
@@ -48,3 +52,4 @@
   :set #'gnu-apl--update-key-prefix)
 
 (provide 'gnu-apl-input)
+;;; gnu-apl-input.el ends here

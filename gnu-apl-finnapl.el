@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t -*-
+;;; gnu-apl-finnapl.el --- FinnAPL support -*- lexical-binding: t -*-
+
+;; Copyright (C) 2013-2015 Elias Mårtenson
+
+;;; Code:
 
 (require 'cl-lib)
 (require 'tabulated-list)
@@ -261,3 +265,4 @@ https://aplwiki.com/FinnAplIdiomLibrary"
 
 
 (provide 'gnu-apl-finnapl)
+;;; gnu-apl-finnapl.el ends here

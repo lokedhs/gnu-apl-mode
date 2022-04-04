@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t -*-
+;;; gnu-apl-spreadsheet.el --- Spreadsheet support for GNU APL -*- lexical-binding: t -*-
+
+;; Copyright (C) 2013-2015 Elias Mårtenson
+
+;;; Code:
 
 (require 'cl-lib)
 (require 'gnu-apl-util)
@@ -155,3 +159,4 @@ content of the spreadsheet in this buffer."
       (princ (format "%s←(%d %d)⍴%s" var-name rows cols var-name)))))
 
 (provide 'gnu-apl-spreadsheet)
+;;; gnu-apl-spreadsheet.el ends here

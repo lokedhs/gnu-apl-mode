@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t -*-
+;;; gnu-apl-symbols.el --- List of GNU APL Symbols -*- lexical-binding: t -*-
+
+;; Copyright (C) 2013-2015 Elias Mårtenson
+
+;;; Code:
 
 (require 'cl-lib)
 (require 'quail)
@@ -162,3 +166,4 @@
                            ))
 
 (provide 'gnu-apl-symbols)
+;;; gnu-apl-symbols.el ends here
